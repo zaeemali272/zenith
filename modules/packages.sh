@@ -6,12 +6,17 @@ get_list() {
     local source=$2
     local json_file="$DOTS_DIR/pkgs/packages.json"
     
+    if ! command -v jq &>/dev/null; then
+        log_error "jq is not installed! Cannot read package list."
+        return 1
+    fi
+
     if [[ -f "$json_file" ]]; then
         # Use jq to get the array for the group and source, then convert to space-separated string
         local pkgs=$(jq -r ".[\"$group\"].$source[]" "$json_file" 2>/dev/null | xargs)
         echo "$pkgs"
     else
-        log_error "packages.json not found!"
+        log_error "packages.json not found at $json_file!"
         echo ""
     fi
 }
@@ -131,8 +136,15 @@ install_minimal_packages() {
     log_step "🔄 Updating system databases..."
     sudo pacman -Syu --noconfirm || log_warn "System update failed, continuing anyway..."
 
+    # Ensure essentials for the script itself
+    sudo pacman -S --needed --noconfirm jq rsync git || log_error "Failed to install script essentials (jq, rsync, git)."
+
     # Ensure AUR helper is available early
     ensure_yay || log_warn "Failed to install yay. AUR packages might fail."
+
+    # Priority: Graphical Core (Ensures Hyprland is attempted early)
+    log_step "🖥️ Installing Graphical Core essentials..."
+    install_pkgs "hyprland" "hypridle" "hyprlock" "xdg-desktop-portal-hyprland" "kitty" "fish" "thunar"
 
     # Core system components
     install_group "core"
