@@ -24,6 +24,7 @@ export SKIP_EXTRAS=0
 export SKIP_FONTS=0
 export SKIP_SCRIPTS=0
 export AUTO_INSTALL=0
+export JSON_OUTPUT=0
 
 # Parse Arguments
 for arg in "$@"; do
@@ -35,6 +36,7 @@ for arg in "$@"; do
         --no-fonts) export SKIP_FONTS=1 ;;
         --no-scripts) export SKIP_SCRIPTS=1 ;;
         --auto|--unattended) export AUTO_INSTALL=1 ;;
+        --json) export JSON_OUTPUT=1 ;;
     esac
 done
 

@@ -113,8 +113,21 @@ set_fish_shell() {
 setup_xdg_dirs() {
     log_step "📁 Ensuring XDG directories..."
     sudo pacman -S --needed --noconfirm xdg-user-dirs || log_error "Failed to install xdg-user-dirs"
+    
+    # Explicitly create common user directories
+    mkdir -p "$HOME"/{Documents,Downloads,Pictures,Videos,Music,Games}
+    
+    # Update XDG directories based on the config file in .config (if synced already)
     xdg-user-dirs-update
-    log_success "XDG directories updated."
+    
+    # Sync Wallpapers specifically to ensure they are present in the new Pictures dir
+    if [[ -d "$DOTS_DIR/Pictures/Wallpapers" ]]; then
+        log_step "🖼️ Copying wallpapers to ~/Pictures/Wallpapers..."
+        mkdir -p "$HOME/Pictures/Wallpapers"
+        cp -r "$DOTS_DIR/Pictures/Wallpapers/." "$HOME/Pictures/Wallpapers/"
+    fi
+    
+    log_success "XDG directories and wallpapers updated."
 }
 
 setup_post_boot_service() {

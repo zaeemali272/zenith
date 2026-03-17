@@ -2,6 +2,7 @@
 set -euo pipefail
 
 export DOTS_DIR="$HOME/Documents/Linux/Dots/zenith"
+export JSON_OUTPUT=0
 
 # Load Modules
 for f in "$DOTS_DIR/modules/"*.sh; do 

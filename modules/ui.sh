@@ -42,7 +42,7 @@ print_header() {
 }
 
 log_step() {
-    if [[ "$JSON_OUTPUT" == "true" ]]; then
+    if [[ "$JSON_OUTPUT" == "true" || "$JSON_OUTPUT" == "1" ]]; then
         echo "{\"type\": \"task\", \"message\": \"$*\"}"
     else
         echo -e "${BLUE}${BOLD}[STEP]${NC} ${WHITE}$*${NC}"
@@ -50,7 +50,7 @@ log_step() {
 }
 
 log() {
-    if [[ "$JSON_OUTPUT" == "true" ]]; then
+    if [[ "$JSON_OUTPUT" == "true" || "$JSON_OUTPUT" == "1" ]]; then
         echo "{\"type\": \"log\", \"level\": \"info\", \"message\": \"$*\"}"
     else
         echo -e "${BLUE}  ➜${NC} ${WHITE}$*${NC}"
@@ -58,7 +58,7 @@ log() {
 }
 
 log_success() {
-    if [[ "$JSON_OUTPUT" == "true" ]]; then
+    if [[ "$JSON_OUTPUT" == "true" || "$JSON_OUTPUT" == "1" ]]; then
         echo "{\"type\": \"log\", \"level\": \"success\", \"message\": \"$*\"}"
     else
         echo -e "${GREEN}${BOLD}[OK]${NC} ${WHITE}$*${NC}"
@@ -66,7 +66,7 @@ log_success() {
 }
 
 log_warn() {
-    if [[ "$JSON_OUTPUT" == "true" ]]; then
+    if [[ "$JSON_OUTPUT" == "true" || "$JSON_OUTPUT" == "1" ]]; then
         echo "{\"type\": \"log\", \"level\": \"warn\", \"message\": \"$*\"}"
     else
         echo -e "${YELLOW}${BOLD}[WARN]${NC} ${YELLOW}$*${NC}"
@@ -75,7 +75,7 @@ log_warn() {
 
 log_error() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] ERR: $*" >> "$ERROR_LOG"
-    if [[ "$JSON_OUTPUT" == "true" ]]; then
+    if [[ "$JSON_OUTPUT" == "true" || "$JSON_OUTPUT" == "1" ]]; then
         echo "{\"type\": \"log\", \"level\": \"error\", \"message\": \"$*\"}"
     else
         echo -e "${RED}${BOLD}[ERR]${NC} ${RED}$*${NC}"
@@ -91,7 +91,7 @@ show_progress() {
 
     if [[ $total -eq 0 ]]; then return; fi
 
-    if [[ "$JSON_OUTPUT" == "true" ]]; then
+    if [[ "$JSON_OUTPUT" == "true" || "$JSON_OUTPUT" == "1" ]]; then
         local progress=$(awk "BEGIN {printf \"%.2f\", $current / $total}")
         echo "{\"type\": \"progress\", \"value\": $progress, \"message\": \"$label ($current/$total)\"}"
     else
