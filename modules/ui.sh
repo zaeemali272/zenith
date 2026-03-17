@@ -129,3 +129,24 @@ ask_choice() {
         echo -e "${RED}Invalid selection. Please try again.${NC}"
     done
 }
+
+installation_summary() {
+    local type=$1
+    clear
+    print_header
+    echo -e "${GREEN}${BOLD}✅ Zenith Installation Complete!${NC}"
+    echo -e "\n${CYAN}Summary of changes:${NC}"
+    echo -e "  ➜ Mode: ${WHITE}$type${NC}"
+    echo -e "  ➜ User: ${WHITE}$USER${NC}"
+    echo -e "  ➜ Shell: ${WHITE}$(command -v fish || echo "bash")${NC}"
+    echo -e "  ➜ Environment: ${WHITE}Hyprland${NC}"
+    
+    if [[ "$type" == "Full" ]]; then
+        echo -e "  ➜ System Tuning: ${GREEN}Applied${NC}"
+        echo -e "  ➜ Dotfiles Sync: ${GREEN}Success${NC}"
+        echo -e "  ➜ Services: ${GREEN}Configured${NC}"
+    fi
+
+    echo -e "\n${YELLOW}${BOLD}The system will reboot shortly to apply all changes.${NC}"
+    echo -e "${WHITE}If Hyprland doesn't start automatically, log in and type 'Hyprland'.${NC}"
+}

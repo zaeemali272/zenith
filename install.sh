@@ -155,10 +155,11 @@ minimal_install() {
     detect_hardware
     install_minimal_packages
     sync_dotfiles
+    set_fish_shell
     setup_post_boot_service
     setup_autologin
 
-    log_success "Minimal installation complete! Please reboot to continue the installation."
+    installation_summary "Minimal"
     echo -e "\n${YELLOW}${BOLD}Rebooting in 10s... (Press Ctrl+C to cancel)${NC}"
     sleep 10 && sudo reboot
 }
@@ -180,7 +181,7 @@ full_install() {
     optimize_bootloader
     [[ "$SKIP_SCRIPTS" -eq 0 ]] && run_optional_scripts
     
-    log_success "Full Protocol Complete! Enjoy Zenith."
+    installation_summary "Full"
     echo -e "\n${YELLOW}${BOLD}Rebooting in 10s... (Press Ctrl+C to cancel)${NC}"
     sleep 10 && sudo reboot
 }

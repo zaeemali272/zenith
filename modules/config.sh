@@ -13,6 +13,33 @@ setup_quickshell() {
     fi
 }
 
+# Function to setup extra themes
+setup_extra_themes() {
+    if [[ "$SKIP_THEMES" -eq 1 ]]; then
+        log "Skipping extra themes as per flag."
+        return
+    fi
+
+    log_step "🎨 Setting up Dynamic Materia Dark theme..."
+    local theme_url="https://github.com/zaeemali272/dynamic-materia-dark.git"
+    local theme_name="dynamic-materia-dark"
+    local theme_path="$DOTS_DIR/$theme_name"
+    local themes_dest="$DOTS_DIR/.themes"
+
+    if [[ ! -d "$theme_path" ]]; then
+        log "Cloning $theme_name..."
+        git clone "$theme_url" "$theme_path" || { log_error "Failed to clone theme repo"; return; }
+    else
+        log "Updating $theme_name..."
+        pushd "$theme_path" >/dev/null && git pull && popd >/dev/null
+    fi
+
+    log "Copying $theme_name into $themes_dest..."
+    mkdir -p "$themes_dest"
+    cp -r "$theme_path" "$themes_dest/"
+    log_success "Theme setup complete."
+}
+
 # Function to optimize ZRAM (Perfection/Speed)
 setup_zram() {
     log_step "🚀 Configuring ZRAM for lightning speed..."
@@ -57,6 +84,8 @@ sanitize_dotfiles() {
 sync_dotfiles() {
     log_step "📁 Syncing configs..."
     
+    setup_extra_themes
+
     # Sync .config
     if [[ -d "$DOTS_DIR/.config" ]]; then
         mkdir -p "$HOME/.config"
