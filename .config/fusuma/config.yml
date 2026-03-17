@@ -1,0 +1,31 @@
+swipe:
+  3:
+    left:
+      sendkey: "PREVIOUSSONG"
+    right:
+      sendkey: "NEXTSONG"
+    up:
+      command: "~/.config/hypr/hyprland/scripts/osd.sh volume up"
+    down:
+      command: "~/.config/hypr/hyprland/scripts/osd.sh volume down"
+  4:
+    up:
+      command: "~/.config/hypr/hyprland/scripts/osd.sh brightness up"
+    down:
+      command: "~/.config/hypr/hyprland/scripts/osd.sh brightness down"
+hold:
+  3:
+    sendkey: "PLAYPAUSE"
+pinch:
+  in:
+    3:
+    command: "~/.config/hypr/hyprland/scripts/osd.sh volume mute"
+threshold:
+  swipe: 1.0
+  pinch: 1
+  hold: 0
+
+interval:
+  swipe: 0.15
+  pinch: 1
+  hold: 0.5

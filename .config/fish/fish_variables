@@ -1,0 +1,8 @@
+# This file contains fish universal variable definitions.
+# VERSION: 3.0
+SETUVAR --export GTK_ICON_THEME:OneUi\x2dDark
+SETUVAR --export GTK_THEME:dynamic\x2dmateria\x2ddark
+SETUVAR --export QT_QPA_PLATFORMTHEME:qt5ct
+SETUVAR --export QT_STYLE_OVERRIDE:kvantum\x2ddark
+SETUVAR __fish_initialized:4300
+SETUVAR fish_user_paths:/home/zaeem/\x2elocal/bin\x1e/home/zaeem/\x2ecargo/bin

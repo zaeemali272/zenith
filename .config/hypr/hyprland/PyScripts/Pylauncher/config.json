@@ -1,0 +1,22 @@
+{
+  "window_width": 1800,
+  "window_height": 900,
+  "transparent": true,
+  "blur": true,
+  "floating": true,
+  "icon_size": 64,
+  "font_size": 12,
+  "apps_spacing": 20,
+  "apps_padding": 10,
+  "show_labels": true,
+  "show_search": false,
+  "search_height": 30,
+  "search_width": 80,
+  "show_workspaces": true,
+  "workspace_width": 120,
+  "workspace_item_height": 40,
+  "favorites": ["firefox.desktop", "org.gnome.Terminal.desktop"],
+  "background_opacity": 1,
+  "app_background": "rgba(0,0,0,1)",
+  "hide_no_icon_apps": true
+}

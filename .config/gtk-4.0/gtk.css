@@ -1,0 +1,27 @@
+* {
+  accent-color: #ff8537 !important;
+}
+
+/* Entry selection background */
+.nemo-window .nemo-window-pane widget.entry:selected {
+  background-color: #711884 !important;
+}
+
+/* Treeview disk full color */
+.places-treeview {
+  -NemoPlacesTreeView-disk-full-fg-color: #00000A !important;
+}
+
+/* Buttons and selection highlights */
+.button,
+.view .selection {
+  background-color: #00000A !important;
+}
+
+.button:hover {
+  background-color: #871742 !important;
+}
+
+/* Theme-defined selection colors */
+@define-color theme_selected_bg_color #00000A !important;
+@define-color theme_unfocused_selected_bg_color #00000A !important;

@@ -1,0 +1,148 @@
+{
+    "drivers": {
+        "pacman": [
+            "acpi",
+            "acpi_call",
+            "nss-mdns",
+            "sof-firmware",
+            "tlp"
+        ],
+        "aur": []
+    },
+    "extras": {
+        "pacman": [
+            "kdeconnect",
+            "obsidian",
+            "yt-dlp"
+        ],
+        "aur": [
+            "gallery-dl",
+            "tor-browser-bin",
+            "youtube-music-bin"
+        ]
+    },
+    "recommended": {
+        "pacman": [],
+        "aur": [
+            "freedownloadmanager",
+            "visual-studio-code-bin",
+            "zen-browser-bin"
+        ]
+    },
+    "themes": {
+        "pacman": [
+            "kvantum",
+            "kvantum-qt5",
+            "kvantum-theme-materia",
+            "materia-gtk-theme"
+        ],
+        "aur": [
+            "bibata-cursor-theme",
+            "illogical-impulse-oneui4-icons-git"
+        ]
+    },
+    "gaming": {
+        "pacman": [
+            "gamemode",
+            "goverlay",
+            "lutris",
+            "mangohud",
+            "steam",
+            "wine",
+            "winetricks"
+        ],
+        "aur": [
+            "protonup-qt"
+        ]
+    },
+    "fonts": {
+        "pacman": [
+            "noto-fonts",
+            "noto-fonts-cjk",
+            "noto-fonts-emoji",
+            "ttf-dejavu",
+            "ttf-jetbrains-mono-nerd",
+            "ttf-nerd-fonts-symbols"
+        ],
+        "aur": []
+    },
+    "aur": {
+        "pacman": [
+            "cliphist",
+            "eog",
+            "hyprshot",
+            "ncdu",
+            "xdotool"
+        ],
+        "aur": [
+            "anyrun",
+            "quickshell-git",
+            "rar",
+            "ruby-fusuma",
+            "ruby-fusuma-plugin-sendkey",
+            "ttf-material-icons-git",
+            "ttf-material-symbols-variable-git",
+            "wlogout"
+        ]
+    },
+    "core": {
+        "pacman": [
+            "base",
+            "base-devel",
+            "bluez",
+            "bluez-utils",
+            "brightnessctl",
+            "curl",
+            "eza",
+            "fd",
+            "ffmpeg",
+            "ffmpegthumbnailer",
+            "fish",
+            "git",
+            "glances",
+            "gnome-keyring",
+            "gst-libav",
+            "gst-plugins-bad",
+            "gst-plugins-good",
+            "gvfs",
+            "hypridle",
+            "hyprland",
+            "hyprlock",
+            "iwd",
+            "jq",
+            "kitty",
+            "nano",
+            "pavucontrol",
+            "pipewire",
+            "pipewire-alsa",
+            "pipewire-jack",
+            "pipewire-pulse",
+            "playerctl",
+            "polkit-gnome",
+            "qt6-5compat",
+            "qt6-base",
+            "qt6-declarative",
+            "qt6-svg",
+            "qt6-tools",
+            "ripgrep",
+            "rsync",
+            "starship",
+            "swww",
+            "thunar",
+            "thunar-archive-plugin",
+            "thunar-volman",
+            "tumbler",
+            "unzip",
+            "vlc",
+            "wf-recorder",
+            "wget",
+            "wireplumber",
+            "xdg-desktop-portal",
+            "xdg-desktop-portal-hyprland",
+            "xdg-user-dirs",
+            "zed",
+            "zip"
+        ],
+        "aur": []
+    }
+}

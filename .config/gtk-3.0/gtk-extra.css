@@ -1,0 +1,23 @@
+/* === Accent Override Patch === */
+
+button.suggested-action,
+button:checked,
+switch:checked,
+switch slider,
+scale highlight,
+progressbar progress,
+entry:focus,
+check:checked,
+radio:checked {
+    background-color: {{ colors[1] }} !important;
+    border-color: {{ colors[1] }} !important;
+    color: {{ foreground }} !important;
+}
+
+*:focus, *:hover, button:hover {
+    border-color: {{ colors[1] }} !important;
+}
+
+*:focus-visible {
+    outline-color: {{ colors[1] }} !important;
+}

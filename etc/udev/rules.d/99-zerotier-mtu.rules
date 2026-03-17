@@ -1,0 +1,1 @@
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="zt*", RUN+="/usr/bin/sh -c 'sleep 2; /usr/bin/ip link set dev %k mtu 1280'"

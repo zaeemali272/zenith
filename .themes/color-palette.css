@@ -1,0 +1,17 @@
+/* ------------------- base colours --------------------------- */
+@define-color normal   #DF5B14;
+@define-color light    #DF5B14;
+@define-color dark     #DF5B14;
+@define-color lighter  #DF5B14;
+@define-color accent   #DF5B14;
+@define-color hover    #DF5B14;
+@define-color warning  #DF5B14;
+
+@define-color normal_a3 rgba(223, 91, 20, 0.03);
+@define-color normal_a6 rgba(223, 91, 20, 0.06);
+@define-color normal_a8 rgba(223, 91, 20, 0.08);
+@define-color normal_a12 rgba(223, 91, 20, 0.12);
+@define-color normal_a16 rgba(223, 91, 20, 0.16);
+@define-color normal_a24 rgba(223, 91, 20, 0.24);
+@define-color normal_a26 rgba(223, 91, 20, 0.26);
+@define-color normal_a30 rgba(223, 91, 20, 0.30);

@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+
+# Colors
+export RED='\e[1;31m'
+export GREEN='\e[1;32m'
+export YELLOW='\e[1;33m'
+export BLUE='\e[1;34m'
+export MAGENTA='\e[1;35m'
+export CYAN='\e[1;36m'
+export WHITE='\e[1;37m'
+export BOLD='\e[1m'
+export NC='\e[0m' # No Color
+
+STATE_FILE="$HOME/.zenith_install_state"
+ERROR_LOG="$DOTS_DIR/zenith_install_error.log"
+declare -A RUN_STATE
+
+# Load existing state
+if [[ -f "$STATE_FILE" ]]; then
+    while IFS='=' read -r key val; do RUN_STATE["$key"]="$val"; done < "$STATE_FILE"
+fi
+
+mark_done() {
+    RUN_STATE["$1"]=1
+    echo "$1=1" >> "$STATE_FILE"
+}
+
+has_run() { [[ "${RUN_STATE[$1]:-0}" -eq 1 ]]; }
+
+# UI Functions
+print_header() {
+    clear
+    echo -e "${CYAN}${BOLD}"
+    echo "  ███████╗███████╗███╗   ██╗██╗████████╗██╗  ██╗"
+    echo "  ╚══███╔╝██╔════╝████╗  ██║██║╚══██╔══╝██║  ██║"
+    echo "    ███╔╝ █████╗  ██╔██╗ ██║██║   ██║   ███████║"
+    echo "   ███╔╝  ██╔══╝  ██║╚██╗██║██║   ██║   ██╔══██║"
+    echo "  ███████╗███████╗██║ ╚████║██║   ██║   ██║  ██║"
+    echo "  ╚══════╝╚══════╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝  ╚═╝"
+    echo -e "${NC}"
+    echo -e "${MAGENTA}━━━━ Arch Perfection Protocol ━━━━${NC}\n"
+}
+
+log_step() {
+    if [[ "$JSON_OUTPUT" == "true" ]]; then
+        echo "{\"type\": \"task\", \"message\": \"$*\"}"
+    else
+        echo -e "${BLUE}${BOLD}[STEP]${NC} ${WHITE}$*${NC}"
+    fi
+}
+
+log() {
+    if [[ "$JSON_OUTPUT" == "true" ]]; then
+        echo "{\"type\": \"log\", \"level\": \"info\", \"message\": \"$*\"}"
+    else
+        echo -e "${BLUE}  ➜${NC} ${WHITE}$*${NC}"
+    fi
+}
+
+log_success() {
+    if [[ "$JSON_OUTPUT" == "true" ]]; then
+        echo "{\"type\": \"log\", \"level\": \"success\", \"message\": \"$*\"}"
+    else
+        echo -e "${GREEN}${BOLD}[OK]${NC} ${WHITE}$*${NC}"
+    fi
+}
+
+log_warn() {
+    if [[ "$JSON_OUTPUT" == "true" ]]; then
+        echo "{\"type\": \"log\", \"level\": \"warn\", \"message\": \"$*\"}"
+    else
+        echo -e "${YELLOW}${BOLD}[WARN]${NC} ${YELLOW}$*${NC}"
+    fi
+}
+
+log_error() {
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] ERR: $*" >> "$ERROR_LOG"
+    if [[ "$JSON_OUTPUT" == "true" ]]; then
+        echo "{\"type\": \"log\", \"level\": \"error\", \"message\": \"$*\"}"
+    else
+        echo -e "${RED}${BOLD}[ERR]${NC} ${RED}$*${NC}"
+    fi
+}
+
+# Progress Bar Function
+# Usage: show_progress <current> <total> <label>
+show_progress() {
+    local current=$1
+    local total=$2
+    local label=$3
+
+    if [[ $total -eq 0 ]]; then return; fi
+
+    if [[ "$JSON_OUTPUT" == "true" ]]; then
+        local progress=$(awk "BEGIN {printf \"%.2f\", $current / $total}")
+        echo "{\"type\": \"progress\", \"value\": $progress, \"message\": \"$label ($current/$total)\"}"
+    else
+        local percent=$((current * 100 / total))
+        local filled=$((percent / 2))
+
+        # Generate bar without using seq (to avoid set -e issues with 0)
+        local bar=""
+        for ((i=0; i<filled; i++)); do bar+="#"; done
+
+        printf "\r${CYAN}${BOLD}[%-50s] %d%% ${WHITE}%s${NC}" "$bar" "$percent" "$label"
+        if [ "$current" -eq "$total" ]; then echo -e ""; fi
+    fi
+}
+
+
+# Interactive Menu
+ask_choice() {
+    local prompt=$1
+    shift
+    local options=("$@")
+    
+    echo -e "\n${BOLD}${CYAN}❓ $prompt${NC}"
+    for i in "${!options[@]}"; do
+        echo -e "  ${MAGENTA}$((i+1)))${NC} ${WHITE}${options[$i]}${NC}"
+    done
+    
+    local choice
+    while true; do
+        read -p "Select an option [1-${#options[@]}]: " choice
+        if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#options[@]} )); then
+            MENU_CHOICE=$((choice - 1))
+            return 0
+        fi
+        echo -e "${RED}Invalid selection. Please try again.${NC}"
+    done
+}

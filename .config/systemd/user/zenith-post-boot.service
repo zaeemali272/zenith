@@ -1,0 +1,11 @@
+[Unit]
+Description=Zenith Post-Boot Installer
+After=graphical-session.target
+
+[Service]
+ExecStart=%h/.config/hypr/post_boot.sh
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=graphical-session.target

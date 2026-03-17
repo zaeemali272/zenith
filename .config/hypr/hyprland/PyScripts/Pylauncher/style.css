@@ -1,0 +1,17 @@
+#launcher-window {
+    background-color: rgba(8, 8, 8, 0.9);
+    border-radius: 16px;
+    padding: 6px;
+    color: white;
+}
+
+button {
+    border-radius: 8px;
+    padding: 6px;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.selected-app {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
