@@ -213,4 +213,10 @@ setup_post_boot_service() {
     mkdir -p "$HOME/.config/hypr"
     echo "exec-once = $post_boot_script" > "$HOME/.config/hypr/autostart_once.conf"
     log_success "Post-boot autostart configured for Hyprland."
+
+    echo -e "\n${BLUE}================================================================${NC}"
+    echo -e "${YELLOW}NOTE:${NC} After reboot, a window should open to finish installation."
+    echo -e "If it doesn't open automatically, you can run it manually with:"
+    echo -e "  ${CYAN}bash $DOTS_DIR/scripts/post_boot_install.sh${NC}"
+    echo -e "${BLUE}================================================================${NC}\n"
 }
