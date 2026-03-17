@@ -34,9 +34,10 @@ setup_extra_themes() {
         pushd "$theme_path" >/dev/null && git pull && popd >/dev/null
     fi
 
-    log "Copying $theme_name into $themes_dest..."
-    mkdir -p "$themes_dest"
-    cp -r "$theme_path" "$themes_dest/"
+    log "Copying theme contents into $themes_dest/$theme_name..."
+    mkdir -p "$themes_dest/$theme_name"
+    # Using trailing slash on source and dest to ensure contents sync correctly
+    rsync -av --exclude=".git" "$theme_path/" "$themes_dest/$theme_name/"
     log_success "Theme setup complete."
 }
 
@@ -86,10 +87,38 @@ sync_dotfiles() {
     
     setup_extra_themes
 
+    local sync_option="backup"
+    echo -e "${YELLOW}Existing configuration files found in \$HOME.${NC}"
+    echo -e "How would you like to proceed?"
+    echo -e "  1) ${CYAN}Backup existing files${NC} (adds $BACKUP_SUFFIX extension) and overwrite"
+    echo -e "  2) ${RED}Just overwrite${NC} (no backups)"
+    echo -e "  3) ${GREEN}Skip already existing files${NC}"
+    
+    read -p "Select an option [1-3, default: 1]: " choice
+    case $choice in
+        2) sync_option="overwrite" ;;
+        3) sync_option="skip" ;;
+        *) sync_option="backup" ;;
+    esac
+
+    local rsync_args="-avh"
+    if [[ "$sync_option" == "backup" ]]; then
+        rsync_args="$rsync_args --backup --suffix=$BACKUP_SUFFIX"
+    elif [[ "$sync_option" == "skip" ]]; then
+        rsync_args="$rsync_args --ignore-existing"
+    fi
+
     # Sync .config
     if [[ -d "$DOTS_DIR/.config" ]]; then
         mkdir -p "$HOME/.config"
-        rsync -avh --backup --suffix="$BACKUP_SUFFIX" --exclude ".git" --exclude "README.md" --exclude "install.sh" "$DOTS_DIR/.config/" "$HOME/.config/"
+        # Sync standard configs
+        rsync $rsync_args --exclude ".git" --exclude "README.md" --exclude "install.sh" "$DOTS_DIR/.config/" "$HOME/.config/"
+        
+        # Explicitly ensure zenith-installer is synced if it exists (for post-boot UI)
+        if [[ -d "$DOTS_DIR/.config/zenith-installer" ]]; then
+            mkdir -p "$HOME/.config/zenith-installer"
+            rsync $rsync_args "$DOTS_DIR/.config/zenith-installer/" "$HOME/.config/zenith-installer/"
+        fi
     else
         log_warn ".config directory not found in $DOTS_DIR"
     fi
@@ -97,19 +126,19 @@ sync_dotfiles() {
     # Sync .themes
     if [[ -d "$DOTS_DIR/.themes" ]]; then
         mkdir -p "$HOME/.themes"
-        rsync -avh "$DOTS_DIR/.themes/" "$HOME/.themes/"
+        rsync $rsync_args "$DOTS_DIR/.themes/" "$HOME/.themes/"
     fi
 
     # Sync .local
     if [[ -d "$DOTS_DIR/.local" ]]; then
         mkdir -p "$HOME/.local"
-        rsync -avh "$DOTS_DIR/.local/" "$HOME/.local/"
+        rsync $rsync_args "$DOTS_DIR/.local/" "$HOME/.local/"
     fi
 
     # Sync Pictures (Wallpapers)
     if [[ -d "$DOTS_DIR/Pictures" ]]; then
         mkdir -p "$HOME/Pictures"
-        rsync -avh "$DOTS_DIR/Pictures/" "$HOME/Pictures/"
+        rsync $rsync_args "$DOTS_DIR/Pictures/" "$HOME/Pictures/"
     fi
 
     setup_quickshell
