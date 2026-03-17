@@ -122,31 +122,6 @@ run_optional_scripts() {
     done
 }
 
-# --- System Config Sync ---
-sync_etc_config() {
-    if [[ -d "$DOTS_DIR/etc" ]]; then
-        log_step "⚙️ Syncing system configurations to /etc..."
-        # Find files relative to DOTS_DIR/etc
-        pushd "$DOTS_DIR" >/dev/null
-        local files=($(find etc/ -type f))
-        local current=0
-        local total=${#files[@]}
-        
-        for file in "${files[@]}"; do
-            dest="/${file}"
-            sudo mkdir -p "$(dirname "$dest")"
-            sudo cp "$file" "$dest"
-            sudo chmod 644 "$dest"
-            current=$((current + 1))
-            show_progress $current $total "Syncing /etc"
-        done
-        popd >/dev/null
-        log_success "System configuration sync complete."
-    else
-        log_warn "'etc' directory not found in $DOTS_DIR. Skipping system config sync."
-    fi
-}
-
 # --- Feature Groups ---
 minimal_install() {
     pre_network_fix

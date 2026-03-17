@@ -17,8 +17,7 @@
         ],
         "aur": [
             "gallery-dl",
-            "tor-browser-bin",
-            "youtube-music-bin"
+            "pear-desktop-bin"
         ]
     },
     "recommended": {
