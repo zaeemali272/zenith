@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-export DOTS_DIR="$HOME/Documents/Linux/Dots/zenith"
+# Detect DOTS_DIR dynamically
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export DOTS_DIR="$(dirname "$SCRIPT_DIR")"
 export JSON_OUTPUT=0
 
 # Load Modules

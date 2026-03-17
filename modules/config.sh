@@ -164,14 +164,24 @@ setup_post_boot_service() {
     local service_name="zenith-post-boot.service"
     local service_src="$DOTS_DIR/.config/systemd/user/$service_name"
     local service_dest="$HOME/.config/systemd/user/$service_name"
+    local post_boot_script="$HOME/.config/hypr/post_boot.sh"
 
+    # Ensure post_boot.sh is executable
+    if [[ -f "$post_boot_script" ]]; then
+        chmod +x "$post_boot_script"
+    fi
+
+    # 1. Systemd Service (Legacy/Fallback)
     if [[ -f "$service_src" ]]; then
         mkdir -p "$(dirname "$service_dest")"
         cp "$service_src" "$service_dest"
         systemctl --user daemon-reload
         systemctl --user enable "$service_name"
-        log_success "Post-boot service enabled."
-    else
-        log_error "Post-boot service file not found at $service_src"
+        log "Post-boot systemd service enabled."
     fi
+
+    # 2. Hyprland Autostart (More reliable for minimal install)
+    mkdir -p "$HOME/.config/hypr"
+    echo "exec-once = $post_boot_script" > "$HOME/.config/hypr/autostart_once.conf"
+    log_success "Post-boot autostart configured for Hyprland."
 }

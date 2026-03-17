@@ -148,5 +148,5 @@ installation_summary() {
     fi
 
     echo -e "\n${YELLOW}${BOLD}The system will reboot shortly to apply all changes.${NC}"
-    echo -e "${WHITE}If Hyprland doesn't start automatically, log in and type 'Hyprland'.${NC}"
+    echo -e "${WHITE}If Hyprland doesn't start automatically, log in and type 'start-hyprland'.${NC}"
 }
