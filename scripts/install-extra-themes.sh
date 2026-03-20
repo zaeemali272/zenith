@@ -19,26 +19,34 @@ else
     log_error() { echo -e "\e[1;31m[ERR]\e[0m $*"; }
 fi
 
-DOTS_DIR="$(pwd)"
-THEME_URL="https://github.com/zaeemali272/dynamic-materia-dark.git"
+THEME_URL="https://github.com/zaeemali272/dynamic-materia-dark/releases/download/theme/dynamic-materia-dark.tar.gz"
 THEME_NAME="dynamic-materia-dark"
-THEME_PATH="$DOTS_DIR/$THEME_NAME"
-THEMES_DEST="$DOTS_DIR/.themes"
+THEMES_DEST="$HOME/.themes"
 
 log_step "🎨 Installing Dynamic Materia Dark Theme..."
 
-# Clone or Update
-if [[ ! -d "$THEME_PATH" ]]; then
-    log "Cloning $THEME_NAME from $THEME_URL..."
-    git clone "$THEME_URL" "$THEME_PATH" || { log_error "Failed to clone theme repository."; exit 1; }
+# Ensure ~/.themes exists
+mkdir -p "$THEMES_DEST"
+
+# Download and Extract
+log "Downloading $THEME_NAME from GitHub Releases..."
+if curl -L "$THEME_URL" -o "/tmp/$THEME_NAME.tar.gz"; then
+    log "Extracting theme to $THEMES_DEST..."
+    tar -xzf "/tmp/$THEME_NAME.tar.gz" -C "$THEMES_DEST"
+    rm "/tmp/$THEME_NAME.tar.gz"
+    log_success "Dynamic Materia Dark theme installed successfully in $THEMES_DEST."
 else
-    log "Theme repository already exists. Pulling latest changes..."
-    pushd "$THEME_PATH" >/dev/null && git pull && popd >/dev/null || log_warn "Failed to update theme repository."
+    log_error "Failed to download the theme asset."
+    exit 1
 fi
 
-# Copy to .themes
-log "Copying theme to $THEMES_DEST..."
-mkdir -p "$THEMES_DEST"
-cp -r "$THEME_PATH" "$THEMES_DEST/"
-
-log_success "Dynamic Materia Dark theme is now staged in $THEMES_DEST and will be synced during installation."
+# Apply Icon Theme
+log_step "🖼️ Checking Icon Theme..."
+CURRENT_ICONS=$(gsettings get org.gnome.desktop.interface icon-theme | tr -d "'")
+if [[ "$CURRENT_ICONS" != "OneUI-dark" ]]; then
+    log "Applying OneUI-dark icon theme..."
+    gsettings set org.gnome.desktop.interface icon-theme "OneUI-dark"
+    log_success "OneUI-dark icon theme applied."
+else
+    log "OneUI-dark icon theme is already set."
+fi
