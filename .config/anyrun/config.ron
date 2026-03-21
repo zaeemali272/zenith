@@ -1,0 +1,23 @@
+Config(
+  x: Fraction(0.5),
+  y: Fraction(0.2),
+
+  hide_icons: false,
+  ignore_exclusive_zones: false,
+  layer: Overlay,
+  hide_plugin_info: false,
+  close_on_click: true,
+  show_results_immediately: true,
+  max_entries: None,
+
+  plugins: [
+    "/usr/lib/anyrun/libapplications.so",
+    "/usr/lib/anyrun/librink.so",
+    "/usr/lib/anyrun/libshell.so",
+    "/usr/lib/anyrun/libtranslate.so",
+    "/usr/lib/anyrun/libdictionary.so",
+    "/usr/lib/anyrun/libwebsearch.so",
+    "/usr/lib/anyrun/libsymbols.so",
+    "/usr/lib/anyrun/librandr.so",
+  ],
+)

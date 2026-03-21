@@ -1,0 +1,5 @@
+Config(
+  prefix: ":t",
+  language_delimiter: ">",
+  max_entries: 3,
+)

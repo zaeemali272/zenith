@@ -1,0 +1,4 @@
+Config(
+  prefix: ":d",
+  max_entries: 3,
+)

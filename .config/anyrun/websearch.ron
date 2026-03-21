@@ -1,0 +1,4 @@
+Config(
+  engines: [DuckDuckGo], // Options: DuckDuckGo, Google, Bing, etc.
+  prefix: "?",        // Use a prefix like "?" to only trigger websearch
+)

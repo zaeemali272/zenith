@@ -154,6 +154,7 @@ full_install() {
     setup_cpu_governor
     setup_autologin
     optimize_bootloader
+    bash scripts/install-fusuma.sh
     [[ "$SKIP_SCRIPTS" -eq 0 ]] && run_optional_scripts
     
     installation_summary "Full"
@@ -190,6 +191,7 @@ options=(
     "Full Installation (The Complete Zenith Experience, all at once)"
     "Packages Only (Install all system and AUR packages)"
     "Configs Only (Sync dotfiles and /etc configurations)"
+    "Setup Quickshell (Clone/Sync Zenith-Shell for Quickshell)"
     "Exit"
 )
 
@@ -200,5 +202,6 @@ case $MENU_CHOICE in
     1) full_install ;;
     2) packages_only ;;
     3) configs_only ;;
-    4) log_step "Exiting. Have a great day!"; exit 0 ;;
+    4) setup_quickshell ;;
+    5) log_step "Exiting. Have a great day!"; exit 0 ;;
 esac
