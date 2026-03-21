@@ -177,6 +177,40 @@ configs_only() {
     log_success "Configuration sync complete."
 }
 
+run_specific_script() {
+    log_step "📂 Listing available scripts in 'scripts/'..."
+    local script_files=()
+    for s in scripts/*.sh; do
+        [[ -f "$s" ]] && script_files+=("$s")
+    done
+
+    if [[ ${#script_files[@]} -eq 0 ]]; then
+        log_warn "No .sh scripts found in scripts/ directory."
+        return
+    fi
+
+    local script_names=()
+    for s in "${script_files[@]}"; do
+        script_names+=("$(basename "$s")")
+    done
+    
+    script_names+=("<- Back to Main Menu")
+    
+    ask_choice "Select a script to execute:" "${script_names[@]}"
+    
+    if [[ $MENU_CHOICE -eq $((${#script_names[@]} - 1)) ]]; then
+        return 1
+    fi
+    
+    local selected_script="${script_files[$MENU_CHOICE]}"
+    log_step "Running $selected_script..."
+    bash "$selected_script" || log_error "Execution of $selected_script failed."
+    
+    echo -e "\n${GREEN}Script finished.${NC}"
+    read -p "Press Enter to return to menu..."
+    return 0
+}
+
 # --- Main Flow ---
 print_header
 
@@ -186,22 +220,27 @@ if [[ "$AUTO_INSTALL" -eq 1 ]]; then
     exit 0
 fi
 
-options=(
-    "Minimal Installation (Recommended: Base system + Post-boot GUI installer)"
-    "Full Installation (The Complete Zenith Experience, all at once)"
-    "Packages Only (Install all system and AUR packages)"
-    "Configs Only (Sync dotfiles and /etc configurations)"
-    "Setup Quickshell (Clone/Sync Zenith-Shell for Quickshell)"
-    "Exit"
-)
+while true; do
+    print_header
+    options=(
+        "Minimal Installation (Recommended: Base system + Post-boot GUI installer)"
+        "Full Installation (The Complete Zenith Experience, all at once)"
+        "Packages Only (Install all system and AUR packages)"
+        "Configs Only (Sync dotfiles and /etc configurations)"
+        "Setup Quickshell (Clone/Sync Zenith-Shell for Quickshell)"
+        "Run Specific Script (Select from scripts/ directory)"
+        "Exit"
+    )
 
-ask_choice "Welcome, $USER. What would you like to do?" "${options[@]}"
+    ask_choice "Welcome, $USER. What would you like to do?" "${options[@]}"
 
-case $MENU_CHOICE in
-    0) minimal_install ;;
-    1) full_install ;;
-    2) packages_only ;;
-    3) configs_only ;;
-    4) setup_quickshell ;;
-    5) log_step "Exiting. Have a great day!"; exit 0 ;;
-esac
+    case $MENU_CHOICE in
+        0) minimal_install; break ;;
+        1) full_install; break ;;
+        2) packages_only; break ;;
+        3) configs_only; break ;;
+        4) setup_quickshell ;;
+        5) run_specific_script || true ;;
+        6) log_step "Exiting. Have a great day!"; exit 0 ;;
+    esac
+done
