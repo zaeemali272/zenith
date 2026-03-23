@@ -4,20 +4,26 @@
 setup_quickshell() {
     log_step "✨ Setting up Zenith-Shell for Quickshell..."
     local qs_dir="$HOME/.config/quickshell"
-    local local_shell_dir="$DOTS_DIR/../zenith-shell"
-    
-    mkdir -p "$qs_dir"
+    local repo_url="https://github.com/zaeemali272/zenith-shell.git"
 
-    if [[ -d "$local_shell_dir" ]]; then
-        log "Found local zenith-shell at $local_shell_dir. Syncing..."
-        rsync -av --exclude=".git" "$local_shell_dir/" "$qs_dir/"
-    elif [[ ! -d "$qs_dir/.git" ]]; then
+    # FORCE CHECK: Is it actually a git repo?
+    if [[ -d "$qs_dir" ]]; then
+        if [[ ! -d "$qs_dir/.git" ]]; then
+            log_warn "Directory exists but is NOT a git repo. Deleting for fresh clone..."
+            rm -rf "$qs_dir"
+        fi
+    fi
+
+    if [[ ! -d "$qs_dir" ]]; then
         log "Cloning zenith-shell from GitHub..."
-        git clone https://www.github.com/zaeemali272/zenith-shell.git "$qs_dir" || log_error "Failed to clone zenith-shell"
+        git clone "$repo_url" "$qs_dir" || log_error "Failed to clone zenith-shell"
     else
         log "Updating existing zenith-shell in $qs_dir..."
-        pushd "$qs_dir" >/dev/null && git pull && popd >/dev/null || log_warn "Failed to update zenith-shell"
+        # Force a reset in case local files are messed up
+        git -C "$qs_dir" fetch --all
+        git -C "$qs_dir" reset --hard origin/main || log_warn "Git reset failed."
     fi
+    
     log_success "Quickshell setup complete."
 }
 

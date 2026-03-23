@@ -239,7 +239,11 @@ while true; do
         1) full_install; break ;;
         2) packages_only; break ;;
         3) configs_only; break ;;
-        4) setup_quickshell ;;
+        4) 
+            setup_quickshell
+            echo -e "\n${GREEN}Press Enter to return to the menu...${NC}"
+            read -r
+            ;;
         5) run_specific_script || true ;;
         6) log_step "Exiting. Have a great day!"; exit 0 ;;
     esac
