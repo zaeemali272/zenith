@@ -151,7 +151,7 @@ full_install() {
     setup_xdg_dirs
     set_fish_shell
     setup_system_services
-    setup_cpu_governor
+    bash scripts/power-profile-setup.sh
     setup_autologin
     optimize_bootloader
     bash scripts/install-fusuma.sh
