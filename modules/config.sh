@@ -203,36 +203,46 @@ setup_xdg_dirs() {
 }
 
 setup_post_boot_service() {
-    log_step "🚀 Setting up post-boot installer service..."
-    local service_name="zenith-post-boot.service"
-    local service_src="$DOTS_DIR/.config/systemd/user/$service_name"
-    local service_dest="$HOME/.config/systemd/user/$service_name"
-    local post_boot_script="$HOME/.config/hypr/post_boot.sh"
+    log_step "🚀 Setting up post-boot installer autostart..."
+    local execs_file="$HOME/.config/hypr/hyprland/execs.conf"
+    local post_boot_cmd="exec-once = qs --path ~/.config/quickshell/windows/WallpaperWindow.qml"
 
-    # Ensure post_boot.sh is executable
-    if [[ -f "$post_boot_script" ]]; then
-        chmod +x "$post_boot_script"
+    # Create directory if missing
+    mkdir -p "$(dirname "$execs_file")"
+
+    # Add the line if not already present
+    if ! grep -q "qs --path" "$execs_file" 2>/dev/null; then
+        echo -e "\n$post_boot_cmd" >> "$execs_file"
+        log "Post-boot autostart added to $execs_file."
     fi
 
-    # 1. Systemd Service (Legacy/Fallback)
-    if [[ -f "$service_src" ]]; then
-        mkdir -p "$(dirname "$service_dest")"
-        cp "$service_src" "$service_dest"
-        systemctl --user daemon-reload
-        systemctl --user enable "$service_name"
-        log "Post-boot systemd service enabled."
-    fi
-
-    # 2. Hyprland Autostart (More reliable for minimal install)
-    mkdir -p "$HOME/.config/hypr"
-    echo "exec-once = $post_boot_script" > "$HOME/.config/hypr/autostart_once.conf"
     log_success "Post-boot autostart configured for Hyprland."
+}
 
-    echo -e "\n${BLUE}================================================================${NC}"
-    echo -e "${YELLOW}NOTE:${NC} After reboot, a window should open to finish installation."
-    echo -e "If it doesn't open automatically, you can run it manually with:"
-    echo -e "  ${CYAN}bash $DOTS_DIR/scripts/post_boot_install.sh${NC}"
-    echo -e "${BLUE}================================================================${NC}\n"
+# Function to setup extra assets (Animations & Wallpapers)
+setup_extra_assets() {
+    log_step "✨ Setting up extra Zenith assets (Animations & Wallpapers)..."
+    
+    local anim_url="https://drive.proton.me/urls/S03D75Y3RG#1thoI8ITod8K"
+    local wall_url="https://drive.proton.me/urls/6GN7BD5TXR#ENq5AcFhGCzf"
+    
+    local anim_dir="$HOME/Videos/Animations"
+    local wall_dir="$HOME/Pictures/Wallpapers"
+    
+    mkdir -p "$anim_dir" "$wall_dir"
+
+    # NOTE: Proton Drive links are encrypted and hard to download via CLI.
+    # Proposing a robust structure. If these were direct links, curl would work here.
+    log_warn "Proton Drive links detected. These usually require a browser to decrypt."
+    log "If download fails, please download manually and extract to:"
+    log "  - Animations: $anim_dir"
+    log "  - Wallpapers: $wall_dir"
+
+    # Example of how it SHOULD look with direct links:
+    # curl -L "DIRECT_URL" -o "/tmp/assets.zip" && unzip "/tmp/assets.zip" -d "$anim_dir"
+    
+    # For now, we attempt a basic download (this may fail due to Proton's encryption)
+    # If you provide direct links later, this script is ready.
 }
 
 # --- System Config Sync ---

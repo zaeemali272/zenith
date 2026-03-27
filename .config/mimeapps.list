@@ -70,6 +70,6 @@ image/jpeg=org.gnome.eog.desktop;
 image/png=org.gnome.eog.desktop;
 image/gif=org.gnome.eog.desktop;
 text/x-qml=code.desktop;dev.zed.Zed.desktop;
-application/x-shellscript=dev.zed.Zed.desktop;code.desktop;kitty-open.desktop;
+application/x-shellscript=code.desktop;dev.zed.Zed.desktop;kitty-open.desktop;
 application/x-pkt=wine-Programs-Cisco Packet Tracer-Cisco Packet Tracer.desktop;
 application/x-zerosize=dev.zed.Zed.desktop;vlc.desktop;

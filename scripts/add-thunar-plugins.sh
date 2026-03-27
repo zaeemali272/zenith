@@ -79,4 +79,7 @@ mkdir -p ~/.local/share/Thunar/sendto
 echo "NoDisplay=true" > ~/.local/share/Thunar/sendto/thunar-wallpaper-plugin.desktop
 
 echo "Done! Restarting Thunar..."
-thunar -q && thunar &
+thunar -q || true
+sleep 1
+nohup thunar >/dev/null 2>&1 &
+disown

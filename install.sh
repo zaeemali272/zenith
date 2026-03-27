@@ -1,6 +1,37 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# --- Initial Setup ---
+DOTS_DIR="$(pwd)"
+export DOTS_DIR
+BACKUP_SUFFIX=".bak.$(date +%Y%m%d%H%M%S)"
+
+# --- Load Modules Early (For Colors and UI) ---
+if [[ -d "modules" ]]; then
+    for f in modules/*.sh; do source "$f"; done
+else
+    echo "❌ 'modules' directory not found. Please run from the zenith/ root."
+    exit 1
+fi
+
+# --- Error Handling ---
+error_handler() {
+    local exit_code=$1
+    local line_no=$2
+    if command -v log_error &>/dev/null; then
+        log_error "An error occurred at line $line_no (Exit Code: $exit_code)"
+    else
+        echo "ERR: An error occurred at line $line_no (Exit Code: $exit_code)"
+    fi
+    echo -e "${RED:-}The script encountered an issue and had to stop.${NC:-}"
+}
+trap 'error_handler $? $LINENO' ERR
+
+cleanup() {
+    rm -f /tmp/zenith_temp_* 2>/dev/null
+}
+trap cleanup EXIT
+
 # --- Root Check ---
 if [[ $EUID -eq 0 ]]; then
     echo "❌ Please do not run this script as root. Use a user with sudo privileges."
@@ -11,10 +42,6 @@ if ! command -v sudo &>/dev/null; then
     echo "❌ 'sudo' is not installed. Please install it and add your user to the wheel group."
     exit 1
 fi
-
-DOTS_DIR="$(pwd)"
-export DOTS_DIR
-BACKUP_SUFFIX=".bak.$(date +%Y%m%d%H%M%S)"
 
 # Flags
 export SKIP_GAMING=0
@@ -39,9 +66,6 @@ for arg in "$@"; do
         --json) export JSON_OUTPUT=1 ;;
     esac
 done
-
-# Load Modules
-for f in modules/*.sh; do source "$f"; done
 
 # --- Super User System Tuning ---
 system_tuning() {
@@ -114,10 +138,16 @@ run_optional_scripts() {
         fi
 
         echo -e "\n${BOLD}${CYAN}❓ Would you like to run '$script_name'?${NC}"
-        read -p "(y/n): " choice
+        read -p "(y/n): " choice </dev/tty || choice="n"
         case "$choice" in
-            [yY]* ) log_step "Running $script_name..."; bash "$script" || log_error "$script_name failed." ;;
-            * ) log_step "Skipping $script_name." ;;
+            [yY]* ) 
+                log_step "Running $script_name..."
+                # Run in a subshell, handle errors without exiting, and ensure no hang
+                (bash "$script" || log_error "$script_name failed.") 
+                ;;
+            * ) 
+                log_step "Skipping $script_name." 
+                ;;
         esac
     done
 }
@@ -151,11 +181,20 @@ full_install() {
     setup_xdg_dirs
     set_fish_shell
     setup_system_services
-    bash scripts/power-profile-setup.sh
+    bash scripts/power-profile-setup.sh || log_warn "Power profile setup failed."
     setup_autologin
     optimize_bootloader
-    bash scripts/install-fusuma.sh
-    [[ "$SKIP_SCRIPTS" -eq 0 ]] && run_optional_scripts
+    bash scripts/install-fusuma.sh || log_warn "Fusuma installation failed."
+    
+    echo -e "\n${BOLD}${CYAN}❓ Would you like to install extra themes, animations and wallpapers?${NC}"
+    read -p "(y/n): " choice </dev/tty || choice="n"
+    if [[ "$choice" =~ ^[yY] ]]; then
+        setup_extra_assets
+    fi
+
+    if [[ "$SKIP_SCRIPTS" -eq 0 ]]; then
+        run_optional_scripts
+    fi
     
     installation_summary "Full"
     echo -e "\n${YELLOW}${BOLD}Rebooting in 10s... (Press Ctrl+C to cancel)${NC}"
@@ -228,6 +267,7 @@ while true; do
         "Packages Only (Install all system and AUR packages)"
         "Configs Only (Sync dotfiles and /etc configurations)"
         "Setup Quickshell (Clone/Sync Zenith-Shell for Quickshell)"
+        "Setup Extra Assets (Animations and Wallpapers)"
         "Run Specific Script (Select from scripts/ directory)"
         "Exit"
     )
@@ -244,7 +284,12 @@ while true; do
             echo -e "\n${GREEN}Press Enter to return to the menu...${NC}"
             read -r
             ;;
-        5) run_specific_script || true ;;
-        6) log_step "Exiting. Have a great day!"; exit 0 ;;
+        5)
+            setup_extra_assets
+            echo -e "\n${GREEN}Press Enter to return to the menu...${NC}"
+            read -r
+            ;;
+        6) run_specific_script || true ;;
+        7) log_step "Exiting. Have a great day!"; exit 0 ;;
     esac
 done

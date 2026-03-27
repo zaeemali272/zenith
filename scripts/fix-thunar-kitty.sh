@@ -30,6 +30,9 @@ fi
 
 # 5. Restart Thunar to apply changes
 echo "Restarting Thunar..."
-thunar -q && sleep 1 && nohup thunar >/dev/null 2>&1 &
+thunar -q || true
+sleep 1
+nohup thunar >/dev/null 2>&1 &
+disown
 
 echo "Done! Thunar should now open Kitty correctly."

@@ -136,20 +136,24 @@ install_minimal_packages() {
     log_step "🔄 Updating system databases..."
     sudo pacman -Syu --noconfirm || log_warn "System update failed, continuing anyway..."
 
-    # Ensure essentials for the script itself
-    sudo pacman -S --needed --noconfirm jq rsync git || log_error "Failed to install script essentials (jq, rsync, git)."
+    # 1. Install script essentials and YAY first
+    log_step "📦 Installing YAY and system essentials..."
+    sudo pacman -S --needed --noconfirm jq rsync git base-devel || log_error "Failed to install essentials."
+    ensure_yay || log_error "Failed to install yay. AUR packages will fail."
 
-    # Ensure AUR helper is available early
-    ensure_yay || log_warn "Failed to install yay. AUR packages might fail."
+    # 2. Install Critical Apps for immediate use (Minimal Install)
+    log_step "🚀 Installing priority apps (Thunar, VLC, Zen Browser)..."
+    install_pkgs "thunar" "vlc"
+    install_aur "zen-browser-bin"
 
-    # Priority: Graphical Core (Ensures Hyprland is attempted early)
+    # 3. Graphical Core
     log_step "🖥️ Installing Graphical Core essentials..."
-    install_pkgs "hyprland" "hypridle" "hyprlock" "xdg-desktop-portal-hyprland" "kitty" "fish" "thunar"
+    install_pkgs "hyprland" "hypridle" "hyprlock" "xdg-desktop-portal-hyprland" "kitty" "fish"
 
     # Core system components
     install_group "core"
     install_group "drivers"
-    
+...
     # Hardware-specific packages from detection
     if [ ${#HARDWARE_PKGS[@]} -gt 0 ]; then
         log_step "🔧 Installing hardware-specific packages..."
@@ -163,12 +167,12 @@ install_minimal_packages() {
 
 install_remaining_packages() {
     # Optional components based on flags
-    [[ "$SKIP_FONTS" -eq 0 ]] && install_group "fonts"
-    [[ "$SKIP_GAMING" -eq 0 ]] && install_group "gaming"
-    [[ "$SKIP_THEMES" -eq 0 ]] && install_group "themes"
-    [[ "$SKIP_RECOMMENDED" -eq 0 ]] && install_group "recommended"
+    if [[ "$SKIP_FONTS" -eq 0 ]]; then install_group "fonts"; fi
+    if [[ "$SKIP_GAMING" -eq 0 ]]; then install_group "gaming"; fi
+    if [[ "$SKIP_THEMES" -eq 0 ]]; then install_group "themes"; fi
+    if [[ "$SKIP_RECOMMENDED" -eq 0 ]]; then install_group "recommended"; fi
     
     # Remaining packages
     install_group "aur"
-    [[ "$SKIP_EXTRAS" -eq 0 ]] && install_group "extras"
+    if [[ "$SKIP_EXTRAS" -eq 0 ]]; then install_group "extras"; fi
 }
