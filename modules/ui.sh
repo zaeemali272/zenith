@@ -11,6 +11,8 @@ export WHITE='\e[1;37m'
 export BOLD='\e[1m'
 export NC='\e[0m' # No Color
 
+export BACKUP_SUFFIX=".bak.$(date +%Y%m%d%H%M%S)"
+
 STATE_FILE="$HOME/.zenith_install_state"
 ERROR_LOG="$DOTS_DIR/zenith_install_error.log"
 declare -A RUN_STATE

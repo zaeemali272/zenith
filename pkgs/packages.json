@@ -95,6 +95,7 @@
             "base-devel",
             "bluez",
             "bluez-utils",
+            "cpio",
             "brightnessctl",
             "curl",
             "eza",

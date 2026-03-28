@@ -153,7 +153,7 @@ install_minimal_packages() {
     # Core system components
     install_group "core"
     install_group "drivers"
-...
+
     # Hardware-specific packages from detection
     if [ ${#HARDWARE_PKGS[@]} -gt 0 ]; then
         log_step "🔧 Installing hardware-specific packages..."

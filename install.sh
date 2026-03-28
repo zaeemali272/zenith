@@ -4,7 +4,6 @@ set -euo pipefail
 # --- Initial Setup ---
 DOTS_DIR="$(pwd)"
 export DOTS_DIR
-BACKUP_SUFFIX=".bak.$(date +%Y%m%d%H%M%S)"
 
 # --- Load Modules Early (For Colors and UI) ---
 if [[ -d "modules" ]]; then

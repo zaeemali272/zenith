@@ -21,12 +21,12 @@ done
 
 # --- UI Integrity Check ---
 check_ui_running() {
-    local qs_cmd="qs --path $HOME/.config/quickshell/windows/WallpaperWindow.qml"
+    local qs_cmd="qs --path $HOME/.config/zenith-installer/installer.qml"
     
     # Wait a few seconds for autostart to kick in
     sleep 3
     
-    if pgrep -f "WallpaperWindow.qml" > /dev/null; then
+    if pgrep -f "installer.qml" > /dev/null; then
         log_success "Post-boot UI is running."
     else
         log_warn "Post-boot UI not detected. Launching in terminal fallback..."
@@ -57,7 +57,7 @@ run_phase_2() {
     local execs_file="$HOME/.config/hypr/hyprland/execs.conf"
     if [[ -f "$execs_file" ]]; then
         # Remove the specific line
-        sed -i "/qs --path.*WallpaperWindow.qml/d" "$execs_file"
+        sed -i "/qs --path.*installer.qml/d" "$execs_file"
         log "Removed autostart from $execs_file."
     fi
 

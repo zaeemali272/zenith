@@ -205,7 +205,7 @@ setup_xdg_dirs() {
 setup_post_boot_service() {
     log_step "🚀 Setting up post-boot installer autostart..."
     local execs_file="$HOME/.config/hypr/hyprland/execs.conf"
-    local post_boot_cmd="exec-once = qs --path ~/.config/quickshell/windows/WallpaperWindow.qml"
+    local post_boot_cmd="exec-once = qs --path ~/.config/zenith-installer/installer.qml"
 
     # Create directory if missing
     mkdir -p "$(dirname "$execs_file")"
