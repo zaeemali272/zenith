@@ -38,10 +38,18 @@ check_ui_running() {
 
 # --- Main Installation for Phase 2 ---
 run_phase_2() {
-    log_step "🚀 Starting Zenith Post-Boot Installation..."
+    # Ensure JSON output for the UI
+    export JSON_OUTPUT=1
     
-    # Check if UI is up, or fallback
-    check_ui_running
+    local qs_cmd="qs --path $HOME/.config/zenith-installer/installer.qml"
+    
+    # Kill any existing instance to avoid "stuck" UI
+    pkill -f "installer.qml" || true
+    
+    # Redirect all subsequent output to the UI
+    exec > >($qs_cmd) 2>&1
+
+    log_step "🚀 Starting Zenith Post-Boot Installation..."
     
     # Run all the remaining installation and setup steps
     install_remaining_packages
@@ -49,9 +57,11 @@ run_phase_2() {
     setup_xdg_dirs
     set_fish_shell
     setup_system_services
-    # setup_cpu_governor # (Commenting out if not defined in current modules)
     optimize_bootloader
     
+    # Send finish signal to UI
+    echo '{"type": "finish"}'
+
     # Self-destruct sequence
     log_step "✅ Installation Complete. Cleaning up autostart..."
     local execs_file="$HOME/.config/hypr/hyprland/execs.conf"

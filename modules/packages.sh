@@ -56,12 +56,24 @@ install_pkgs() {
     local pkgs=("$@")
     [[ ${#pkgs[@]} -eq 0 ]] && return
     
+    # Strict Filter: Only keep packages that are NOT already installed
+    local to_install=()
+    for pkg in "${pkgs[@]}"; do
+        if ! pacman -Qi "$pkg" &>/dev/null; then
+            to_install+=("$pkg")
+        else
+            log "Package '$pkg' is already installed. Skipping."
+        fi
+    done
+
+    [[ ${#to_install[@]} -eq 0 ]] && return
+
     local batch_size=15
-    local total=${#pkgs[@]}
+    local total=${#to_install[@]}
     local processed=0
     
     for ((i=0; i<total; i+=batch_size)); do
-        local batch=("${pkgs[@]:i:batch_size}")
+        local batch=("${to_install[@]:i:batch_size}")
         if ! retry_pacman "${batch[@]}"; then
             log_warn "Batch failed in pacman. Attempting AUR fallback for these packages..."
             install_aur "${batch[@]}"
@@ -86,15 +98,26 @@ ensure_yay() {
     fi
     return 0
 }
-
 install_aur() {
     local pkgs=("$@")
     [[ ${#pkgs[@]} -eq 0 ]] && return
-    
-    local total=${#pkgs[@]}
+
+    local to_install=()
+    for pkg in "${pkgs[@]}"; do
+        if ! yay -Qi "$pkg" &>/dev/null && ! pacman -Qi "$pkg" &>/dev/null; then
+            to_install+=("$pkg")
+        else
+            log "AUR/Pacman package '$pkg' already exists. Skipping."
+        fi
+    done
+
+    [[ ${#to_install[@]} -eq 0 ]] && return
+
+    local total=${#to_install[@]}
     local current=0
 
-    for pkg in "${pkgs[@]}"; do
+    for pkg in "${to_install[@]}"; do
+...
         while true; do
             log_step "Installing AUR: $pkg"
             if yay -S --needed --noconfirm "$pkg"; then
@@ -133,24 +156,25 @@ install_group() {
 }
 
 install_minimal_packages() {
-    log_step "🔄 Updating system databases..."
-    sudo pacman -Syu --noconfirm || log_warn "System update failed, continuing anyway..."
+    if has_run "minimal_packages_installed"; then
+        log_success "Minimal packages already installed. Skipping."
+        return
+    fi
+
+    # Only sync databases once per install session, skip full system upgrade (-u)
+    if ! has_run "system_synced"; then
+        log_step "🔄 Syncing system databases..."
+        sudo pacman -Sy --noconfirm || log_warn "System sync failed, continuing anyway..."
+        mark_done "system_synced"
+    fi
 
     # 1. Install script essentials and YAY first
     log_step "📦 Installing YAY and system essentials..."
     sudo pacman -S --needed --noconfirm jq rsync git base-devel || log_error "Failed to install essentials."
     ensure_yay || log_error "Failed to install yay. AUR packages will fail."
 
-    # 2. Install Critical Apps for immediate use (Minimal Install)
-    log_step "🚀 Installing priority apps (Thunar, VLC, Zen Browser)..."
-    install_pkgs "thunar" "vlc"
-    install_aur "zen-browser-bin"
-
-    # 3. Graphical Core
-    log_step "🖥️ Installing Graphical Core essentials..."
-    install_pkgs "hyprland" "hypridle" "hyprlock" "xdg-desktop-portal-hyprland" "kitty" "fish"
-
-    # Core system components
+    # 2. Graphical Core and System Components
+    # Note: Priorities like thunar/vlc are inside 'core' group in packages.json
     install_group "core"
     install_group "drivers"
 
@@ -163,9 +187,16 @@ install_minimal_packages() {
     # Install quickshell for the post-boot UI
     log_step "✨ Installing Quickshell for post-boot UI..."
     install_aur "quickshell-git"
+
+    mark_done "minimal_packages_installed"
 }
 
 install_remaining_packages() {
+    if has_run "remaining_packages_installed"; then
+        log_success "Remaining packages already installed. Skipping."
+        return
+    fi
+
     # Optional components based on flags
     if [[ "$SKIP_FONTS" -eq 0 ]]; then install_group "fonts"; fi
     if [[ "$SKIP_GAMING" -eq 0 ]]; then install_group "gaming"; fi
@@ -175,4 +206,6 @@ install_remaining_packages() {
     # Remaining packages
     install_group "aur"
     if [[ "$SKIP_EXTRAS" -eq 0 ]]; then install_group "extras"; fi
+
+    mark_done "remaining_packages_installed"
 }
