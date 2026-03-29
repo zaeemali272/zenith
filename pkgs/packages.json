@@ -84,6 +84,7 @@
     },
     "core": {
         "pacman": [
+            "awww",
             "hyprland",
             "hypridle",
             "hyprlock",
@@ -128,7 +129,6 @@
             "ripgrep",
             "rsync",
             "starship",
-            "swww",
             "thunar-archive-plugin",
             "thunar-volman",
             "tumbler",

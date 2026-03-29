@@ -47,11 +47,12 @@ run_phase_2() {
     pkill -f "installer.qml" || true
     
     # Redirect all subsequent output to the UI
-    exec > >($qs_cmd) 2>&1
+    # exec > >($qs_cmd) 2>&1
 
     log_step "🚀 Starting Zenith Post-Boot Installation..."
     
     # Run all the remaining installation and setup steps
+    detect_hardware
     install_remaining_packages
     sync_etc_config
     setup_xdg_dirs

@@ -13,7 +13,7 @@ get_list() {
 
     if [[ -f "$json_file" ]]; then
         # Use jq to get the array for the group and source, then convert to space-separated string
-        local pkgs=$(jq -r ".["$group"].$source[]" "$json_file" 2>/dev/null | xargs)
+        local pkgs=$(jq -r --arg g "$group" --arg s "$source" '.[$g][$s][]' "$json_file" 2>/dev/null | xargs)
         echo "$pkgs"
     else
         log_error "packages.json not found at $json_file!"
@@ -138,7 +138,7 @@ install_aur() {
 
 install_group() {
     local group=$1
-    echo "DEBUG: Entering install_group '$group'."
+    log "Checking package group: $group"
     
     local pacman_pkgs=($(get_list "$group" "pacman"))
     local aur_pkgs=($(get_list "$group" "aur"))
@@ -184,30 +184,36 @@ install_minimal_packages() {
     fi
 
     # Install quickshell for the post-boot UI
-    # Ensure quickshell is installed, even if it was previously skipped due to failure.
-    echo "DEBUG: Explicitly calling install_aur 'quickshell-git' for post-boot UI." # >> "/tmp/zenith_installer_pipe" removed for clarity, redirection is handled by caller
     install_aur "quickshell-git"
-    echo "DEBUG: Finished explicit call to install_aur 'quickshell-git'." # >> "/tmp/zenith_installer_pipe" removed for clarity
 
     mark_done "minimal_packages_installed"
 }
 
 install_remaining_packages() {
-    echo "DEBUG: Entering install_remaining_packages."
-    if has_run "remaining_packages_installed"; then
-        log_success "Remaining packages already installed. Skipping."
-        return
+    log_step "🚀 Ensuring all Zenith packages are installed..."
+    
+    # 1. Ensure yay is present (critical for post-boot)
+    ensure_yay || log_error "Failed to install yay. AUR packages will fail."
+
+    # 2. Core & Drivers (Verify these are complete)
+    install_group "core"
+    install_group "drivers"
+
+    # 3. Hardware-specific (Verify)
+    if [ ${#HARDWARE_PKGS[@]} -gt 0 ]; then
+        install_pkgs "${HARDWARE_PKGS[@]}"
     fi
 
-    # Optional components based on flags
-    if [[ "$SKIP_FONTS" -eq 0 ]]; then install_group "fonts"; fi
-    if [[ "$SKIP_GAMING" -eq 0 ]]; then install_group "gaming"; fi
-    if [[ "$SKIP_THEMES" -eq 0 ]]; then install_group "themes"; fi
-    if [[ "$SKIP_RECOMMENDED" -eq 0 ]]; then install_group "recommended"; fi
+    # 4. Optional components based on flags
+    if [[ "${SKIP_FONTS:-0}" -eq 0 ]]; then install_group "fonts"; fi
+    if [[ "${SKIP_GAMING:-0}" -eq 0 ]]; then install_group "gaming"; fi
+    if [[ "${SKIP_THEMES:-0}" -eq 0 ]]; then install_group "themes"; fi
+    if [[ "${SKIP_RECOMMENDED:-0}" -eq 0 ]]; then install_group "recommended"; fi
     
-    # Remaining packages
+    # 5. AUR & Extras
     install_group "aur"
-    if [[ "$SKIP_EXTRAS" -eq 0 ]]; then install_group "extras"; fi
+    if [[ "${SKIP_EXTRAS:-0}" -eq 0 ]]; then install_group "extras"; fi
 
     mark_done "remaining_packages_installed"
 }
+

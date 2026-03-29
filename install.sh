@@ -72,10 +72,11 @@ system_tuning() {
     
     # 1. Pacman optimization
     sudo sed -i 's/^#ParallelDownloads = 5/ParallelDownloads = 10/' /etc/pacman.conf
-    sudo sed -i 's/^#Color/Color\nILoveCandy/' /etc/pacman.conf
+    sudo sed -i 's/^#Color/Color
+ILoveCandy/' /etc/pacman.conf
     
     # 2. Makepkg optimization (Speed up builds)
-    sudo sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS=\"-j2\"/MAKEFLAGS=\"-j$(nproc)\"/" /etc/makepkg.conf
+    sudo sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/" /etc/makepkg.conf
     sudo sed -i 's/COMPRESSZST=(zstd -c -z -q -)/COMPRESSZST=(zstd -c -z -q --threads=0 -)/' /etc/makepkg.conf
     
     # 3. ZRAM & Swap (Stability)
@@ -102,7 +103,8 @@ pre_network_fix() {
         if [[ -f /etc/resolv.conf ]]; then
             sudo cp /etc/resolv.conf /etc/resolv.conf.bak
         fi
-        echo -e "nameserver 8.8.8.8\nnameserver 1.1.1.1" | sudo tee /etc/resolv.conf >/dev/null
+        echo -e "nameserver 8.8.8.8
+nameserver 1.1.1.1" | sudo tee /etc/resolv.conf >/dev/null
         
         # Retry install
         sudo pacman -S --needed --noconfirm nano rsync git jq || log_error "Failed to install essential tools even after DNS fix."
@@ -136,7 +138,8 @@ run_optional_scripts() {
              continue
         fi
 
-        echo -e "\n${BOLD}${CYAN}❓ Would you like to run '$script_name'?${NC}"
+        echo -e "
+${BOLD}${CYAN}❓ Would you like to run '$script_name'?${NC}"
         read -p "(y/n): " choice </dev/tty || choice="n"
         case "$choice" in
             [yY]* ) 
@@ -164,7 +167,8 @@ minimal_install() {
     setup_autologin
 
     installation_summary "Minimal"
-    echo -e "\n${YELLOW}${BOLD}Rebooting in 10s... (Press Ctrl+C to cancel)${NC}"
+    echo -e "
+${YELLOW}${BOLD}Rebooting in 10s... (Press Ctrl+C to cancel)${NC}"
     sleep 10 && sudo reboot
 }
 
@@ -185,7 +189,8 @@ full_install() {
     optimize_bootloader
     bash scripts/install-fusuma.sh || log_warn "Fusuma installation failed."
     
-    echo -e "\n${BOLD}${CYAN}❓ Would you like to install extra themes, animations and wallpapers?${NC}"
+    echo -e "
+${BOLD}${CYAN}❓ Would you like to install extra themes, animations and wallpapers?${NC}"
     read -p "(y/n): " choice </dev/tty || choice="n"
     if [[ "$choice" =~ ^[yY] ]]; then
         setup_extra_assets
@@ -196,7 +201,8 @@ full_install() {
     fi
     
     installation_summary "Full"
-    echo -e "\n${YELLOW}${BOLD}Rebooting in 10s... (Press Ctrl+C to cancel)${NC}"
+    echo -e "
+${YELLOW}${BOLD}Rebooting in 10s... (Press Ctrl+C to cancel)${NC}"
     sleep 10 && sudo reboot
 }
 
@@ -218,8 +224,14 @@ configs_only() {
 run_specific_script() {
     log_step "📂 Listing available scripts in 'scripts/'..."
     local script_files=()
+    local script_display_names=() # For displaying to the user
+
+    # Populate script_files and script_display_names
     for s in scripts/*.sh; do
-        [[ -f "$s" ]] && script_files+=("$s")
+        if [[ -f "$s" ]]; then
+            script_files+=("$s")
+            script_display_names+=("$(basename "$s")")
+        fi
     done
 
     if [[ ${#script_files[@]} -eq 0 ]]; then
@@ -227,25 +239,105 @@ run_specific_script() {
         return
     fi
 
-    local script_names=()
-    for s in "${script_files[@]}"; do
-        script_names+=("$(basename "$s")")
+    # Display scripts with their indices for user selection
+    echo -e "
+Available scripts:"
+    for i in "${!script_display_names[@]}"; do
+        printf "  %d) %s
+" "$((i + 1))" "${script_display_names[i]}"
     done
+    echo ""
+
+    echo -e "${BOLD}${CYAN}Enter script numbers or ranges (e.g., '1 3-5 7'):${NC}"
+    read -p "> " script_selection_input </dev/tty || { echo -e "${RED}Input read error.${NC}"; return 1; }
+
+    # --- Parse and Execute Scripts ---
+    declare -a scripts_to_run_indices=() # Stores 0-based indices of scripts to run
     
-    script_names+=("<- Back to Main Menu")
+    # Replace commas with spaces to treat both as separators, then process
+    local sanitized_input=$(echo "$script_selection_input" | tr ',' ' ')
     
-    ask_choice "Select a script to execute:" "${script_names[@]}"
-    
-    if [[ $MENU_CHOICE -eq $((${#script_names[@]} - 1)) ]]; then
-        return 1
+    # Split the sanitized input by whitespace, ensuring each part is processed individually
+    local IFS=$'
+'
+    local input_parts=($(echo "$sanitized_input" | xargs -n1))
+
+    for part in "${input_parts[@]}"; do
+        # Trim whitespace from the part (already handled by xargs -n1, but good practice)
+        part=$(echo "$part" | xargs) 
+
+        if [[ -z "$part" ]]; then
+            continue # Skip empty parts
+        fi
+
+        if [[ "$part" =~ ^([0-9]+)-([0-9]+)$ ]]; then
+            # It's a range like "1-5"
+            local start_num=${BASH_REMATCH[1]}
+            local end_num=${BASH_REMATCH[2]}
+
+            # Convert to 0-based indices for array access
+            local start_index=$((start_num - 1))
+            local end_index=$((end_num - 1))
+
+            # Validate range
+            if [[ "$start_index" -lt 0 || "$end_index" -ge "${#script_files[@]}" || "$start_index" -gt "$end_index" ]]; then
+                log_warn "Invalid range '$part'. Please use numbers between 1 and ${#script_files[@]}."
+                continue
+            fi
+
+            # Add all indices in the range to the list
+            for ((i=$start_index; i<=$end_index; i++)); do
+                scripts_to_run_indices+=("$i")
+            done
+        elif [[ "$part" =~ ^[0-9]+$ ]]; then
+            # It's a single number
+            local script_index=$((part - 1))
+
+            # Validate number
+            if [[ "$script_index" -lt 0 || "$script_index" -ge "${#script_files[@]}" ]]; then
+                log_warn "Invalid script number '$part'. Please use numbers between 1 and ${#script_files[@]}."
+                continue
+            fi
+            scripts_to_run_indices+=("$script_index")
+        else
+            log_warn "Invalid input format '$part'. Please use numbers or ranges (e.g., '1 3-5')."
+        fi
+    done
+
+    # Remove duplicate indices and sort them to ensure execution order is predictable and avoid re-running
+    # Use process substitution with sort for efficiency and to handle potential newlines in array elements if they were complex.
+    local IFS=$'
+'
+    local sorted_indices=($(printf "%s
+" "${scripts_to_run_indices[@]}" | sort -nu))
+    scripts_to_run_indices=("${sorted_indices[@]}")
+
+    if [[ ${#scripts_to_run_indices[@]} -eq 0 ]]; then
+        log_warn "No valid scripts selected or found."
+        echo -e "
+${GREEN}Returning to menu...${NC}"
+        read -p "Press Enter to continue..."
+        return 0 # Exit this function, effectively returning to the main menu loop
     fi
-    
-    local selected_script="${script_files[$MENU_CHOICE]}"
-    log_step "Running $selected_script..."
-    bash "$selected_script" || log_error "Execution of $selected_script failed."
-    
-    echo -e "\n${GREEN}Script finished.${NC}"
-    read -p "Press Enter to return to menu..."
+
+    # Execute the selected scripts
+    for index in "${scripts_to_run_indices[@]}"; do
+        local selected_script="${script_files[$index]}"
+        local script_name=$(basename "$selected_script")
+        log_step "Running script: '$script_name'..."
+        
+        # Execute the script. If it fails, log an error but continue to the next script.
+        if bash "$selected_script"; then
+            log_success "'$script_name' finished successfully."
+        else
+            # The error handler trap should catch most bash errors, but this provides a final message if the script exits non-zero.
+            log_error "'$script_name' failed. Continuing with the next script."
+        fi
+    done
+
+    echo -e "
+${GREEN}All selected scripts execution completed.${NC}"
+    read -p "Press Enter to return to the menu..."
     return 0
 }
 
@@ -280,12 +372,14 @@ while true; do
         3) configs_only; break ;;
         4) 
             setup_quickshell
-            echo -e "\n${GREEN}Press Enter to return to the menu...${NC}"
+            echo -e "
+${GREEN}Press Enter to return to the menu...${NC}"
             read -r
             ;;
         5)
             setup_extra_assets
-            echo -e "\n${GREEN}Press Enter to return to the menu...${NC}"
+            echo -e "
+${GREEN}Press Enter to return to the menu...${NC}"
             read -r
             ;;
         6) run_specific_script || true ;;
