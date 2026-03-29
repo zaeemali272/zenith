@@ -14,20 +14,81 @@ echo "/* Loading YouTube Music CSS... */" > "$CSS_FILE"
 # Then overwrite with the full CSS
 cat > "$CSS_FILE" <<'EOF'
 /* --- YouTube Music Player Bar Custom Style --- */
-#player-bar-background { background-color: transparent !important; }
-#progress-bar.ytmusic-player-bar { left: 0px !important; width: 100.6% !important; margin: 0px !important; }
-#sliderContainer.tp-yt-paper-slider { margin-left: 0px !important; }
-ytmusic-player-bar { background-color: rgba(0, 0, 0, 0.85) !important; backdrop-filter: blur(6px) !important; border-top: 1px solid rgba(255, 255, 255, 0.1) !important; }
-ytmusic-player-bar tp-yt-paper-progress, ytmusic-player-bar .middle-controls, ytmusic-player-bar .left-controls, ytmusic-player-bar .right-controls { background: transparent !important; }
-ytmusic-nav-bar, ytmusic-app-layout #nav-bar-background { border-bottom: none !important; box-shadow: none !important; background-color: transparent !important; }
-ytmusic-app-layout #guide-spacer, ytmusic-app-layout #nav-bar-divider { background: transparent !important; border: none !important; box-shadow: none !important; }
-#mini-guide-background { border: none !important; }
-ytmusic-nav-bar { display: flex !important; justify-content: flex-start !important; align-items: center !important; background: transparent !important; box-shadow: none !important; border: none !important; transition: background-color 0.3s ease, backdrop-filter 0.3s ease, transform 0.3s ease !important; backdrop-filter: none !important; }
-ytmusic-nav-bar > *:not(.left-content) { opacity: 0 !important; pointer-events: none !important; transition: opacity 0.3s ease !important; }
-ytmusic-nav-bar .left-content { display: flex !important; align-items: center !important; padding-left: 12px !important; }
-ytmusic-nav-bar .left-content > * { margin-right: 0.5rem !important; }
-ytmusic-nav-bar:hover { background-color: rgba(0, 0, 0, 0.6) !important; backdrop-filter: blur(10px) !important; }
-ytmusic-nav-bar:hover > *:not(.left-content) { opacity: 1 !important; pointer-events: auto !important; }
+#player-bar-background {
+    background-color: transparent !important;
+}
+#progress-bar.ytmusic-player-bar {
+    left: 0px !important;
+    width: 100.6% !important;
+    margin: 0px !important;
+}
+#sliderContainer.tp-yt-paper-slider {
+    margin-left: 0px !important;
+}
+ytmusic-player-bar {
+    background-color: rgba(0, 0, 0, 0.85) !important;
+    backdrop-filter: blur(6px) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+ytmusic-player-bar tp-yt-paper-progress,
+ytmusic-player-bar .middle-controls,
+ytmusic-player-bar .left-controls,
+ytmusic-player-bar .right-controls {
+    background: transparent !important;
+}
+ytmusic-nav-bar,
+ytmusic-app-layout #nav-bar-background {
+    border-bottom: none !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+}
+ytmusic-app-layout #guide-spacer,
+ytmusic-app-layout #nav-bar-divider {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+#mini-guide-background {
+    border: none !important;
+}
+ytmusic-app-layout[is-bauhaus-sidenav-enabled]
+    #mini-guide-background.ytmusic-app-layout {
+    background: transparent !important;
+}
+ytmusic-nav-bar {
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    transition:
+        background-color 0.3s ease,
+        backdrop-filter 0.3s ease,
+        transform 0.3s ease !important;
+    backdrop-filter: none !important;
+}
+ytmusic-nav-bar > *:not(.left-content) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.3s ease !important;
+}
+ytmusic-nav-bar .left-content {
+    display: flex !important;
+    align-items: center !important;
+    padding-left: 12px !important;
+}
+ytmusic-nav-bar .left-content > * {
+    margin-right: 0.5rem !important;
+}
+ytmusic-nav-bar:hover {
+    background-color: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+}
+ytmusic-nav-bar:hover > *:not(.left-content) {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
 EOF
 
 # --- Patch JSON safely (requires jq) ---
