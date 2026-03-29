@@ -71,13 +71,14 @@ system_tuning() {
     log_step "⚡ Tuning system for Zenith performance..."
     
     # 1. Pacman optimization
-    sudo sed -i 's/^#ParallelDownloads = 5/ParallelDownloads = 10/' /etc/pacman.conf
-    sudo sed -i 's/^#Color/Color
-ILoveCandy/' /etc/pacman.conf
+    sudo sed -i 's/^\(#\|\)ParallelDownloads = [0-9]*/ParallelDownloads = 10/' /etc/pacman.conf
+    sudo sed -i 's/^#Color/Color\nILoveCandy/' /etc/pacman.conf
     
     # 2. Makepkg optimization (Speed up builds)
-    sudo sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS="-j2"/MAKEFLAGS="-j$(nproc)"/" /etc/makepkg.conf
-    sudo sed -i 's/COMPRESSZST=(zstd -c -z -q -)/COMPRESSZST=(zstd -c -z -q --threads=0 -)/' /etc/makepkg.conf
+    local nprocs=$(nproc)
+    sudo sed -i "s/-j[0-9]*/-j$nprocs/g;s/^#MAKEFLAGS=\"-j[0-9]*\"/MAKEFLAGS=\"-j$nprocs\"/" /etc/makepkg.conf
+    sudo sed -i "s/COMPRESSZST=(zstd -c -z -q -)/COMPRESSZST=(zstd -c -z -q --threads=0 -)/" /etc/makepkg.conf
+    sudo sed -i "s/COMPRESSZST=(zstd -c -T0 -)/COMPRESSZST=(zstd -c -T0 --threads=0 -)/" /etc/makepkg.conf
     
     # 3. ZRAM & Swap (Stability)
     setup_zram
