@@ -52,6 +52,7 @@ setup_extra_themes() {
     mkdir -p "$themes_dest/$theme_name"
     # Using trailing slash on source and dest to ensure contents sync correctly
     rsync -av --exclude=".git" "$theme_path/" "$themes_dest/$theme_name/"
+    gsettings set org.gnome.desktop.interface gtk-theme 'dynamic-materia-dark'
     log_success "Theme setup complete."
 }
 
@@ -248,29 +249,4 @@ setup_extra_assets() {
     
     # For now, we attempt a basic download (this may fail due to Proton's encryption)
     # If you provide direct links later, this script is ready.
-}
-
-# --- System Config Sync ---
-sync_etc_config() {
-    if [[ -d "$DOTS_DIR/etc" ]]; then
-        log_step "⚙️ Syncing system configurations to /etc..."
-        # Find files relative to DOTS_DIR/etc
-        pushd "$DOTS_DIR" >/dev/null
-        local files=($(find etc/ -type f))
-        local current=0
-        local total=${#files[@]}
-        
-        for file in "${files[@]}"; do
-            dest="/${file}"
-            sudo mkdir -p "$(dirname "$dest")"
-            sudo cp "$file" "$dest"
-            sudo chmod 644 "$dest"
-            current=$((current + 1))
-            show_progress $current $total "Syncing /etc"
-        done
-        popd >/dev/null
-        log_success "System configuration sync complete."
-    else
-        log_warn "'etc' directory not found in $DOTS_DIR. Skipping system config sync."
-    fi
 }

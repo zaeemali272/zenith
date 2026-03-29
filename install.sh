@@ -180,7 +180,6 @@ full_install() {
     detect_hardware
     install_minimal_packages
     install_remaining_packages
-    sync_etc_config
     sync_dotfiles
     setup_xdg_dirs
     set_fish_shell
@@ -216,7 +215,6 @@ packages_only() {
 }
 
 configs_only() {
-    sync_etc_config
     sync_dotfiles
     setup_xdg_dirs
     log_success "Configuration sync complete."
@@ -357,7 +355,7 @@ while true; do
         "Minimal Installation (Recommended: Base system + Post-boot GUI installer)"
         "Full Installation (The Complete Zenith Experience, all at once)"
         "Packages Only (Install all system and AUR packages)"
-        "Configs Only (Sync dotfiles and /etc configurations)"
+        "Configs Only (Sync dotfiles)"
         "Setup Quickshell (Clone/Sync Zenith-Shell for Quickshell)"
         "Setup Extra Assets (Animations and Wallpapers)"
         "Run Specific Script (Select from scripts/ directory)"

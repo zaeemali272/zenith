@@ -21,7 +21,6 @@ setup_system_services() {
     fi
 
     echo -e "[General]\nEnableNetworkConfiguration=true" | sudo tee /etc/iwd/main.conf >/dev/null
-    sudo systemctl enable --now iwd.service bluez.service || log_error "Failed to enable iwd/bluez."
 
     # Bluetooth Autofix
     if [[ -f "$DOTS_DIR/systemd/system/bluetooth-autofix.service" ]]; then

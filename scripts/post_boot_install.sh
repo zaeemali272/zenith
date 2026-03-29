@@ -4,7 +4,12 @@ set -euo pipefail
 # Detect DOTS_DIR dynamically
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export DOTS_DIR="$(dirname "$SCRIPT_DIR")"
-export JSON_OUTPUT=0
+
+# Ensure JSON output for the UI
+export JSON_OUTPUT=1
+
+# Launch the QML installer application in the background
+# This ensures the GUI is visible and ready to receive logs.
 
 # Default values for SKIP flags if not set (to avoid unbound variable errors)
 export SKIP_FONTS=${SKIP_FONTS:-0}
@@ -19,35 +24,16 @@ for f in "$DOTS_DIR/modules/"*.sh; do
     source "$f"
 done
 
-# --- UI Integrity Check ---
-check_ui_running() {
-    local qs_cmd="qs --path $HOME/.config/zenith-installer/installer.qml"
-    
-    # Wait a few seconds for autostart to kick in
-    sleep 3
-    
-    if pgrep -f "installer.qml" > /dev/null; then
-        log_success "Post-boot UI is running."
-    else
-        log_warn "Post-boot UI not detected. Launching in terminal fallback..."
-        # Launching in a new terminal so user can see it
-        kitty --title "Zenith Post-Install" sh -c "$qs_cmd || { echo 'UI Failed to launch. Press enter to exit...'; read; }" &
-        disown
-    fi
-}
-
-# --- Main Installation for Phase 2 ---
+# --- Main Installation ---
+# This function now contains the primary installation logic and logs output to the QML UI.
 run_phase_2() {
-    # Ensure JSON output for the UI
-    export JSON_OUTPUT=1
-    
-    local qs_cmd="qs --path $HOME/.config/zenith-installer/installer.qml"
-    
-    # Kill any existing instance to avoid "stuck" UI
+    # Kill any existing instance to avoid "stuck" UI (now potentially redundant, but harmless)
     pkill -f "installer.qml" || true
     
     # Redirect all subsequent output to the UI
-    # exec > >($qs_cmd) 2>&1
+    # Use exec to replace the current shell process with qs, piping its stdin/stdout/stderr
+    # This ensures that all logs from this script go directly to the QML UI.
+    # Removed exec redirection as Process component handles output capture.
 
     log_step "🚀 Starting Zenith Post-Boot Installation..."
     

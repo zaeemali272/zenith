@@ -1,0 +1,9 @@
+[2026-03-29 18:47:55] ERR: Failed to enable iwd/bluez.
+[2026-03-29 19:09:48] ERR: Failed to enable iwd/bluez.
+[2026-03-29 20:14:17] ERR: Failed to enable iwd/bluez.
+[2026-03-29 21:26:27] ERR: Failed to enable iwd/bluez.
+[2026-03-29 21:33:09] ERR: Failed to enable iwd/bluez.
+[2026-03-29 21:54:45] ERR: Failed to enable iwd/bluez.
+[2026-03-29 22:14:50] ERR: Failed to enable iwd/bluez.
+[2026-03-29 22:15:55] ERR: Failed to enable iwd/bluez.
+[2026-03-30 01:09:06] ERR: 'post_boot_install.sh' failed. Continuing with the next script.
