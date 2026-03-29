@@ -23,7 +23,7 @@
     "recommended": {
         "pacman": [],
         "aur": [
-            "freedownloadmanager",
+            "freedownloadmanager-bin",
             "visual-studio-code-bin",
             "zen-browser-bin"
         ]
