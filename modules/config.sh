@@ -102,18 +102,23 @@ sync_dotfiles() {
     setup_extra_themes
 
     local sync_option="backup"
-    echo -e "${YELLOW}Existing configuration files found in \$HOME.${NC}"
-    echo -e "How would you like to proceed?"
-    echo -e "  1) ${CYAN}Backup existing files${NC} (adds $BACKUP_SUFFIX extension) and overwrite"
-    echo -e "  2) ${RED}Just overwrite${NC} (no backups)"
-    echo -e "  3) ${GREEN}Skip already existing files${NC}"
-    
-    read -p "Select an option [1-3, default: 1]: " choice
-    case $choice in
-        2) sync_option="overwrite" ;;
-        3) sync_option="skip" ;;
-        *) sync_option="backup" ;;
-    esac
+    if [[ "$JSON_OUTPUT" == "true" || "$JSON_OUTPUT" == "1" ]]; then
+        sync_option="backup"
+        log "Non-interactive mode: Auto-selecting backup for dotfiles sync."
+    else
+        echo -e "${YELLOW}Existing configuration files found in \$HOME.${NC}"
+        echo -e "How would you like to proceed?"
+        echo -e "  1) ${CYAN}Backup existing files${NC} (adds $BACKUP_SUFFIX extension) and overwrite"
+        echo -e "  2) ${RED}Just overwrite${NC} (no backups)"
+        echo -e "  3) ${GREEN}Skip already existing files${NC}"
+        
+        read -p "Select an option [1-3, default: 1]: " choice
+        case $choice in
+            2) sync_option="overwrite" ;;
+            3) sync_option="skip" ;;
+            *) sync_option="backup" ;;
+        esac
+    fi
 
     local rsync_args="-avh"
     if [[ "$sync_option" == "backup" ]]; then

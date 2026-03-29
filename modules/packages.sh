@@ -13,7 +13,7 @@ get_list() {
 
     if [[ -f "$json_file" ]]; then
         # Use jq to get the array for the group and source, then convert to space-separated string
-        local pkgs=$(jq -r ".[\"$group\"].$source[]" "$json_file" 2>/dev/null | xargs)
+        local pkgs=$(jq -r ".["$group"].$source[]" "$json_file" 2>/dev/null | xargs)
         echo "$pkgs"
     else
         log_error "packages.json not found at $json_file!"
@@ -27,29 +27,21 @@ retry_pacman() {
     local attempt=1
     local delay=2
 
-    while true; do
-        attempt=1
-        while (( attempt <= max_attempts )); do
-            log_step "Installing (attempt $attempt/$max_attempts): ${packages[*]}"
-            if sudo pacman -S --needed --noconfirm --noprogressbar "${packages[@]}"; then
-                log_success "Successfully installed: ${packages[*]}"
-                return 0
-            else
-                log_warn "Attempt $attempt failed."
-                ((attempt++))
-                [[ $attempt -le $max_attempts ]] && sleep $delay
-            fi
-        done
-        
-        log_error "Failed to install after $max_attempts attempts: ${packages[*]}"
-        local options=("Retry" "Skip (Try with yay/AUR)" "Quit Installation")
-        ask_choice "Pacman failed to install these packages. What would you like to do?" "${options[@]}"
-        case $MENU_CHOICE in
-            0) continue ;;
-            1) return 1 ;;
-            2) log_step "Exiting..."; exit 1 ;;
-        esac
+    while (( attempt <= max_attempts )); do
+        log_step "Installing (attempt $attempt/$max_attempts): ${packages[*]}"
+        if sudo pacman -S --needed --noconfirm --noprogressbar "${packages[@]}"; then
+            log_success "Successfully installed: ${packages[*]}"
+            return 0
+        else
+            log_warn "Attempt $attempt failed."
+            ((attempt++))
+            [[ $attempt -le $max_attempts ]] && sleep $delay
+        fi
     done
+    
+    # If we reach here, all attempts failed
+    log_error "Failed to install after $max_attempts attempts: ${packages[*]}"
+    return 1 # Skip this batch
 }
 
 install_pkgs() {
@@ -115,25 +107,30 @@ install_aur() {
 
     local total=${#to_install[@]}
     local current=0
+    local max_aur_retries=3 # Limit retries for AUR packages
 
     for pkg in "${to_install[@]}"; do
-...
-        while true; do
-            log_step "Installing AUR: $pkg"
-            if yay -S --needed --noconfirm "$pkg"; then
+        local attempt=1
+        local success=false
+        while (( attempt <= max_aur_retries )); do
+            log_step "Installing AUR: $pkg (Attempt $attempt/$max_aur_retries)"
+            # Use env to ensure yay is found and execute command
+            if env PATH="/usr/bin:/usr/local/bin:/bin:/sbin" /usr/bin/yay -S --needed --noconfirm "$pkg"; then
                 log_success "Installed AUR: $pkg"
-                break
+                success=true
+                break # Exit inner while loop if successful
             else
-                log_error "Failed AUR: $pkg"
-                local options=("Retry" "Skip" "Quit Installation")
-                ask_choice "AUR installation failed for '$pkg'. What would you like to do?" "${options[@]}"
-                case $MENU_CHOICE in
-                    0) continue ;;
-                    1) break ;;
-                    2) log_step "Exiting..."; exit 1 ;;
-                esac
+                log_warn "Attempt $attempt failed for AUR package: $pkg"
+                ((attempt++))
+                sleep 2 # Wait a bit before retrying
             fi
         done
+
+        if ! $success; then
+            log_error "Failed to install AUR package '$pkg' after $max_aur_retries attempts. Skipping."
+            # No need to prompt, just skip.
+        fi
+
         current=$((current + 1))
         show_progress $current $total "AUR Packages"
     done
@@ -141,6 +138,8 @@ install_aur() {
 
 install_group() {
     local group=$1
+    echo "DEBUG: Entering install_group '$group'."
+    
     local pacman_pkgs=($(get_list "$group" "pacman"))
     local aur_pkgs=($(get_list "$group" "aur"))
 
@@ -185,13 +184,16 @@ install_minimal_packages() {
     fi
 
     # Install quickshell for the post-boot UI
-    log_step "✨ Installing Quickshell for post-boot UI..."
+    # Ensure quickshell is installed, even if it was previously skipped due to failure.
+    echo "DEBUG: Explicitly calling install_aur 'quickshell-git' for post-boot UI." # >> "/tmp/zenith_installer_pipe" removed for clarity, redirection is handled by caller
     install_aur "quickshell-git"
+    echo "DEBUG: Finished explicit call to install_aur 'quickshell-git'." # >> "/tmp/zenith_installer_pipe" removed for clarity
 
     mark_done "minimal_packages_installed"
 }
 
 install_remaining_packages() {
+    echo "DEBUG: Entering install_remaining_packages."
     if has_run "remaining_packages_installed"; then
         log_success "Remaining packages already installed. Skipping."
         return

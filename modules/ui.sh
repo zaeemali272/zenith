@@ -44,7 +44,7 @@ print_header() {
 }
 
 log_step() {
-    if [[ "$JSON_OUTPUT" == "true" || "$JSON_OUTPUT" == "1" ]]; then
+    if [[ "${JSON_OUTPUT:-0}" == "true" || "${JSON_OUTPUT:-0}" == "1" ]]; then
         echo "{\"type\": \"task\", \"message\": \"$*\"}"
     else
         echo -e "${BLUE}${BOLD}[STEP]${NC} ${WHITE}$*${NC}"
@@ -52,7 +52,7 @@ log_step() {
 }
 
 log() {
-    if [[ "$JSON_OUTPUT" == "true" || "$JSON_OUTPUT" == "1" ]]; then
+    if [[ "${JSON_OUTPUT:-0}" == "true" || "${JSON_OUTPUT:-0}" == "1" ]]; then
         echo "{\"type\": \"log\", \"level\": \"info\", \"message\": \"$*\"}"
     else
         echo -e "${BLUE}  ➜${NC} ${WHITE}$*${NC}"
@@ -60,7 +60,7 @@ log() {
 }
 
 log_success() {
-    if [[ "$JSON_OUTPUT" == "true" || "$JSON_OUTPUT" == "1" ]]; then
+    if [[ "${JSON_OUTPUT:-0}" == "true" || "${JSON_OUTPUT:-0}" == "1" ]]; then
         echo "{\"type\": \"log\", \"level\": \"success\", \"message\": \"$*\"}"
     else
         echo -e "${GREEN}${BOLD}[OK]${NC} ${WHITE}$*${NC}"
@@ -68,7 +68,7 @@ log_success() {
 }
 
 log_warn() {
-    if [[ "$JSON_OUTPUT" == "true" || "$JSON_OUTPUT" == "1" ]]; then
+    if [[ "${JSON_OUTPUT:-0}" == "true" || "${JSON_OUTPUT:-0}" == "1" ]]; then
         echo "{\"type\": \"log\", \"level\": \"warn\", \"message\": \"$*\"}"
     else
         echo -e "${YELLOW}${BOLD}[WARN]${NC} ${YELLOW}$*${NC}"
@@ -77,7 +77,7 @@ log_warn() {
 
 log_error() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] ERR: $*" >> "$ERROR_LOG"
-    if [[ "$JSON_OUTPUT" == "true" || "$JSON_OUTPUT" == "1" ]]; then
+    if [[ "${JSON_OUTPUT:-0}" == "true" || "${JSON_OUTPUT:-0}" == "1" ]]; then
         echo "{\"type\": \"log\", \"level\": \"error\", \"message\": \"$*\"}"
     else
         echo -e "${RED}${BOLD}[ERR]${NC} ${RED}$*${NC}"
@@ -116,6 +116,12 @@ ask_choice() {
     shift
     local options=("$@")
     
+    if [[ "$JSON_OUTPUT" == "true" || "$JSON_OUTPUT" == "1" ]]; then
+        log "Non-interactive mode: Auto-selecting first option for '$prompt'"
+        MENU_CHOICE=0
+        return 0
+    fi
+
     echo -e "\n${BOLD}${CYAN}❓ $prompt${NC}"
     for i in "${!options[@]}"; do
         echo -e "  ${MAGENTA}$((i+1)))${NC} ${WHITE}${options[$i]}${NC}"
