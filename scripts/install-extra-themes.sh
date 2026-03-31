@@ -46,6 +46,7 @@ CURRENT_ICONS=$(gsettings get org.gnome.desktop.interface icon-theme | tr -d "'"
 if [[ "$CURRENT_ICONS" != "OneUI-dark" ]]; then
     log "Applying OneUI-dark icon theme..."
     gsettings set org.gnome.desktop.interface icon-theme "OneUI-dark"
+    gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
     log_success "OneUI-dark icon theme applied."
 else
     log "OneUI-dark icon theme is already set."

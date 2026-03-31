@@ -81,56 +81,63 @@ EOF
 )
 
 ZEN_MODS_EXPORT="$HOME/Hyprland-dots/zen-mods-export.json"
-ZEN_DIR="$HOME/.zen"
+ZEN_DIRS=("$HOME/.zen" "$HOME/.config/zen")
 FIREFOX_DIR="$HOME/.mozilla/firefox"
 
 #########################
 # Zen Browser
 #########################
-if [ -f "$ZEN_DIR/profiles.ini" ]; then
-    echo "🌐 Zen Browser detected."
+for ZEN_DIR in "${ZEN_DIRS[@]}"; do
+    if [ -f "$ZEN_DIR/profiles.ini" ]; then
+        echo "🌐 Zen Browser detected in $ZEN_DIR"
 
-    # ✅ Detect most recently modified Zen profile
-    latest_profile=$(grep '^Path=' "$ZEN_DIR/profiles.ini" | cut -d= -f2 | while read -r p; do
-        echo "$ZEN_DIR/$p"
-    done | xargs -I{} bash -c 'echo "$(stat -c "%Y %n" "{}")"' | sort -nr | head -n1 | cut -d' ' -f2-)
+        # ✅ Detect most recently modified Zen profile
+        latest_profile=$(grep '^Path=' "$ZEN_DIR/profiles.ini" | cut -d= -f2 | while read -r p; do
+            # Check if Path is absolute or relative
+            if [[ "$p" == /* ]]; then
+                echo "$p"
+            else
+                echo "$ZEN_DIR/$p"
+            fi
+        done | xargs -I{} bash -c 'if [ -d "{}" ]; then echo "$(stat -c "%Y %n" "{}")"; fi' | sort -nr | head -n1 | cut -d' ' -f2-)
 
-    if [ -n "$latest_profile" ]; then
-        echo "🧠 Using latest Zen profile: $latest_profile"
-        prefs_file="$latest_profile/prefs.js"
-        userjs="$latest_profile/user.js"
-        zenmods="$latest_profile/zen-themes.json"
+        if [ -n "$latest_profile" ]; then
+            echo "🧠 Using latest Zen profile: $latest_profile"
+            prefs_file="$latest_profile/prefs.js"
+            userjs="$latest_profile/user.js"
+            zenmods="$latest_profile/zen-themes.json"
 
-        mkdir -p "$latest_profile"
-        [ -f "$userjs" ] || touch "$userjs"
-        backup_file "$userjs"
+            mkdir -p "$latest_profile"
+            [ -f "$userjs" ] || touch "$userjs"
+            backup_file "$userjs"
 
-        echo "$COMMON_PREFS" > "$userjs"
+            echo "$COMMON_PREFS" > "$userjs"
 
-        # --- Zen-specific preferences ---
-        echo 'user_pref("zen.theme.content-element-separation", 1);' >> "$userjs"
-        echo 'user_pref("zen.view.compact.enable-at-startup", true);' >> "$userjs"
-        echo 'user_pref("zen.view.compact.hide-toolbar", true);' >> "$userjs"
-        echo 'user_pref("zen.view.sidebar-expanded", false);' >> "$userjs"
-        echo 'user_pref("widget.wayland.popups.use-native", false);' >> "$userjs"
+            # --- Zen-specific preferences ---
+            echo 'user_pref("zen.theme.content-element-separation", 1);' >> "$userjs"
+            echo 'user_pref("zen.view.compact.enable-at-startup", true);' >> "$userjs"
+            echo 'user_pref("zen.view.compact.hide-toolbar", true);' >> "$userjs"
+            echo 'user_pref("zen.view.sidebar-expanded", false);' >> "$userjs"
+            echo 'user_pref("widget.wayland.popups.use-native", false);' >> "$userjs"
 
-        merge_ui_state "$prefs_file" "$userjs" "$ZEN_LAYOUT"
+            merge_ui_state "$prefs_file" "$userjs" "$ZEN_LAYOUT"
 
-        echo "✅ Updated Zen preferences for profile: $(basename "$latest_profile")"
+            echo "✅ Updated Zen preferences for profile: $(basename "$latest_profile")"
 
-        if [ -f "$ZEN_MODS_EXPORT" ]; then
-            backup_file "$zenmods"
-            cp "$ZEN_MODS_EXPORT" "$zenmods"
-            echo "🎨 Applied Zen mods from: $ZEN_MODS_EXPORT"
+            if [ -f "$ZEN_MODS_EXPORT" ]; then
+                backup_file "$zenmods"
+                cp "$ZEN_MODS_EXPORT" "$zenmods"
+                echo "🎨 Applied Zen mods from: $ZEN_MODS_EXPORT"
+            else
+                echo "⚠️ No Zen mods export found at $ZEN_MODS_EXPORT"
+            fi
         else
-            echo "⚠️ No Zen mods export found at $ZEN_MODS_EXPORT"
+            echo "⚠️ No Zen profiles found in $ZEN_DIR/profiles.ini"
         fi
     else
-        echo "⚠️ No Zen profiles found in profiles.ini"
+        echo "⚠️ Zen Browser not found in $ZEN_DIR. Skipping..."
     fi
-else
-    echo "⚠️ Zen Browser not found. Skipping..."
-fi
+done
 
 #########################
 # Firefox (fallback)

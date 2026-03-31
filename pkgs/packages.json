@@ -33,7 +33,9 @@
             "kvantum",
             "kvantum-qt5",
             "kvantum-theme-materia",
-            "materia-gtk-theme"
+            "materia-gtk-theme",
+            "qt5ct",
+            "qt6ct"
         ],
         "aur": [
             "bibata-cursor-theme",
@@ -103,6 +105,7 @@
             "fd",
             "ffmpeg",
             "ffmpegthumbnailer",
+            "file-roller",
             "git",
             "glances",
             "gnome-keyring",
