@@ -40,7 +40,6 @@ run_phase_2() {
     # Run all the remaining installation and setup steps
     detect_hardware
     install_remaining_packages
-    sync_etc_config
     setup_xdg_dirs
     set_fish_shell
     setup_system_services

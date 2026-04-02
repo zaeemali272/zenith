@@ -116,6 +116,7 @@
             "inotify-tools",
             "iwd",
             "jq",
+            "mpv",
             "nano",
             "pavucontrol",
             "pipewire",
@@ -136,7 +137,6 @@
             "thunar-volman",
             "tumbler",
             "unzip",
-            "vlc",
             "wf-recorder",
             "wget",
             "wireplumber",
@@ -146,6 +146,8 @@
             "zed",
             "zip"
         ],
-        "aur": []
+        "aur": [
+            "mpvpaper"
+        ]
     }
 }
