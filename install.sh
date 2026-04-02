@@ -221,20 +221,19 @@ configs_only() {
 }
 
 run_specific_script() {
-    log_step "📂 Listing available scripts in 'scripts/'..."
-    local script_files=()
-    local script_display_names=() # For displaying to the user
-
-    # Populate script_files and script_display_names
+    # Populate script_files and script_display_names, excluding post_boot_install.sh
     for s in scripts/*.sh; do
         if [[ -f "$s" ]]; then
-            script_files+=("$s")
-            script_display_names+=("$(basename "$s")")
+            script_name=$(basename "$s")
+            if [[ "$script_name" != "post_boot_install.sh" ]]; then
+                script_files+=("$s")
+                script_display_names+=("$script_name")
+            fi
         fi
     done
 
     if [[ ${#script_files[@]} -eq 0 ]]; then
-        log_warn "No .sh scripts found in scripts/ directory."
+        log_warn "No other .sh scripts found in scripts/ directory to run specifically."
         return
     fi
 
@@ -352,36 +351,39 @@ fi
 while true; do
     print_header
     options=(
-        "Minimal Installation (Recommended: Base system + Post-boot GUI installer)"
-        "Full Installation (The Complete Zenith Experience, all at once)"
-        "Packages Only (Install all system and AUR packages)"
-        "Configs Only (Sync dotfiles)"
-        "Setup Quickshell (Clone/Sync Zenith-Shell for Quickshell)"
-        "Setup Extra Assets (Animations and Wallpapers)"
-        "Run Specific Script (Select from scripts/ directory)"
-        "Exit"
+        "Minimal Installation (Recommended: Base system + Post-boot GUI installer)" # index 0
+        "Run Post-Boot Install Script Directly (scripts/post_boot_install.sh)"      # index 1 (NEW)
+        "Full Installation (The Complete Zenith Experience, all at once)"             # index 2
+        "Packages Only (Install all system and AUR packages)"                       # index 3
+        "Configs Only (Sync dotfiles)"                                              # index 4
+        "Setup Quickshell (Clone/Sync Zenith-Shell for Quickshell)"                 # index 5
+        "Setup Extra Assets (Animations and Wallpapers)"                            # index 6
+        "Run Specific Script (Select from scripts/ directory)"                      # index 7
+        "Exit"                                                                      # index 8
     )
 
     ask_choice "Welcome, $USER. What would you like to do?" "${options[@]}"
 
     case $MENU_CHOICE in
         0) minimal_install; break ;;
-        1) full_install; break ;;
-        2) packages_only; break ;;
-        3) configs_only; break ;;
-        4) 
+        1) bash "$DOTS_DIR/scripts/post_boot_install.sh"; break ;; # Execute post_boot_install.sh directly
+        2) full_install; break ;;
+        3) packages_only; break ;;
+        4) configs_only; break ;;
+        5) 
             setup_quickshell
             echo -e "
 ${GREEN}Press Enter to return to the menu...${NC}"
             read -r
             ;;
-        5)
+        6)
             setup_extra_assets
             echo -e "
 ${GREEN}Press Enter to return to the menu...${NC}"
             read -r
             ;;
-        6) run_specific_script || true ;;
-        7) log_step "Exiting. Have a great day!"; exit 0 ;;
+        7) run_specific_script || true ;;
+        8) log_step "Exiting. Have a great day!"; exit 0 ;;
     esac
+
 done
