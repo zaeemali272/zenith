@@ -20,7 +20,8 @@ setup_system_services() {
          sudo cp /etc/iwd/main.conf /etc/iwd/main.conf$BACKUP_SUFFIX
     fi
 
-    echo -e "[General]\nEnableNetworkConfiguration=true" | sudo tee /etc/iwd/main.conf >/dev/null
+    echo -e "[General]
+EnableNetworkConfiguration=true" | sudo tee /etc/iwd/main.conf >/dev/null
 
     # Bluetooth Autofix
     if [[ -f "$DOTS_DIR/systemd/system/bluetooth-autofix.service" ]]; then
@@ -34,7 +35,9 @@ setup_autologin() {
     log_step "🔑 Setting up autologin for user '$USER' on tty1"
     local service_dir="/etc/systemd/system/getty@tty1.service.d"
     sudo mkdir -p "$service_dir"
-    echo -e "[Service]\nExecStart=\nExecStart=-/usr/bin/agetty --autologin $USER %I \$TERM >/dev/null 2>&1" | sudo tee "$service_dir/override.conf" >/dev/null
+    echo -e "[Service]
+ExecStart=
+ExecStart=-/usr/bin/agetty --autologin $USER %I \$TERM >/dev/null 2>&1" | sudo tee "$service_dir/override.conf" >/dev/null
     sudo systemctl daemon-reexec
     log_success "Autologin set."
 }
@@ -44,16 +47,94 @@ optimize_bootloader() {
 
     # Check for Systemd-boot
     if [[ -d /boot/loader/entries ]]; then
-        # Instant boot
+        # Instant boot timeout
         [[ -f /boot/loader/loader.conf ]] && sudo sed -i 's/^timeout.*/timeout 0/' /boot/loader/loader.conf || echo "timeout 0" | sudo tee -a /boot/loader/loader.conf >/dev/null
 
-        # Quiet flags
         local entry=$(find /boot/loader/entries/ -type f -name "*.conf" ! -iname "*fallback*" | head -n 1)
         if [[ -n "$entry" ]]; then
-            sudo sed -i -E 's/\b(quiet|splash|loglevel=[^ ]*|rd\.udev\.log_priority=[^ ]*|rd\.systemd\.show_status=[^ ]*)\b//g' "$entry"
-            sudo sed -i -E 's|^(options\s+.*)|\1 quiet splash loglevel=3 rd.systemd.show_status=false vt.global_cursor_default=0|' "$entry"
+            local current_options=""
+            # Read the current options line from the boot entry file
+            # Use grep to capture the line starting with 'options '
+            # Use sed to remove the 'options ' prefix and capture the rest.
+            if sudo grep -q "^options " "$entry"; then
+                current_options=$(sudo sed -n -E 's/^options //p' "$entry")
+            else
+                log_warn "No 'options' line found in $entry. Cannot dynamically extract static parameters."
+                # If no options line, we can't extract static params. Defaulting to an empty static param string.
+            fi
+
+            # --- Detect IOMMU flags ---
+            local IOMMU_FLAGS=""
+            # Check if KVM is likely installed/enabled by looking for /dev/kvm or virt-manager
+            # Using [ ] for broader compatibility, though [[ ]] is generally preferred in bash.
+            if [ -e /dev/kvm ] || [ -f /usr/bin/virt-manager ]; then
+                local CPU_VENDOR
+                CPU_VENDOR=$(grep -m1 'vendor_id' /proc/cpuinfo | awk '{print $3}')
+                case "$CPU_VENDOR" in
+                    GenuineIntel) IOMMU_FLAGS="intel_iommu=on iommu=pt" ;;
+                    AuthenticAMD) IOMMU_FLAGS="amd_iommu=on iommu=pt" ;;
+                esac
+            fi
+
+            # --- Define core desired kernel parameters ---
+            # These are parameters managed by this script for system optimization.
+            local CORE_PARAMS="quiet splash loglevel=3 rd.systemd.show_status=false vt.global_cursor_default=0"
+            
+            # Combine extracted static parameters, core parameters, and detected IOMMU flags
+            local ALL_PARAMS="$current_options $CORE_PARAMS"
+            if [[ -n "$IOMMU_FLAGS" ]]; then
+                ALL_PARAMS="$ALL_PARAMS $IOMMU_FLAGS"
+            fi
+
+            # Ensure no duplicate parameters and clean up spacing using awk
+            # The awk script:
+            # 1. Cleans multiple spaces into single spaces and trims leading/trailing spaces.
+            # 2. Splits the line into parameters based on spaces.
+            # 3. Uses an associative array 'seen' to track unique parameter keys.
+            # 4. Reconstructs the string with unique parameters and single spacing.
+            local unique_params
+            unique_params=$(echo "$ALL_PARAMS" | awk '
+                # Clean up existing whitespace and trim leading/trailing spaces
+                {
+                    gsub(/[[:space:]]+/, " ", $0);
+                    gsub(/^ | $/, "", $0);
+
+                    # Split into parameters and process for uniqueness
+                    split($0, params, " ");
+                    for (i = 1; i <= length(params); i++) {
+                        param_with_value = params[i];
+                        if (param_with_value == "") next; # Skip empty parameters
+
+                        # Extract the key part of the parameter (e.g., "root" from "root=...")
+                        split(param_with_value, parts, "=");
+                        param_key = parts[1];
+
+                        # Store the parameter if its key has not been seen yet
+                        if (!seen[param_key]) {
+                            seen[param_key] = param_with_value;
+                        }
+                    }
+                    # Reconstruct the string from unique parameters
+                    first = 1;
+                    for (p_key in seen) {
+                        if (!first) printf " ";
+                        printf "%s", seen[p_key];
+                        first = 0;
+                    }
+                }
+            ')
+
+            # Construct the final options line
+            local final_options_line="options $unique_params"
+            
+            # Update the file by replacing the entire 'options' line.
+            # This ensures a clean slate with only the desired, unique parameters.
+            sudo sed -i -E "s|^options .*|$final_options_line|" "$entry"
+            
+            log_success "Systemd-boot optimized with consolidated parameters."
+        else
+            log_warn "No systemd-boot entry file found to optimize."
         fi
-        log_success "Systemd-boot optimized."
     elif [[ -f /boot/grub/grub.cfg ]]; then
         log_step "GRUB detected. Adding quiet flags to /etc/default/grub..."
         # Backup grub config
@@ -78,4 +159,4 @@ optimize_bootloader() {
     else
         log_warn "No supported bootloader config found (systemd-boot or GRUB). Skipping optimization."
     fi
-}
+    }

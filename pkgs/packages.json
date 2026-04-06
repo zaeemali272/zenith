@@ -1,153 +1,127 @@
 {
-    "drivers": {
-        "pacman": [
-            "acpi",
-            "acpi_call",
-            "nss-mdns",
-            "sof-firmware",
-            "tlp"
-        ],
-        "aur": []
-    },
-    "extras": {
-        "pacman": [
-            "kdeconnect",
-            "obsidian",
-            "yt-dlp"
-        ],
-        "aur": [
-            "gallery-dl",
-            "pear-desktop-bin"
-        ]
-    },
-    "recommended": {
-        "pacman": [],
-        "aur": [
-            "freedownloadmanager-bin",
-            "visual-studio-code-bin",
-            "zen-browser-bin"
-        ]
-    },
-    "themes": {
-        "pacman": [
-            "kvantum",
-            "kvantum-qt5",
-            "kvantum-theme-materia",
-            "materia-gtk-theme",
-            "qt5ct",
-            "qt6ct"
-        ],
-        "aur": [
-            "bibata-cursor-theme",
-            "illogical-impulse-oneui4-icons-git"
-        ]
-    },
-    "gaming": {
-        "pacman": [
-            "gamemode",
-            "goverlay",
-            "lutris",
-            "mangohud",
-            "steam",
-            "wine",
-            "winetricks"
-        ],
-        "aur": [
-            "protonup-qt"
-        ]
-    },
-    "fonts": {
-        "pacman": [
-            "noto-fonts",
-            "noto-fonts-cjk",
-            "noto-fonts-emoji",
-            "ttf-dejavu",
-            "ttf-jetbrains-mono-nerd",
-            "ttf-nerd-fonts-symbols"
-        ],
-        "aur": []
-    },
-    "aur": {
-        "pacman": [
-            "cliphist",
-            "eog",
-            "hyprshot",
-            "ncdu",
-            "xdotool"
-        ],
-        "aur": [
-            "anyrun",
-            "quickshell-git",
-            "rar",
-            "ttf-material-icons-git",
-            "ttf-material-symbols-variable-git",
-            "wlogout"
-        ]
-    },
-    "core": {
-        "pacman": [
-            "awww",
-            "hyprland",
-            "hypridle",
-            "hyprlock",
-            "xdg-desktop-portal-hyprland",
-            "kitty",
-            "fish",
-            "thunar",
-            "base",
-            "base-devel",
-            "bluez",
-            "bluez-utils",
-            "cpio",
-            "brightnessctl",
-            "curl",
-            "eza",
-            "fd",
-            "ffmpeg",
-            "ffmpegthumbnailer",
-            "file-roller",
-            "git",
-            "glances",
-            "gnome-keyring",
-            "gst-libav",
-            "gst-plugins-bad",
-            "gst-plugins-good",
-            "gvfs",
-            "inotify-tools",
-            "iwd",
-            "jq",
-            "mpv",
-            "nano",
-            "pavucontrol",
-            "pipewire",
-            "pipewire-alsa",
-            "pipewire-jack",
-            "pipewire-pulse",
-            "playerctl",
-            "polkit-gnome",
-            "qt6-5compat",
-            "qt6-base",
-            "qt6-declarative",
-            "qt6-svg",
-            "qt6-tools",
-            "ripgrep",
-            "rsync",
-            "starship",
-            "thunar-archive-plugin",
-            "thunar-volman",
-            "tumbler",
-            "unzip",
-            "wf-recorder",
-            "wget",
-            "wireplumber",
-            "xarchiver",
-            "xdg-desktop-portal",
-            "xdg-user-dirs",
-            "zed",
-            "zip"
-        ],
-        "aur": [
-            "mpvpaper"
-        ]
-    }
+  "drivers": {
+    "pacman": ["acpi", "acpi_call", "nss-mdns", "sof-firmware", "tlp"],
+    "aur": []
+  },
+  "extras": {
+    "pacman": ["kdeconnect", "obsidian", "yt-dlp"],
+    "aur": ["gallery-dl", "pear-desktop-bin", "element-desktop"]
+  },
+  "recommended": {
+    "pacman": [],
+    "aur": [
+      "freedownloadmanager-bin",
+      "visual-studio-code-bin",
+      "zen-browser-bin"
+    ]
+  },
+  "themes": {
+    "pacman": [
+      "kvantum",
+      "kvantum-qt5",
+      "kvantum-theme-materia",
+      "materia-gtk-theme",
+      "qt5ct",
+      "qt6ct"
+    ],
+    "aur": ["bibata-cursor-theme", "illogical-impulse-oneui4-icons-git"]
+  },
+  "gaming": {
+    "pacman": [
+      "gamemode",
+      "goverlay",
+      "lutris",
+      "mangohud",
+      "steam",
+      "wine",
+      "winetricks"
+    ],
+    "aur": ["protonup-qt"]
+  },
+  "fonts": {
+    "pacman": [
+      "noto-fonts",
+      "noto-fonts-cjk",
+      "noto-fonts-emoji",
+      "ttf-dejavu",
+      "ttf-jetbrains-mono-nerd",
+      "ttf-nerd-fonts-symbols"
+    ],
+    "aur": []
+  },
+  "aur": {
+    "pacman": ["cliphist", "eog", "hyprshot", "ncdu", "xdotool"],
+    "aur": [
+      "anyrun",
+      "quickshell-git",
+      "rar",
+      "ttf-material-icons-git",
+      "ttf-material-symbols-variable-git",
+      "wlogout"
+    ]
+  },
+  "core": {
+    "pacman": [
+      "awww",
+      "hyprland",
+      "hypridle",
+      "hyprlock",
+      "xdg-desktop-portal-hyprland",
+      "kitty",
+      "fish",
+      "thunar",
+      "base",
+      "base-devel",
+      "bluez",
+      "bluez-utils",
+      "cpio",
+      "brightnessctl",
+      "curl",
+      "eza",
+      "fd",
+      "ffmpeg",
+      "ffmpegthumbnailer",
+      "file-roller",
+      "git",
+      "glances",
+      "gnome-keyring",
+      "gst-libav",
+      "gst-plugins-bad",
+      "gst-plugins-good",
+      "gvfs",
+      "inotify-tools",
+      "iwd",
+      "jq",
+      "mpv",
+      "nano",
+      "pavucontrol",
+      "pipewire",
+      "pipewire-alsa",
+      "pipewire-jack",
+      "pipewire-pulse",
+      "playerctl",
+      "polkit-gnome",
+      "qt6-5compat",
+      "qt6-base",
+      "qt6-declarative",
+      "qt6-svg",
+      "qt6-tools",
+      "ripgrep",
+      "rsync",
+      "starship",
+      "thunar-archive-plugin",
+      "thunar-volman",
+      "tumbler",
+      "unzip",
+      "wf-recorder",
+      "wget",
+      "wireplumber",
+      "xarchiver",
+      "xdg-desktop-portal",
+      "xdg-user-dirs",
+      "zed",
+      "zip"
+    ],
+    "aur": ["mpvpaper"]
+  }
 }
