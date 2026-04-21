@@ -1,9 +1,11 @@
 swipe:
   3:
     left:
-      sendkey: "PREVIOUSSONG"
+      command: "~/.config/hypr/hyprland/scripts/music_control.sh prev"
+      threshold: 0.5
     right:
-      sendkey: "NEXTSONG"
+      command: "~/.config/hypr/hyprland/scripts/music_control.sh next"
+      threshold: 0.5
     up:
       command: "~/.config/hypr/hyprland/scripts/osd.sh volume up"
     down:
@@ -13,19 +15,22 @@ swipe:
       command: "~/.config/hypr/hyprland/scripts/osd.sh brightness up"
     down:
       command: "~/.config/hypr/hyprland/scripts/osd.sh brightness down"
+
 hold:
   3:
     sendkey: "PLAYPAUSE"
+
 pinch:
   in:
     3:
-    command: "~/.config/hypr/hyprland/scripts/osd.sh volume mute"
+      command: "~/.config/hypr/hyprland/scripts/osd.sh volume mute"
+
 threshold:
-  swipe: 1.0
+  swipe: 0.3
   pinch: 1
   hold: 0
 
 interval:
-  swipe: 0.15
+  swipe: 0.15 # Low value makes volume/brightness responsive
   pinch: 1
   hold: 0.5

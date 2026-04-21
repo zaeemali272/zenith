@@ -3,12 +3,18 @@
 setup_system_services() {
     log_step "🔌 Configuring system services..."
 
-    # Handle Network Manager vs iwd
-    # Only switch to iwd if NetworkManager is running and we decide to switch, or if user asks?
-    # For now, let's just make it robust: Don't disable NM unless we are sure.
-    # Actually, the user wants "Perfect" & "Automatic".
-    # Zenith seems to prefer iwd. We'll proceed but log clearly.
+    # --- Power Key Handling ---
+    # Prevents the system from shutting down instantly if the power button is bumped
+    log_info "Disabling systemd-logind power key handling..."
+    if grep -q "^#HandlePowerKey=" /etc/systemd/logind.conf; then
+        sudo sed -i 's/^#HandlePowerKey=.*/HandlePowerKey=ignore/' /etc/systemd/logind.conf
+    elif grep -q "^HandlePowerKey=" /etc/systemd/logind.conf; then
+        sudo sed -i 's/^HandlePowerKey=.*/HandlePowerKey=ignore/' /etc/systemd/logind.conf
+    else
+        echo "HandlePowerKey=ignore" | sudo tee -a /etc/systemd/logind.conf >/dev/null
+    fi
 
+    # Handle Network Manager vs iwd
     if systemctl is-active --quiet NetworkManager.service; then
         log_warn "Disabling NetworkManager to use iwd (Zenith default)..."
         sudo systemctl disable --now NetworkManager.service 2>/dev/null || true
@@ -79,7 +85,7 @@ optimize_bootloader() {
             # --- Define core desired kernel parameters ---
             # These are parameters managed by this script for system optimization.
             local CORE_PARAMS="quiet splash loglevel=3 rd.systemd.show_status=false vt.global_cursor_default=0"
-            
+
             # Combine extracted static parameters, core parameters, and detected IOMMU flags
             local ALL_PARAMS="$current_options $CORE_PARAMS"
             if [[ -n "$IOMMU_FLAGS" ]]; then
@@ -126,11 +132,11 @@ optimize_bootloader() {
 
             # Construct the final options line
             local final_options_line="options $unique_params"
-            
+
             # Update the file by replacing the entire 'options' line.
             # This ensures a clean slate with only the desired, unique parameters.
             sudo sed -i -E "s|^options .*|$final_options_line|" "$entry"
-            
+
             log_success "Systemd-boot optimized with consolidated parameters."
         else
             log_warn "No systemd-boot entry file found to optimize."

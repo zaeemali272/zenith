@@ -29,7 +29,7 @@ if pgrep wf-recorder > /dev/null; then
     rm -f "$STATE_FILE"
 
     ACTION=$(notify-send \
-        -i /usr/share/icons/OneUI/scalable/apps/screenshooter.svg \
+        -i screenshooter \
         -a Recorder \
         -A "play=Play" \
         -A "folder=Open Folder" \
@@ -53,7 +53,7 @@ FILE="recording_$(getdate).mp4"
 echo "$VIDEO_DIR/$FILE" > "$STATE_FILE"
 
 notify-send \
-    -i /usr/share/icons/OneUI/scalable/apps/screenshooter.svg \
+    -i screenshooter \
     -a Recorder \
     -h string:x-canonical-private-synchronous:record \
     "Recording started" \
@@ -62,7 +62,7 @@ notify-send \
 case "$1" in
     --fullscreen-sound)
         wf-recorder -o "$(getactivemonitor)" \
-            --pixel-format yuv420p \/usr/share/icons/OneUI/scalable/apps/screenshooter.svg
+            --pixel-format yuv420p \screenshooter
             --audio="$(getaudiooutput)" \
             -f "$FILE" &
         ;;
