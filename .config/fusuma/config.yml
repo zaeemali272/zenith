@@ -15,10 +15,6 @@ swipe:
       command: "~/.config/hypr/hyprland/scripts/osd.sh brightness up"
     down:
       command: "~/.config/hypr/hyprland/scripts/osd.sh brightness down"
-    left:
-      command: "hyprctl dispatch workspace r+1"
-    right:
-      command: "hyprctl dispatch workspace r-1"
 
 hold:
   3:
