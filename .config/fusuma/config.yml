@@ -15,10 +15,9 @@ swipe:
       command: "~/.config/hypr/hyprland/scripts/osd.sh brightness up"
     down:
       command: "~/.config/hypr/hyprland/scripts/osd.sh brightness down"
-
 hold:
   3:
-    sendkey: "PLAYPAUSE"
+    command: "playerctl play-pause"
 
 pinch:
   in:
