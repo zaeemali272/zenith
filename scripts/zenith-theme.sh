@@ -69,7 +69,7 @@ hyprctl reload
 if pgrep -x quickshell &> /dev/null; then
     killall quickshell
     # Launching back the shell (ensure paths match your repo structure)
-    (cd "$PROJECT_ROOT/zenith-shell" && ./launch.sh wallpaperSelector &> /dev/null &)
+    (cd "$PROJECT_ROOT/zenith-shell" && ./launch.sh shell &> /dev/null &)
 fi
 
 killall -USR1 kitty 2>/dev/null
