@@ -1,0 +1,38 @@
+add_newline = false
+format = """
+$cmd_duration 󰜥 $directory $git_branch
+$character"""
+
+[character]
+success_symbol = "[   ](bold fg:{{colors.primary.default.hex}})"
+error_symbol = "[   ](bold fg:{{colors.error.default.hex}})"
+
+[package]
+disabled = true
+
+[git_branch]
+style = "bg:{{colors.tertiary.default.hex}}"
+symbol = "󰘬"
+format = "󰜥 [](bold fg:{{colors.tertiary.default.hex}})[$symbol $branch(:$remote_branch)](fg:{{colors.on_tertiary.default.hex}} bg:{{colors.tertiary.default.hex}})[ ](bold fg:{{colors.tertiary.default.hex}})"
+
+[hostname]
+ssh_only = false
+format =  "[•$hostname](bg:{{colors.primary.default.hex}} bold fg:{{colors.on_primary.default.hex}})[](bold fg:{{colors.primary.default.hex}})"
+disabled = false
+
+[username]
+style_user = "bold bg:{{colors.primary.default.hex}} fg:{{colors.on_primary.default.hex}}"
+style_root = "red bold"
+format = "[](bold fg:{{colors.primary.default.hex}})[$user]($style)"
+disabled = false
+show_always = true
+
+[directory]
+home_symbol = "  "
+read_only = "  "
+style = "bg:{{colors.secondary.default.hex}} fg:{{colors.on_secondary.default.hex}}"
+format = '[](bold fg:{{colors.secondary.default.hex}})[󰉋 $path]($style)[](bold fg:{{colors.secondary.default.hex}})'
+
+[cmd_duration]
+min_time = 0
+format = '[](bold fg:{{colors.surface_variant.default.hex}})[󰪢 $duration](bold bg:{{colors.surface_variant.default.hex}} fg:{{colors.on_surface_variant.default.hex}})[](bold fg:{{colors.surface_variant.default.hex}})'

@@ -31,3 +31,6 @@ alias rules 'nano ~/.config/hypr/hyprland/rules.conf'
 
 alias conf 'nano ~/.config/fish/config.fish'
 alias net 'sudo ~/.local/bin/switch_wifi.sh $argv'
+
+alias auto-theme 'bash ~/Documents/Dots/zenith/scripts/zenith-theme.sh --autoselect'
+alias theme 'bash ~/Documents/Dots/zenith/scripts/zenith-theme.sh'

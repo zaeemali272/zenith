@@ -1,0 +1,30 @@
+[config]
+default_mode = "dark"
+
+[templates.hyprland]
+input_path = "../zenith/templates/hyprland-colors.conf"
+output_path = "~/.config/hypr/hyprland/colors.conf"
+
+[templates.quickshell]
+input_path = "../zenith/templates/Colors.qml"
+output_path = "~/Documents/Dots/zenith-shell/Colors.qml"
+
+[templates.gtk3]
+input_path = "../zenith/templates/gtk.css"
+output_path = "~/.config/gtk-3.0/gtk.css"
+
+[templates.gtk4]
+input_path = "../zenith/templates/gtk.css"
+output_path = "~/.config/gtk-4.0/gtk.css"
+
+[templates.palette]
+input_path = "../zenith/templates/color-palette.css"
+output_path = "~/.themes/color-palette.css"
+
+[templates.kitty]
+input_path = "../zenith/templates/kitty-theme.conf"
+output_path = "~/.config/kitty/current-theme.conf"
+
+[templates.starship]
+input_path = "../zenith/templates/starship.toml"
+output_path = "~/.config/starship.toml"
