@@ -1,17 +1,17 @@
-@define-color accent #fcb0d6;
-@define-color normal #fcb0d6;
-@define-color light #fcb0d6;
-@define-color dark #fcb0d6;
-@define-color lighter #fcb0d6;
-@define-color hover #fcb0d6;
-@define-color warning #fcb0d6;
+@define-color accent #ffb3b3;
+@define-color normal #ffb3b3;
+@define-color light #ffb3b3;
+@define-color dark #ffb3b3;
+@define-color lighter #ffb3b3;
+@define-color hover #ffb3b3;
+@define-color warning #ffb3b3;
 
 /* Lowered alpha values back to subtle levels to fix extreme opacity */
-@define-color normal_a3 rgba(rgb(252, 176, 214), 0.03);
-@define-color normal_a6 rgba(rgb(252, 176, 214), 0.06);
-@define-color normal_a8 rgba(rgb(252, 176, 214), 0.08);
-@define-color normal_a12 rgba(rgb(252, 176, 214), 0.12);
-@define-color normal_a16 rgba(rgb(252, 176, 214), 0.16);
-@define-color normal_a24 rgba(rgb(252, 176, 214), 0.22);
-@define-color normal_a26 rgba(rgb(252, 176, 214), 0.26);
-@define-color normal_a30 rgba(rgb(252, 176, 214), 0.30);
+@define-color normal_a3 rgba(rgb(255, 179, 179), 0.03);
+@define-color normal_a6 rgba(rgb(255, 179, 179), 0.06);
+@define-color normal_a8 rgba(rgb(255, 179, 179), 0.08);
+@define-color normal_a12 rgba(rgb(255, 179, 179), 0.12);
+@define-color normal_a16 rgba(rgb(255, 179, 179), 0.16);
+@define-color normal_a24 rgba(rgb(255, 179, 179), 0.22);
+@define-color normal_a26 rgba(rgb(255, 179, 179), 0.26);
+@define-color normal_a30 rgba(rgb(255, 179, 179), 0.30);
