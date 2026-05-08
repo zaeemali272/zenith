@@ -1,1 +1,5 @@
 dynamic-materia-dark
+.config/gtk-3.0/gtk.css
+.config/gtk-4.0/gtk.css
+.config/hypr/hyprland/colors.conf
+.config/kitty/current-theme.conf
