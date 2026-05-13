@@ -217,3 +217,24 @@ install_remaining_packages() {
     mark_done "remaining_packages_installed"
 }
 
+install_new_packages() {
+    log_step "🔍 Checking for new packages in packages.json..."
+    
+    # Ensure databases are synced
+    if ! has_run "system_synced"; then
+        sudo pacman -Sy --noconfirm || log_warn "System sync failed."
+        mark_done "system_synced"
+    fi
+    
+    ensure_yay || return 1
+    
+    # Iterate through all groups in packages.json and install them
+    # get_list already extracts the packages, and install_pkgs/install_aur skip existing ones.
+    local groups=("core" "drivers" "fonts" "gaming" "themes" "recommended" "aur" "extras")
+    for group in "${groups[@]}"; do
+        install_group "$group"
+    done
+    
+    log_success "Package check complete."
+}
+

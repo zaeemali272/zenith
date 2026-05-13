@@ -1,17 +1,51 @@
-@define-color accent {{colors.primary.default.hex}};
-@define-color normal {{colors.primary.default.hex}};
-@define-color light {{colors.primary.default.hex}};
-@define-color dark {{colors.primary.default.hex}};
-@define-color lighter {{colors.primary.default.hex}};
-@define-color hover {{colors.primary.default.hex}};
-@define-color warning {{colors.primary.default.hex}};
+* {
+    accent-color: {{colors.primary.default.hex}} !important;
+}
 
-/* Lowered alpha values back to subtle levels to fix extreme opacity */
-@define-color normal_a3 rgba({{colors.primary.default.rgb}}, 0.03);
-@define-color normal_a6 rgba({{colors.primary.default.rgb}}, 0.06);
-@define-color normal_a8 rgba({{colors.primary.default.rgb}}, 0.08);
-@define-color normal_a12 rgba({{colors.primary.default.rgb}}, 0.12);
-@define-color normal_a16 rgba({{colors.primary.default.rgb}}, 0.16);
-@define-color normal_a24 rgba({{colors.primary.default.rgb}}, 0.22);
-@define-color normal_a26 rgba({{colors.primary.default.rgb}}, 0.26);
-@define-color normal_a30 rgba({{colors.primary.default.rgb}}, 0.30);
+/* Entry selection background */
+.nemo-window .nemo-window-pane widget.entry:selected {
+    background-color: {{colors.primary.default.hex}} !important;
+}
+
+/* Treeview disk full color */
+.places-treeview {
+    -nemoplacestreeview-disk-full-fg-color: {{colors.primary.default.hex}} !important;
+}
+
+/* Buttons and selection highlights */
+.button,
+.view .selection {
+    background-color: {{colors.primary.default.hex}} !important;
+}
+
+.button:hover {
+    background-color: {{colors.primary.default.hex}} !important;
+}
+
+/* Theme-defined selection colors */
+@define-color theme_selected_bg_color {{colors.primary.default.hex}} !important;
+@define-color theme_unfocused_selected_bg_color {{colors.primary.default.hex}} !important;
+
+/* Clean up Thunar Icon View */
+* {
+    -thunarabstracticonview-row-spacing: 50 !important;
+    -thunarabstracticonview-column-spacing: 20 !important;
+}
+
+/* Force single line with ellipses */
+ThunarIconView text {
+    max-width: 100px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.standard-view.canvas-item {
+    -thunarstandardview-ellipsize-start: 0.1 !important;
+}
+
+/* This targets the icon view container specifically */
+.thunar .standard-view .view {
+    -thunariconview-row-spacing: 50 !important;
+    -thunariconview-column-spacing: 20 !important;
+}

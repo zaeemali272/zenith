@@ -51,6 +51,9 @@ export SKIP_FONTS=0
 export SKIP_SCRIPTS=0
 export AUTO_INSTALL=0
 export JSON_OUTPUT=0
+export RUN_QUICKSHELL=0
+export RUN_CONFIGS=0
+export RUN_NEW_PKGS=0
 
 # Parse Arguments
 for arg in "$@"; do
@@ -63,6 +66,9 @@ for arg in "$@"; do
         --no-scripts) export SKIP_SCRIPTS=1 ;;
         --auto|--unattended) export AUTO_INSTALL=1 ;;
         --json) export JSON_OUTPUT=1 ;;
+        --quickshell) export RUN_QUICKSHELL=1 ;;
+        --configs) export RUN_CONFIGS=1 ;;
+        --new-pkgs) export RUN_NEW_PKGS=1 ;;
     esac
 done
 
@@ -340,6 +346,14 @@ ${GREEN}All selected scripts execution completed.${NC}"
 }
 
 # --- Main Flow ---
+if [[ "$RUN_QUICKSHELL" -eq 1 || "$RUN_CONFIGS" -eq 1 || "$RUN_NEW_PKGS" -eq 1 ]]; then
+    log_step "🚀 Running specific tasks..."
+    if [[ "$RUN_NEW_PKGS" -eq 1 ]]; then install_new_packages; fi
+    if [[ "$RUN_CONFIGS" -eq 1 ]]; then configs_only; fi
+    if [[ "$RUN_QUICKSHELL" -eq 1 ]]; then setup_quickshell; fi
+    exit 0
+fi
+
 print_header
 
 if [[ "$AUTO_INSTALL" -eq 1 ]]; then
