@@ -8,7 +8,8 @@ scale highlight,
 progressbar progress,
 entry:focus,
 check:checked,
-radio:checked {
+radio:checked,
+selection {
     background-color: #ffb3b3 !important;
     border-color: #ffb3b3 !important;
     color: #561d20 !important;
@@ -20,4 +21,14 @@ radio:checked {
 
 *:focus-visible {
     outline-color: #ffb3b3 !important;
+}
+
+/* Specific selection fix for various nodes */
+label > selection,
+entry > selection,
+textview > selection,
+flowboxchild:selected,
+listrow:selected {
+    background-color: #ffb3b3 !important;
+    color: #561d20 !important;
 }

@@ -50,6 +50,7 @@ merge_ui_state() {
 COMMON_PREFS='
 user_pref("media.videocontrols.picture-in-picture.enable-when-switching-tabs.enabled", true);
 user_pref("dom.media.mediasession.enabled", true);
+user_pref("org.mpris.MediaPlayer2.Player", true);
 '
 
 ZEN_LAYOUT=$(cat <<'EOF'

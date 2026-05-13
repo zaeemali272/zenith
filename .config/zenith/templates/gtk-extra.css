@@ -8,7 +8,8 @@ scale highlight,
 progressbar progress,
 entry:focus,
 check:checked,
-radio:checked {
+radio:checked,
+selection {
     background-color: {{colors.primary.default.hex}} !important;
     border-color: {{colors.primary.default.hex}} !important;
     color: {{colors.on_primary.default.hex}} !important;
@@ -20,4 +21,14 @@ radio:checked {
 
 *:focus-visible {
     outline-color: {{colors.primary.default.hex}} !important;
+}
+
+/* Specific selection fix for various nodes */
+label > selection,
+entry > selection,
+textview > selection,
+flowboxchild:selected,
+listrow:selected {
+    background-color: {{colors.primary.default.hex}} !important;
+    color: {{colors.on_primary.default.hex}} !important;
 }

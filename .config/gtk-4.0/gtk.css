@@ -2,6 +2,27 @@
     accent-color: #ffb3b3 !important;
 }
 
+/* Global Web-style selection (for browsers/web-engines) */
+::-moz-selection {
+    background-color: #ffb3b3 !important;
+    color: #561d20 !important;
+}
+
+::selection {
+    background-color: #ffb3b3 !important;
+    color: #561d20 !important;
+}
+
+selection {
+    background-color: #ffb3b3 !important;
+    color: #561d20 !important;
+}
+
+*:selected {
+    background-color: #ffb3b3 !important;
+    color: #561d20 !important;
+}
+
 /* Entry selection background */
 .nemo-window .nemo-window-pane widget.entry:selected {
     background-color: #ffb3b3 !important;
@@ -24,7 +45,9 @@
 
 /* Theme-defined selection colors */
 @define-color theme_selected_bg_color #ffb3b3 !important;
+@define-color theme_selected_fg_color #561d20 !important;
 @define-color theme_unfocused_selected_bg_color #ffb3b3 !important;
+@define-color theme_unfocused_selected_fg_color #561d20 !important;
 
 /* Clean up Thunar Icon View */
 * {

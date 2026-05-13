@@ -4,7 +4,7 @@
     "aur": []
   },
   "extras": {
-    "pacman": ["kdeconnect", "obsidian", "yt-dlp"],
+    "pacman": ["kdeconnect", "obsidian", "yt-dlp", "tor", "python-pysocks"],
     "aur": ["gallery-dl", "pear-desktop-bin", "element-desktop"]
   },
   "recommended": {
