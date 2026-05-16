@@ -1,56 +1,79 @@
 #!/usr/bin/env bash
 
-set -e
-
-STATE_FILE="/tmp/wf-recorder-state"
+STATE_FILE="/tmp/recording-state"
 
 getdate() {
-    date '+%Y-%m-%d_%H.%M.%S'
+    date '+%Y-%m-%d_%H-%M-%S'
 }
 
-getaudiooutput() {
-    pactl list sources | grep 'Name' | grep 'monitor' | awk '{print $2}' | head -n1
+# Finds your actual physical microphone input
+getmicinput() {
+    pactl get-default-source 2>/dev/null || \
+    pactl list sources short | awk '/input/ {print $2}' | head -n1
+}
+
+# Robust way to grab the system sound loopback stream
+getsystemsound() {
+    DEFAULT_SINK=$(pactl get-default-sink 2>/dev/null)
+    if [ -n "$DEFAULT_SINK" ]; then
+        echo "${DEFAULT_SINK}.monitor"
+    else
+        pactl list sources short | awk '/monitor/ {print $2}' | head -n1
+    fi
 }
 
 getactivemonitor() {
     hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .name'
 }
 
-VIDEO_DIR="$(xdg-user-dir VIDEOS)"
-[ "$VIDEO_DIR" = "$HOME" ] && VIDEO_DIR="$HOME/Videos"
+VIDEO_DIR="$HOME/Videos/Recordings"
 mkdir -p "$VIDEO_DIR"
-cd "$VIDEO_DIR"
 
-# STOP recording if already running
-if pgrep wf-recorder > /dev/null; then
-    pkill wf-recorder
+# --- STOP RECORDING LOGIC ---
+# Check if either tool is active using loose pgrep matching
+if pgrep -f "wl-screenrec" > /dev/null || pgrep -f "gpu-screen-recorder" > /dev/null; then
+    
+    # Use killall as you confirmed this successfully signals them on your setup
+    killall -SIGINT wl-screenrec 2>/dev/null || true
+    killall -SIGINT gpu-screen-recorder 2>/dev/null || true
 
-    FILE=$(cat "$STATE_FILE" 2>/dev/null || true)
+    # Give the encoders time to finish writing the file containers safely
+    sleep 0.6
+
+    FILE_PATH=$(cat "$STATE_FILE" 2>/dev/null || true)
     rm -f "$STATE_FILE"
 
-    ACTION=$(notify-send \
-        -i screenshooter \
-        -a Recorder \
-        -A "play=Play" \
-        -A "folder=Open Folder" \
-        "Recording stopped" \
-        "$(basename "$FILE")")
+    if [ -n "$FILE_PATH" ] && [ -f "$FILE_PATH" ]; then
+        echo -n "$FILE_PATH" | wl-copy
+        
+        # Fires the action handler to your Quickshell notificationItem.qml
+        ACTION=$(notify-send \
+            -i screenshooter \
+            -a Recorder \
+            -A "default=Open Video" \
+            -A "folder=Open Folder" \
+            "Recording stopped & copied to clipboard" \
+            "$(basename "$FILE_PATH")")
 
-    case "$ACTION" in
-        play)
-            xdg-open "$FILE"
-            ;;
-        folder)
-            xdg-open "$VIDEO_DIR"
-            ;;
-    esac
-
+        case "$ACTION" in
+            default)
+                xdg-open "$FILE_PATH"
+                ;;
+            folder)
+                xdg-open "$VIDEO_DIR"
+                ;;
+        esac
+    fi
     exit 0
 fi
 
-# START recording
+# Clear out any stale state files left behind from previous crashes
+rm -f "$STATE_FILE"
+
+# --- START RECORDING LOGIC ---
 FILE="recording_$(getdate).mp4"
-echo "$VIDEO_DIR/$FILE" > "$STATE_FILE"
+FULL_PATH="$VIDEO_DIR/$FILE"
+echo "$FULL_PATH" > "$STATE_FILE"
 
 notify-send \
     -i screenshooter \
@@ -60,29 +83,36 @@ notify-send \
     "$FILE"
 
 case "$1" in
+    --fullscreen-all)
+        gpu-screen-recorder \
+            -w "$(getactivemonitor)" \
+            -f 60 \
+            -a "$(getsystemsound)|$(getmicinput)" \
+            -o "$FULL_PATH" &
+        ;;
     --fullscreen-sound)
-        wf-recorder -o "$(getactivemonitor)" \
-            --pixel-format yuv420p \screenshooter
-            --audio="$(getaudiooutput)" \
-            -f "$FILE" &
+        gpu-screen-recorder \
+            -w "$(getactivemonitor)" \
+            -f 60 \
+            -a "$(getsystemsound)" \
+            -o "$FULL_PATH" &
         ;;
     --fullscreen)
-        wf-recorder -o "$(getactivemonitor)" \
-            --pixel-format yuv420p \
-            -f "$FILE" &
+        gpu-screen-recorder \
+            -w "$(getactivemonitor)" \
+            -f 60 \
+            -o "$FULL_PATH" &
         ;;
-    *)
+    --region|*)
         region=$(slurp) || {
             notify-send -a Recorder "Recording cancelled"
             rm -f "$STATE_FILE"
-            exit 1
+            exit 0
         }
-        wf-recorder \
-            --pixel-format yuv420p \
-            --geometry "$region" \
-            -f "$FILE" &
+        wl-screenrec \
+            -g "$region" \
+            -f "$FULL_PATH" &
         ;;
 esac
 
 disown
-
