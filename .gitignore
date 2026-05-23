@@ -3,3 +3,8 @@ dynamic-materia-dark
 .config/gtk-4.0/gtk.css
 .config/hypr/hyprland/colors.conf
 .config/kitty/current-theme.conf
+.config/gtk-3.0/color-palette.css
+.config/gtk-4.0/color-palette.css
+.config/hypr/hyprland/colors.conf
+.config/kitty/current-theme.conf
+zenith-shell/Colors.qml

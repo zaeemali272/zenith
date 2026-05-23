@@ -54,6 +54,7 @@ export JSON_OUTPUT=0
 export RUN_QUICKSHELL=0
 export RUN_CONFIGS=0
 export RUN_NEW_PKGS=0
+export SKIP_XDG=0
 
 # Parse Arguments
 for arg in "$@"; do
@@ -64,6 +65,7 @@ for arg in "$@"; do
         --no-extras) export SKIP_EXTRAS=1 ;;
         --no-fonts) export SKIP_FONTS=1 ;;
         --no-scripts) export SKIP_SCRIPTS=1 ;;
+        --skip-xdg) export SKIP_XDG=1 ;;
         --auto|--unattended) export AUTO_INSTALL=1 ;;
         --json) export JSON_OUTPUT=1 ;;
         --quickshell) export RUN_QUICKSHELL=1 ;;
@@ -187,7 +189,9 @@ full_install() {
     install_minimal_packages
     install_remaining_packages
     sync_dotfiles
-    setup_xdg_dirs
+    if [[ "$SKIP_XDG" -eq 0 ]]; then
+        setup_xdg_dirs
+    fi
     set_fish_shell
     setup_system_services
     bash scripts/power-profile-setup.sh || log_warn "Power profile setup failed."
@@ -222,7 +226,9 @@ packages_only() {
 
 configs_only() {
     sync_dotfiles
-    setup_xdg_dirs
+    if [[ "$SKIP_XDG" -eq 0 ]]; then
+        setup_xdg_dirs
+    fi
     log_success "Configuration sync complete."
 }
 
