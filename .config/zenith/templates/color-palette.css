@@ -1,20 +1,122 @@
-/* ------------------- base colours --------------------------- */
-@define-color normal   {{colors.primary.default.hex}};
-@define-color light    {{colors.primary.default.hex}};
-@define-color dark     {{colors.primary.default.hex}};
-@define-color lighter  {{colors.primary.default.hex}};
-@define-color accent   {{colors.primary.default.hex}};
-@define-color hover    {{colors.primary.default.hex}};
-@define-color warning  {{colors.primary.default.hex}};
+/* Material 3 Color Palette Template for Matugen */
 
-@define-color selection_bg {{colors.primary.default.hex}};
-@define-color selection_fg {{colors.on_primary.default.hex}};
+/* Core Constants */
+@define-color white #ffffff;
+@define-color black #000000;
 
-@define-color normal_a3 rgba({{colors.primary.default.rgb}}, 0.03);
-@define-color normal_a6 rgba({{colors.primary.default.rgb}}, 0.06);
-@define-color normal_a8 rgba({{colors.primary.default.rgb}}, 0.08);
-@define-color normal_a12 rgba({{colors.primary.default.rgb}}, 0.12);
-@define-color normal_a16 rgba({{colors.primary.default.rgb}}, 0.16);
-@define-color normal_a24 rgba({{colors.primary.default.rgb}}, 0.60);
-@define-color normal_a26 rgba({{colors.primary.default.rgb}}, 0.65);
-@define-color normal_a30 rgba({{colors.primary.default.rgb}}, 0.70);
+/* Primary Colors */
+@define-color primary {{colors.primary.default.hex}};
+@define-color on_primary {{colors.on_primary.default.hex}};
+@define-color primary_container {{colors.primary_container.default.hex}};
+@define-color on_primary_container {{colors.on_primary_container.default.hex}};
+
+/* Secondary Colors */
+@define-color secondary {{colors.secondary.default.hex}};
+@define-color on_secondary {{colors.on_secondary.default.hex}};
+@define-color secondary_container {{colors.secondary_container.default.hex}};
+@define-color on_secondary_container {{colors.on_secondary_container.default.hex}};
+
+/* Tertiary Colors */
+@define-color tertiary {{colors.tertiary.default.hex}};
+@define-color on_tertiary {{colors.on_tertiary.default.hex}};
+@define-color tertiary_container {{colors.tertiary_container.default.hex}};
+@define-color on_tertiary_container {{colors.on_tertiary_container.default.hex}};
+
+/* Error Colors */
+@define-color error {{colors.error.default.hex}};
+@define-color on_error {{colors.on_error.default.hex}};
+@define-color error_container {{colors.error_container.default.hex}};
+@define-color on_error_container {{colors.on_error_container.default.hex}};
+
+/* Surface & Background */
+@define-color background {{colors.background.default.hex}};
+@define-color on_background {{colors.on_background.default.hex}};
+@define-color surface {{colors.surface.default.hex}};
+@define-color on_surface {{colors.on_surface.default.hex}};
+@define-color surface_variant {{colors.surface_variant.default.hex}};
+@define-color on_surface_variant {{colors.on_surface_variant.default.hex}};
+
+/* Others */
+@define-color outline {{colors.outline.default.hex}};
+@define-color shadow {{colors.shadow.default.hex}};
+@define-color inverse_surface {{colors.inverse_surface.default.hex}};
+@define-color inverse_on_surface {{colors.inverse_on_surface.default.hex}};
+@define-color inverse_primary {{colors.inverse_primary.default.hex}};
+
+/* Selection - Making it more solid */
+@define-color selection_bg @primary;
+@define-color selection_fg @on_primary;
+
+/* Theme defined selection colors (GTK Internals) */
+@define-color theme_selected_bg_color @primary;
+@define-color theme_selected_fg_color @on_primary;
+@define-color theme_unfocused_selected_bg_color @primary_container;
+@define-color theme_unfocused_selected_fg_color @on_primary_container;
+
+/* Libadwaita specific colors */
+@define-color accent_color @primary;
+@define-color accent_bg_color @primary;
+@define-color accent_fg_color @on_primary;
+@define-color destructive_color @error;
+@define-color destructive_bg_color @error;
+@define-color destructive_fg_color @on_error;
+@define-color success_color @tertiary;
+@define-color success_bg_color @tertiary;
+@define-color success_fg_color @on_tertiary;
+@define-color warning_color {{colors.secondary.default.hex}};
+@define-color warning_bg_color {{colors.secondary.default.hex}};
+@define-color warning_fg_color {{colors.on_secondary.default.hex}};
+@define-color window_bg_color @background;
+@define-color window_fg_color @on_background;
+@define-color view_bg_color @background;
+@define-color view_fg_color @on_background;
+@define-color headerbar_bg_color @surface;
+@define-color headerbar_fg_color @on_surface;
+@define-color headerbar_border_color @outline;
+@define-color headerbar_backdrop_color @surface;
+@define-color sidebar_bg_color @surface;
+@define-color sidebar_fg_color @on_surface;
+@define-color sidebar_backdrop_color @surface;
+@define-color card_bg_color @surface_variant;
+@define-color card_fg_color @on_surface_variant;
+@define-color card_border_color @outline;
+
+/* Legacy / Compat variables for older themes */
+@define-color normal @primary;
+@define-color light @primary_container;
+@define-color dark @primary;
+@define-color lighter @secondary_container;
+@define-color accent @primary;
+@define-color hover rgba({{colors.primary.default.red}}, {{colors.primary.default.green}}, {{colors.primary.default.blue}}, 0.1);
+@define-color warning {{colors.tertiary.default.hex}};
+
+/* Transparencies for Primary */
+@define-color primary_a10 rgba({{colors.primary.default.red}}, {{colors.primary.default.green}}, {{colors.primary.default.blue}}, 0.10);
+@define-color primary_a12 rgba({{colors.primary.default.red}}, {{colors.primary.default.green}}, {{colors.primary.default.blue}}, 0.12);
+@define-color primary_a16 rgba({{colors.primary.default.red}}, {{colors.primary.default.green}}, {{colors.primary.default.blue}}, 0.16);
+@define-color primary_a20 rgba({{colors.primary.default.red}}, {{colors.primary.default.green}}, {{colors.primary.default.blue}}, 0.20);
+@define-color primary_a24 rgba({{colors.primary.default.red}}, {{colors.primary.default.green}}, {{colors.primary.default.blue}}, 0.24);
+@define-color primary_a26 rgba({{colors.primary.default.red}}, {{colors.primary.default.green}}, {{colors.primary.default.blue}}, 0.26);
+@define-color primary_a30 rgba({{colors.primary.default.red}}, {{colors.primary.default.green}}, {{colors.primary.default.blue}}, 0.30);
+@define-color primary_a33 rgba({{colors.primary.default.red}}, {{colors.primary.default.green}}, {{colors.primary.default.blue}}, 0.33);
+@define-color primary_a40 rgba({{colors.primary.default.red}}, {{colors.primary.default.green}}, {{colors.primary.default.blue}}, 0.40);
+@define-color primary_a50 rgba({{colors.primary.default.red}}, {{colors.primary.default.green}}, {{colors.primary.default.blue}}, 0.50);
+
+/* Compat transparencies */
+@define-color normal_a12 @primary_a12;
+@define-color normal_a16 @primary_a16;
+@define-color normal_a24 @primary_a24;
+@define-color normal_a26 @primary_a26;
+@define-color normal_a30 @primary_a30;
+
+/* Transparencies for Surface/Background */
+@define-color surface_a80 rgba({{colors.surface.default.red}}, {{colors.surface.default.green}}, {{colors.surface.default.blue}}, 0.80);
+@define-color surface_a90 rgba({{colors.surface.default.red}}, {{colors.surface.default.green}}, {{colors.surface.default.blue}}, 0.90);
+@define-color on_surface_a87 rgba({{colors.on_surface.default.red}}, {{colors.on_surface.default.green}}, {{colors.on_surface.default.blue}}, 0.87);
+@define-color on_surface_a78 rgba({{colors.on_surface.default.red}}, {{colors.on_surface.default.green}}, {{colors.on_surface.default.blue}}, 0.78);
+@define-color on_surface_a60 rgba({{colors.on_surface.default.red}}, {{colors.on_surface.default.green}}, {{colors.on_surface.default.blue}}, 0.60);
+@define-color on_surface_a38 rgba({{colors.on_surface.default.red}}, {{colors.on_surface.default.green}}, {{colors.on_surface.default.blue}}, 0.38);
+@define-color on_surface_a26 rgba({{colors.on_surface.default.red}}, {{colors.on_surface.default.green}}, {{colors.on_surface.default.blue}}, 0.26);
+@define-color on_surface_a12 rgba({{colors.on_surface.default.red}}, {{colors.on_surface.default.green}}, {{colors.on_surface.default.blue}}, 0.12);
+@define-color on_surface_a08 rgba({{colors.on_surface.default.red}}, {{colors.on_surface.default.green}}, {{colors.on_surface.default.blue}}, 0.08);
+@define-color on_surface_a04 rgba({{colors.on_surface.default.red}}, {{colors.on_surface.default.green}}, {{colors.on_surface.default.blue}}, 0.04);

@@ -1,34 +1,127 @@
-/* === Accent Override Patch === */
+/* Material 3 Advanced GTK Override Patch */
 
-button.suggested-action,
-button:checked,
-switch:checked,
-switch slider,
-scale highlight,
-progressbar progress,
-entry:focus,
-check:checked,
-radio:checked,
-selection {
-    background-color: {{colors.primary.default.hex}} !important;
-    border-color: {{colors.primary.default.hex}} !important;
-    color: {{colors.on_primary.default.hex}} !important;
+@import url("color-palette.css");
+
+/* 1. Global Selection - SOLID and VIBRANT */
+selection,
+*:selected,
+.selection,
+.selected {
+    background-color: @selection_bg !important;
+    color: @selection_fg !important;
 }
 
-*:focus, *:hover, button:hover {
-    border-color: {{colors.primary.default.hex}} !important;
+/* 2. Base Components */
+window,
+.background {
+    background-color: @background;
+    color: @on_background;
 }
 
-*:focus-visible {
-    outline-color: {{colors.primary.default.hex}} !important;
+/* 3. Headerbars & Titlebars */
+headerbar,
+.titlebar {
+    background-color: @surface !important;
+    color: @on_surface !important;
+    border-bottom: 1px solid @outline;
+    box-shadow: none;
 }
 
-/* Specific selection fix for various nodes */
-label > selection,
-entry > selection,
-textview > selection,
-flowboxchild:selected,
-listrow:selected {
-    background-color: {{colors.primary.default.hex}} !important;
-    color: {{colors.on_primary.default.hex}} !important;
+headerbar:backdrop,
+.titlebar:backdrop {
+    background-color: @surface;
+    color: @on_surface_a60;
+}
+
+/* 4. Sidebars (Nautilus, Thunar, etc.) */
+.sidebar,
+stacksidebar,
+list.sidebar {
+    background-color: @surface !important;
+    color: @on_surface !important;
+}
+
+.sidebar list row:selected,
+stacksidebar row:selected {
+    background-color: @primary_container !important;
+    color: @on_primary_container !important;
+}
+
+/* 5. Buttons */
+button {
+    background-color: @surface_variant;
+    color: @on_surface_variant;
+    border-radius: 20px; /* More Material 3 rounded */
+}
+
+button:hover {
+    background-color: @on_surface_a08;
+}
+
+button.suggested-action {
+    background-color: @primary !important;
+    color: @on_primary !important;
+}
+
+button.suggested-action:hover {
+    background-color: @primary_a50 !important;
+}
+
+/* 6. Text Entries */
+entry {
+    background-color: @surface_variant;
+    color: @on_surface;
+    border-bottom: 2px solid @outline;
+}
+
+entry:focus {
+    border-bottom: 2px solid @primary;
+}
+
+/* 7. Scrollbars */
+scrollbar trough {
+    background-color: transparent;
+}
+
+scrollbar slider {
+    background-color: @on_surface_a38;
+    border-radius: 20px;
+}
+
+scrollbar slider:hover {
+    background-color: @on_surface_a60;
+}
+
+scrollbar slider:active {
+    background-color: @primary;
+}
+
+/* 8. Menus & Popovers */
+popover,
+menu,
+.menu {
+    background-color: @surface !important;
+    color: @on_surface !important;
+    border: 1px solid @outline;
+}
+
+menuitem:hover {
+    background-color: @on_surface_a08;
+}
+
+/* 9. Notebooks (Tabs) */
+notebook header {
+    background-color: @surface;
+}
+
+notebook tab:checked {
+    border-bottom: 2px solid @primary;
+    color: @primary;
+}
+
+/* 10. Fixes for specific app components */
+.nemo-window .nemo-window-pane widget.entry:selected,
+.thunar .standard-view .view:selected {
+    background-color: @primary !important;
+    color: @on_primary !important;
 }

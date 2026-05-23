@@ -1,74 +1,164 @@
-* {
-    accent-color: #ffb3b3 !important;
+/* Material 3 GTK Universal Template - Comprehensive Redesign */
+
+@import url("color-palette.css");
+
+/* 1. Global Selection - SOLID and VIBRANT */
+selection,
+*:selected,
+.selected,
+row:selected,
+row.activatable:selected,
+treeview.view:selected,
+list.view:selected,
+columnview.view:selected,
+iconview:selected,
+textview text selection,
+textview text > selection {
+    background-color: @selection_bg !important;
+    color: @selection_fg !important;
+    background-image: none !important;
 }
 
-/* Global Web-style selection (for browsers/web-engines) */
+/* Fix for Firefox and other web engines selection */
 ::-moz-selection {
-    background-color: #ffb3b3 !important;
-    color: #561d20 !important;
+    background-color: @selection_bg !important;
+    color: @selection_fg !important;
 }
 
 ::selection {
-    background-color: #ffb3b3 !important;
-    color: #561d20 !important;
+    background-color: @selection_bg !important;
+    color: @selection_fg !important;
 }
 
-selection {
-    background-color: #ffb3b3 !important;
-    color: #561d20 !important;
-}
-
-*:selected {
-    background-color: #ffb3b3 !important;
-    color: #561d20 !important;
-}
-
-/* Entry selection background */
-.nemo-window .nemo-window-pane widget.entry:selected {
-    background-color: #ffb3b3 !important;
-}
-
-/* Treeview disk full color */
-.places-treeview {
-    -nemoplacestreeview-disk-full-fg-color: #ffb3b3 !important;
-}
-
-/* Buttons and selection highlights */
-.button,
-.view .selection {
-    background-color: #ffb3b3 !important;
-}
-
-.button:hover {
-    background-color: #ffb3b3 !important;
-}
-
-/* Theme-defined selection colors */
-@define-color theme_selected_bg_color #ffb3b3 !important;
-@define-color theme_selected_fg_color #561d20 !important;
-@define-color theme_unfocused_selected_bg_color #ffb3b3 !important;
-@define-color theme_unfocused_selected_fg_color #561d20 !important;
-
-/* Clean up Thunar Icon View */
 * {
-    -thunarabstracticonview-row-spacing: 50 !important;
-    -thunarabstracticonview-column-spacing: 20 !important;
+    accent-color: @primary;
+    caret-color: @primary;
+    outline-color: @primary_a50;
 }
 
-/* Force single line with ellipses */
+/* 2. Base Components */
+window,
+.background {
+    background-color: @background;
+    color: @on_background;
+}
+
+/* 3. Headerbars & Titlebars */
+headerbar,
+.titlebar {
+    background-color: @surface !important;
+    color: @on_surface !important;
+    border-bottom: 1px solid @outline;
+    box-shadow: none;
+}
+
+headerbar:backdrop,
+.titlebar:backdrop {
+    background-color: @surface;
+    color: @on_surface_a60;
+}
+
+/* 4. Sidebars (Nautilus, Thunar, etc.) */
+.sidebar,
+stacksidebar,
+list.sidebar,
+.navigation-sidebar,
+sidebar {
+    background-color: @surface !important;
+    color: @on_surface !important;
+}
+
+.sidebar list row:selected,
+stacksidebar row:selected,
+.navigation-sidebar row:selected,
+sidebar row:selected {
+    background-color: @primary_container !important;
+    color: @on_primary_container !important;
+}
+
+/* 5. Buttons - Material 3 Tonal / Primary Styles */
+button.suggested-action {
+    background-color: @primary !important;
+    color: @on_primary !important;
+}
+
+button.suggested-action:hover {
+    background-color: @primary_a50 !important;
+}
+
+button.flat:hover,
+button.flat:active {
+    background-color: @on_surface_a08;
+}
+
+/* 6. Text Entries */
+entry {
+    background-color: @surface_variant;
+    color: @on_surface;
+}
+
+entry:focus {
+    box-shadow: inset 0 -2px @primary;
+}
+
+/* 7. Scrollbars */
+scrollbar trough {
+    background-color: transparent;
+}
+
+scrollbar slider {
+    background-color: @on_surface_a38;
+    border-radius: 20px;
+    min-width: 8px;
+    min-height: 8px;
+}
+
+scrollbar slider:hover {
+    background-color: @on_surface_a60;
+}
+
+scrollbar slider:active {
+    background-color: @primary;
+}
+
+/* 8. Menus, Popovers & Tooltips */
+popover,
+menu,
+.menu,
+.popover,
+tooltip {
+    background-color: @surface !important;
+    color: @on_surface !important;
+    border: 1px solid @outline;
+    border-radius: 12px;
+}
+
+/* 9. Thunar / Nemo specific fixes */
+.nemo-window .nemo-window-pane widget.entry:selected,
+.thunar .standard-view .view:selected {
+    background-color: @primary !important;
+    color: @on_primary !important;
+}
+
+/* Custom Thunar Spacing */
+* {
+    -thunarabstracticonview-row-spacing: 40;
+    -thunarabstracticonview-column-spacing: 20;
+}
+
 ThunarIconView text {
-    max-width: 100px !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.standard-view.canvas-item {
-    -thunarstandardview-ellipsize-start: 0.1 !important;
+/* 10. Notebooks and Tabs */
+notebook header {
+    background-color: @surface;
 }
 
-/* This targets the icon view container specifically */
-.thunar .standard-view .view {
-    -thunariconview-row-spacing: 50 !important;
-    -thunariconview-column-spacing: 20 !important;
+notebook tab:checked {
+    border-bottom: 2px solid @primary;
+    color: @primary;
 }

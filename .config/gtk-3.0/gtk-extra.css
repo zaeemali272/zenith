@@ -1,5 +1,8 @@
-/* === Accent Override Patch === */
+/* Material 3 Accent Override Patch */
 
+@import url("color-palette.css");
+
+/* Main Accent Elements */
 button.suggested-action,
 button:checked,
 switch:checked,
@@ -10,25 +13,47 @@ entry:focus,
 check:checked,
 radio:checked,
 selection {
-    background-color: #ffb3b3 !important;
-    border-color: #ffb3b3 !important;
-    color: #561d20 !important;
+    background-color: @primary !important;
+    border-color: @primary !important;
+    color: @on_primary !important;
 }
 
+/* Hover/Focus states */
 *:focus, *:hover, button:hover {
-    border-color: #ffb3b3 !important;
+    border-color: @primary_a50 !important;
 }
 
 *:focus-visible {
-    outline-color: #ffb3b3 !important;
+    outline-color: @primary !important;
 }
 
-/* Specific selection fix for various nodes */
+/* Specific selection fix */
 label > selection,
 entry > selection,
 textview > selection,
 flowboxchild:selected,
 listrow:selected {
-    background-color: #ffb3b3 !important;
-    color: #561d20 !important;
+    background-color: @selection_bg !important;
+    color: @selection_fg !important;
+}
+
+/* Scrollbars - making them more subtle and Material-like */
+scrollbar trough {
+    background-color: transparent;
+    border: none;
+}
+
+scrollbar slider {
+    background-color: @on_surface_a38;
+    border-radius: 20px;
+    min-width: 6px;
+    min-height: 6px;
+}
+
+scrollbar slider:hover {
+    background-color: @on_surface_a60;
+}
+
+scrollbar slider:active {
+    background-color: @primary;
 }
