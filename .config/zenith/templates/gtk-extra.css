@@ -13,9 +13,14 @@ selection,
 
 /* 2. Base Components */
 window,
-.background {
-    background-color: @background;
-    color: @on_background;
+window.background,
+.background,
+messagedialog,
+dialog,
+.popover,
+.menu {
+    background-color: @surface !important;
+    color: @on_surface !important;
 }
 
 /* 3. Headerbars & Titlebars */
@@ -122,6 +127,6 @@ notebook tab:checked {
 /* 10. Fixes for specific app components */
 .nemo-window .nemo-window-pane widget.entry:selected,
 .thunar .standard-view .view:selected {
-    background-color: @primary !important;
-    color: @on_primary !important;
+    background-color: @surface !important;
+    color: @on_surface !important;
 }

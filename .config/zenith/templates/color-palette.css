@@ -66,10 +66,10 @@
 @define-color warning_color {{colors.secondary.default.hex}};
 @define-color warning_bg_color {{colors.secondary.default.hex}};
 @define-color warning_fg_color {{colors.on_secondary.default.hex}};
-@define-color window_bg_color @background;
-@define-color window_fg_color @on_background;
-@define-color view_bg_color @background;
-@define-color view_fg_color @on_background;
+@define-color window_bg_color @surface;
+@define-color window_fg_color @on_surface;
+@define-color view_bg_color @surface;
+@define-color view_fg_color @on_surface;
 @define-color headerbar_bg_color @surface;
 @define-color headerbar_fg_color @on_surface;
 @define-color headerbar_border_color @outline;

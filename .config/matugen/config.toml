@@ -17,13 +17,29 @@ output_path = "../../zenith-shell/Colors.qml"
 input_path = "../zenith/templates/gtk.css"
 output_path = "~/.config/gtk-3.0/gtk.css"
 
+[templates.gtk3_extra]
+input_path = "../zenith/templates/gtk-extra.css"
+output_path = "~/.config/gtk-3.0/gtk-extra.css"
+
 [templates.gtk4]
 input_path = "../zenith/templates/gtk.css"
 output_path = "~/.config/gtk-4.0/gtk.css"
 
+[templates.gtk4_extra]
+input_path = "../zenith/templates/gtk-extra.css"
+output_path = "~/.config/gtk-4.0/gtk-extra.css"
+
 [templates.palette]
 input_path = "../zenith/templates/color-palette.css"
 output_path = "~/.themes/color-palette.css"
+
+[templates.palette_gtk3]
+input_path = "../zenith/templates/color-palette.css"
+output_path = "~/.config/gtk-3.0/color-palette.css"
+
+[templates.palette_gtk4]
+input_path = "../zenith/templates/color-palette.css"
+output_path = "~/.config/gtk-4.0/color-palette.css"
 
 [templates.kitty]
 input_path = "../zenith/templates/kitty-theme.conf"
