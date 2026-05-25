@@ -14,19 +14,19 @@ Zenith is built on three pillars:
 
 ## 🎥 Quick Overview
   <[![Zenith Showcase](https://img.youtube.com/vi/09G4APMCORQ/0.jpg)](https://www.youtube.com/watch?v=09G4APMCORQ)
-  
+
 
 ### 📸 Screenshots
 
 <details>
 <summary>✨ Desktop & UI</summary>
 <p align="center">
-  <img src="assets/screenshots/2026-05-25-113908_hyprshot.png" width="800"><br>
-  <img src="assets/screenshots/2026-05-25-113646_hyprshot.png" width="800"><br>
-  <img src="assets/screenshots/2026-05-25-113837_hyprshot.png" width="800"><br>
-  <img src="assets/screenshots/2026-05-25-113807_hyprshot.png" width="800"><br>
-  <img src="assets/screenshots/2026-05-25-113549_hyprshot.png" width="800"><br>
-  <img src="assets/screenshots/2026-05-25-113535_hyprshot.png" width="800">
+  <img src="assets/2026-05-25-113908_hyprshot.png" width="800"><br>
+  <img src="assets/2026-05-25-113646_hyprshot.png" width="800"><br>
+  <img src="assets/2026-05-25-113837_hyprshot.png" width="800"><br>
+  <img src="assets/2026-05-25-113807_hyprshot.png" width="800"><br>
+  <img src="assets/2026-05-25-113549_hyprshot.png" width="800"><br>
+  <img src="assets/2026-05-25-113535_hyprshot.png" width="800">
 </p>
 </details>
 
