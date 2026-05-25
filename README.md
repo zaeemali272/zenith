@@ -12,25 +12,23 @@ Zenith is built on three pillars:
 
 ---
 
-## 📸 Showcase
+## 🎥 Quick Overview
+  <[![Zenith Showcase](https://img.youtube.com/vi/09G4APMCORQ/0.jpg)](https://www.youtube.com/watch?v=09G4APMCORQ)
+  
 
-Experience Zenith in action:
+### 📸 Screenshots
 
-[![Zenith Showcase](https://img.youtube.com/vi/09G4APMCORQ/0.jpg)](https://www.youtube.com/watch?v=09G4APMCORQ)
-
-### Desktop Gallery
-
-| ![Desktop](assets/2026-05-25-113908_hyprshot.png) | ![Dashboard](assets/2026-05-25-113837_hyprshot.png) |
-|:---:|:---:|
-| **Clean Desktop & Bar** | **System Dashboard** |
-
-| ![Media Player](assets/2026-05-25-113807_hyprshot.png) | ![Overview](assets/2026-05-25-113549_hyprshot.png) |
-|:---:|:---:|
-| **Media Player Widget** | **Workspace Overview** |
-
-| ![Cheatsheet](assets/2026-05-25-113535_hyprshot.png) | ![Terminal](assets/2026-05-25-113646_hyprshot.png) |
-|:---:|:---:|
-| **Keybinds Cheatsheet** | **Kitty Terminal** |
+<details>
+<summary>✨ Desktop & UI</summary>
+<p align="center">
+  <img src="assets/screenshots/2026-05-25-113908_hyprshot.png" width="800"><br>
+  <img src="assets/screenshots/2026-05-25-113646_hyprshot.png" width="800"><br>
+  <img src="assets/screenshots/2026-05-25-113837_hyprshot.png" width="800"><br>
+  <img src="assets/screenshots/2026-05-25-113807_hyprshot.png" width="800"><br>
+  <img src="assets/screenshots/2026-05-25-113549_hyprshot.png" width="800"><br>
+  <img src="assets/screenshots/2026-05-25-113535_hyprshot.png" width="800">
+</p>
+</details>
 
 ---
 
