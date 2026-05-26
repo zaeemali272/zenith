@@ -174,6 +174,21 @@ EOF
 
 chmod +x /usr/local/bin/secure-mode
 
+# ==============================================================================
+# SUDOERS ENTRY (For Zenith Shell Integration)
+# ==============================================================================
+echo "[*] Adding sudoers entry for secure-mode..."
+SUDOERS_FILE="/etc/sudoers.d/secure-mode"
+USER_NAME=$(logname 2>/dev/null || echo $SUDO)
+[[ -z "$USER_NAME" ]] && USER_NAME=$USER
+
+cat <<EOF > "$SUDOERS_FILE"
+# Allow $USER_NAME to manage secure-mode without a password
+$USER_NAME ALL=(ALL) NOPASSWD: /usr/local/bin/secure-mode
+EOF
+
+chmod 440 "$SUDOERS_FILE"
+
 echo "[+] Installation complete."
 echo "Commands:"
 echo "  secure-mode on"
