@@ -57,9 +57,7 @@
       "rar",
       "ttf-material-icons-git",
       "ttf-material-symbols-variable-git",
-      "libayatana-appindicator-glib",
-      "wlogout"
-    ]
+      "libayatana-appindicator-glib"    ]
   },
   "core": {
     "pacman": [
