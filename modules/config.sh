@@ -211,13 +211,13 @@ setup_xdg_dirs() {
 setup_post_boot_service() {
     log_step "🚀 Setting up post-boot installer autostart..."
     local execs_file="$HOME/.config/hypr/hyprland/execs.conf"
-    local post_boot_cmd="exec-once = qs --path ~/.config/zenith-installer/installer.qml"
+    local post_boot_cmd="exec-once = bash $DOTS_DIR/scripts/post_boot_install.sh"
 
     # Create directory if missing
     mkdir -p "$(dirname "$execs_file")"
 
     # Add the line if not already present
-    if ! grep -q "qs --path" "$execs_file" 2>/dev/null; then
+    if ! grep -q "post_boot_install.sh" "$execs_file" 2>/dev/null; then
         echo -e "\n$post_boot_cmd" >> "$execs_file"
         log "Post-boot autostart added to $execs_file."
     fi

@@ -12,7 +12,10 @@
     "aur": [
       "freedownloadmanager-bin",
       "visual-studio-code-bin",
-      "zen-browser-bin"
+      "zen-browser-bin",
+      "element-desktop",
+      "librewolf-bin"
+
     ]
   },
   "themes": {

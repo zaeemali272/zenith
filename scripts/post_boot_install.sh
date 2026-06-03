@@ -5,19 +5,6 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export DOTS_DIR="$(dirname "$SCRIPT_DIR")"
 
-# Ensure JSON output for the UI
-export JSON_OUTPUT=1
-
-# Launch the QML installer application in the background
-# This ensures the GUI is visible and ready to receive logs.
-
-# Default values for SKIP flags if not set (to avoid unbound variable errors)
-export SKIP_FONTS=${SKIP_FONTS:-0}
-export SKIP_GAMING=${SKIP_GAMING:-0}
-export SKIP_THEMES=${SKIP_THEMES:-0}
-export SKIP_RECOMMENDED=${SKIP_RECOMMENDED:-0}
-export SKIP_EXTRAS=${SKIP_EXTRAS:-0}
-
 # Load Modules
 for f in "$DOTS_DIR/modules/"*.sh; do 
     # shellcheck source=/dev/null
@@ -25,16 +12,7 @@ for f in "$DOTS_DIR/modules/"*.sh; do
 done
 
 # --- Main Installation ---
-# This function now contains the primary installation logic and logs output to the QML UI.
 run_phase_2() {
-    # Kill any existing instance to avoid "stuck" UI (now potentially redundant, but harmless)
-    pkill -f "installer.qml" || true
-    
-    # Redirect all subsequent output to the UI
-    # Use exec to replace the current shell process with qs, piping its stdin/stdout/stderr
-    # This ensures that all logs from this script go directly to the QML UI.
-    # Removed exec redirection as Process component handles output capture.
-
     log_step "🚀 Starting Zenith Post-Boot Installation..."
     
     # Run all the remaining installation and setup steps
@@ -45,15 +23,12 @@ run_phase_2() {
     setup_system_services
     optimize_bootloader
     
-    # Send finish signal to UI
-    echo '{"type": "finish"}'
-
     # Self-destruct sequence
     log_step "✅ Installation Complete. Cleaning up autostart..."
     local execs_file="$HOME/.config/hypr/hyprland/execs.conf"
     if [[ -f "$execs_file" ]]; then
         # Remove the specific line
-        sed -i "/qs --path.*installer.qml/d" "$execs_file"
+        sed -i "/post_boot_install.sh/d" "$execs_file"
         log "Removed autostart from $execs_file."
     fi
 
