@@ -45,7 +45,7 @@ trap cleanup EXIT INT TERM
 # --- Sudo Keep-Alive ---
 init_sudo() {
     log_step "🔐 Authenticating sudo..."
-    sudo -v || { log_error "Sudo authentication failed."; exit 1; }
+    sudo -v < /dev/tty || { log_error "Sudo authentication failed."; exit 1; }
     
     # Background loop to keep sudo alive
     (
