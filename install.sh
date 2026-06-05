@@ -69,9 +69,6 @@ if ! command -v sudo &>/dev/null; then
     exit 1
 fi
 
-# Initialize Sudo Keep-Alive
-init_sudo
-
 # Flags
 export SKIP_GAMING=0
 export SKIP_THEMES=0
@@ -195,6 +192,7 @@ ${BOLD}${CYAN}❓ Would you like to run '$script_name'?${NC}"
 
 # --- Feature Groups ---
 minimal_install() {
+    init_sudo
     pre_network_fix
     system_prep
     system_tuning
@@ -212,6 +210,7 @@ ${YELLOW}${BOLD}Rebooting in 10s... (Press Ctrl+C to cancel)${NC}"
 }
 
 full_install() {
+    init_sudo
     pre_network_fix
     system_prep
     system_tuning
@@ -247,6 +246,7 @@ ${YELLOW}${BOLD}Rebooting in 10s... (Press Ctrl+C to cancel)${NC}"
 }
 
 packages_only() {
+    init_sudo
     system_prep
     detect_hardware
     install_minimal_packages
