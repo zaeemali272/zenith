@@ -11,8 +11,39 @@ for f in "$DOTS_DIR/modules/"*.sh; do
     source "$f"
 done
 
+# --- Sudo Keep-Alive ---
+SUDO_KEEP_ALIVE_PID=0
+
+stop_sudo_keepalive() {
+    if [[ ${SUDO_KEEP_ALIVE_PID:-0} -ne 0 ]]; then
+        kill "$SUDO_KEEP_ALIVE_PID" 2>/dev/null || true
+        SUDO_KEEP_ALIVE_PID=0
+    fi
+}
+
+cleanup() {
+    stop_sudo_keepalive
+}
+trap cleanup EXIT INT TERM
+
+init_sudo() {
+    log_step "🔐 Authenticating sudo for post-boot tasks..."
+    sudo -v || { log_error "Sudo authentication failed."; exit 1; }
+    
+    # Background loop to keep sudo alive
+    (
+        while true; do
+            sudo -n true
+            sleep 60
+        done
+    ) &>/dev/null &
+    SUDO_KEEP_ALIVE_PID=$!
+    log_success "Sudo keep-alive started (PID: $SUDO_KEEP_ALIVE_PID)"
+}
+
 # --- Main Installation ---
 run_phase_2() {
+    init_sudo
     log_step "🚀 Starting Zenith Post-Boot Installation..."
     
     # Run all the remaining installation and setup steps

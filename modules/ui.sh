@@ -129,7 +129,7 @@ ask_choice() {
     
     local choice
     while true; do
-        read -p "Select an option [1-${#options[@]}]: " choice
+        read -p "Select an option [1-${#options[@]}]: " choice </dev/tty
         if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#options[@]} )); then
             MENU_CHOICE=$((choice - 1))
             return 0

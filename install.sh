@@ -14,9 +14,19 @@ else
 fi
 
 # --- Error Handling ---
+SUDO_KEEP_ALIVE_PID=0
+
+stop_sudo_keepalive() {
+    if [[ ${SUDO_KEEP_ALIVE_PID:-0} -ne 0 ]]; then
+        kill "$SUDO_KEEP_ALIVE_PID" 2>/dev/null || true
+        SUDO_KEEP_ALIVE_PID=0
+    fi
+}
+
 error_handler() {
     local exit_code=$1
     local line_no=$2
+    stop_sudo_keepalive
     if command -v log_error &>/dev/null; then
         log_error "An error occurred at line $line_no (Exit Code: $exit_code)"
     else
@@ -27,9 +37,26 @@ error_handler() {
 trap 'error_handler $? $LINENO' ERR
 
 cleanup() {
+    stop_sudo_keepalive
     rm -f /tmp/zenith_temp_* 2>/dev/null
 }
-trap cleanup EXIT
+trap cleanup EXIT INT TERM
+
+# --- Sudo Keep-Alive ---
+init_sudo() {
+    log_step "🔐 Authenticating sudo..."
+    sudo -v || { log_error "Sudo authentication failed."; exit 1; }
+    
+    # Background loop to keep sudo alive
+    (
+        while true; do
+            sudo -n true
+            sleep 60
+        done
+    ) &>/dev/null &
+    SUDO_KEEP_ALIVE_PID=$!
+    log_success "Sudo keep-alive started (PID: $SUDO_KEEP_ALIVE_PID)"
+}
 
 # --- Root Check ---
 if [[ $EUID -eq 0 ]]; then
@@ -41,6 +68,9 @@ if ! command -v sudo &>/dev/null; then
     echo "❌ 'sudo' is not installed. Please install it and add your user to the wheel group."
     exit 1
 fi
+
+# Initialize Sudo Keep-Alive
+init_sudo
 
 # Flags
 export SKIP_GAMING=0
@@ -98,7 +128,8 @@ pre_network_fix() {
     log_step "💾 Checking network and installing essential tools..."
     
     # Install essentials first (if possible)
-    if sudo pacman -S --needed --noconfirm nano rsync git jq &>/dev/null; then
+    # Using -n for non-interactive to avoid hanging if sudo fails
+    if sudo -n pacman -S --needed --noconfirm nano rsync git jq >/dev/null 2>&1; then
         log_success "Essential tools installed."
     else
         log_warn "Could not install tools immediately. Checking network..."
@@ -112,8 +143,7 @@ pre_network_fix() {
         if [[ -f /etc/resolv.conf ]]; then
             sudo cp /etc/resolv.conf /etc/resolv.conf.bak
         fi
-        echo -e "nameserver 8.8.8.8
-nameserver 1.1.1.1" | sudo tee /etc/resolv.conf >/dev/null
+        echo -e "nameserver 8.8.8.8\nnameserver 1.1.1.1" | sudo tee /etc/resolv.conf >/dev/null
         
         # Retry install
         sudo pacman -S --needed --noconfirm nano rsync git jq || log_error "Failed to install essential tools even after DNS fix."
@@ -324,9 +354,8 @@ Available scripts:"
 
     if [[ ${#scripts_to_run_indices[@]} -eq 0 ]]; then
         log_warn "No valid scripts selected or found."
-        echo -e "
-${GREEN}Returning to menu...${NC}"
-        read -p "Press Enter to continue..."
+        echo -e "\n${GREEN}Returning to menu...${NC}"
+        read -p "Press Enter to continue..." </dev/tty
         return 0 # Exit this function, effectively returning to the main menu loop
     fi
 
@@ -345,9 +374,8 @@ ${GREEN}Returning to menu...${NC}"
         fi
     done
 
-    echo -e "
-${GREEN}All selected scripts execution completed.${NC}"
-    read -p "Press Enter to return to the menu..."
+    echo -e "\n${GREEN}All selected scripts execution completed.${NC}"
+    read -p "Press Enter to return to the menu..." </dev/tty
     return 0
 }
 
@@ -392,15 +420,13 @@ while true; do
         4) configs_only; break ;;
         5) 
             setup_quickshell
-            echo -e "
-${GREEN}Press Enter to return to the menu...${NC}"
-            read -r
+            echo -e "\n${GREEN}Press Enter to return to the menu...${NC}"
+            read -r </dev/tty
             ;;
         6)
             setup_extra_assets
-            echo -e "
-${GREEN}Press Enter to return to the menu...${NC}"
-            read -r
+            echo -e "\n${GREEN}Press Enter to return to the menu...${NC}"
+            read -r </dev/tty
             ;;
         7) run_specific_script || true ;;
         8) log_step "Exiting. Have a great day!"; exit 0 ;;
