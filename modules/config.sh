@@ -134,6 +134,13 @@ sync_dotfiles() {
         # Sync standard configs
         rsync $rsync_args --exclude ".git" --exclude "README.md" --exclude "install.sh" "$DOTS_DIR/.config/" "$HOME/.config/"
         
+        # --- NEW: Conditional copy for hyprlock colors ---
+        if [[ ! -f "$HOME/.config/hyprlock/colors.conf" && -f "$DOTS_DIR/.config/hyprlock/colors.conf" ]]; then
+            mkdir -p "$HOME/.config/hyprlock"
+            cp "$DOTS_DIR/.config/hyprlock/colors.conf" "$HOME/.config/hyprlock/colors.conf"
+            log "Copied initial hyprlock/colors.conf"
+        fi
+
         # Explicitly ensure zenith-installer is synced if it exists (for post-boot UI)
         if [[ -d "$DOTS_DIR/.config/zenith-installer" ]]; then
             mkdir -p "$HOME/.config/zenith-installer"
@@ -143,11 +150,19 @@ sync_dotfiles() {
         log_warn ".config directory not found in $DOTS_DIR"
     fi
     
-    # Sync .themes
-    if [[ -d "$DOTS_DIR/.themes" ]]; then
-        mkdir -p "$HOME/.themes"
-        rsync $rsync_args "$DOTS_DIR/.themes/" "$HOME/.themes/"
+    # Sync .themes (if applicable for Colors.qml or similar)
+    # ...
+
+    # --- NEW: Conditional copy for zenith-shell/Colors.qml ---
+    # Since zenith-shell is synced via setup_quickshell, we handle it there or here
+    # Assuming it's inside ~/.config/quickshell/zenith-shell/Colors.qml based on usage
+    local quickshell_dir="$HOME/.config/quickshell/zenith-shell"
+    if [[ ! -f "$quickshell_dir/Colors.qml" && -f "$DOTS_DIR/zenith-shell/Colors.qml" ]]; then
+        mkdir -p "$quickshell_dir"
+        cp "$DOTS_DIR/zenith-shell/Colors.qml" "$quickshell_dir/Colors.qml"
+        log "Copied initial Colors.qml"
     fi
+
 
     # Sync .local
     if [[ -d "$DOTS_DIR/.local" ]]; then
