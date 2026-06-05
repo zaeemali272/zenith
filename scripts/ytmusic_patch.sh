@@ -25,8 +25,15 @@ cat > "$CSS_FILE" <<'EOF'
 #sliderContainer.tp-yt-paper-slider {
     margin-left: 0px !important;
 }
+
+ytmusic-app[is-bauhaus-sidenav-enabled] #guide-wrapper.ytmusic-app {
+    background: transparent !important;
+    width: var(--ytmusic-guide-width);
+    border-right: none !important;
+}
+
 ytmusic-player-bar {
-    background-color: rgba(0, 0, 0, 0.85) !important;
+    background-color: transparent !important;
     backdrop-filter: blur(6px) !important;
     border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
@@ -82,7 +89,7 @@ ytmusic-nav-bar .left-content > * {
     margin-right: 0.5rem !important;
 }
 ytmusic-nav-bar:hover {
-    background-color: rgba(0, 0, 0, 0.6) !important;
+    background-color: transparent !important;
     backdrop-filter: blur(10px) !important;
 }
 ytmusic-nav-bar:hover > *:not(.left-content) {
