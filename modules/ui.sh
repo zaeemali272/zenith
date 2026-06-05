@@ -59,6 +59,10 @@ log() {
     fi
 }
 
+log_info() {
+    log "$*"
+}
+
 log_success() {
     if [[ "${JSON_OUTPUT:-0}" == "true" || "${JSON_OUTPUT:-0}" == "1" ]]; then
         echo "{\"type\": \"log\", \"level\": \"success\", \"message\": \"$*\"}"
