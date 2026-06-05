@@ -16,6 +16,9 @@ SUDO_KEEP_ALIVE_PID=0
 
 stop_sudo_keepalive() {
     if [[ ${SUDO_KEEP_ALIVE_PID:-0} -ne 0 ]]; then
+        # 1. Kill any child processes (like sleep 60) spawned by the loop
+        pkill -P "$SUDO_KEEP_ALIVE_PID" 2>/dev/null || true
+        # 2. Kill the keep-alive loop process itself
         kill "$SUDO_KEEP_ALIVE_PID" 2>/dev/null || true
         SUDO_KEEP_ALIVE_PID=0
     fi
@@ -24,19 +27,19 @@ stop_sudo_keepalive() {
 cleanup() {
     stop_sudo_keepalive
 }
+# Trap signals to ensure cleanup runs on exit or manual cancellation
 trap cleanup EXIT INT TERM
 
 init_sudo() {
     log_step "🔐 Authenticating sudo for post-boot tasks..."
     sudo -v || { log_error "Sudo authentication failed."; exit 1; }
     
-    # Background loop to keep sudo alive
-    (
-        while true; do
-            sudo -n true
-            sleep 60
-        done
-    ) &>/dev/null &
+    # Background loop without parentheses to avoid a hidden tracking subshell
+    while true; do
+        sudo -n true
+        sleep 60
+    done &>/dev/null &
+    
     SUDO_KEEP_ALIVE_PID=$!
     log_success "Sudo keep-alive started (PID: $SUDO_KEEP_ALIVE_PID)"
 }
