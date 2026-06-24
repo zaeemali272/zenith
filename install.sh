@@ -18,7 +18,8 @@ SUDO_KEEP_ALIVE_PID=0
 
 stop_sudo_keepalive() {
     if [[ ${SUDO_KEEP_ALIVE_PID:-0} -ne 0 ]]; then
-        kill "$SUDO_KEEP_ALIVE_PID" 2>/dev/null || true
+        # Kill the entire process group
+        kill -TERM -"$SUDO_KEEP_ALIVE_PID" 2>/dev/null || true
         SUDO_KEEP_ALIVE_PID=0
     fi
 }
@@ -26,7 +27,8 @@ stop_sudo_keepalive() {
 error_handler() {
     local exit_code=$1
     local line_no=$2
-    stop_sudo_keepalive
+    # Ensure cleanup is triggered
+    cleanup
     if command -v log_error &>/dev/null; then
         log_error "An error occurred at line $line_no (Exit Code: $exit_code)"
     else
@@ -47,14 +49,17 @@ init_sudo() {
     log_step "🔐 Authenticating sudo..."
     sudo -v < /dev/tty || { log_error "Sudo authentication failed."; exit 1; }
     
-    # Background loop to keep sudo alive
+    # Start a new process group for the keep-alive loop
+    set -m
     (
         while true; do
             sudo -n true
             sleep 60
         done
-    ) &>/dev/null &
+    ) &
     SUDO_KEEP_ALIVE_PID=$!
+    # Put the background process in its own group
+    disown %1
     log_success "Sudo keep-alive started (PID: $SUDO_KEEP_ALIVE_PID)"
 }
 

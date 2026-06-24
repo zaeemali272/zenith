@@ -15,7 +15,7 @@ fi
 # 1. Install required packages
 # -------------------------------
 echo "[*] Installing required packages..."
-sudo pacman -Sy --noconfirm iwd systemd
+sudo pacman -Sy --noconfirm iwd systemd adguardhome-bin
 
 # -------------------------------
 # 2. Disable conflicting services
@@ -53,6 +53,8 @@ Name=en*
 [Network]
 DHCP=yes
 IPv6AcceptRA=yes
+DNS=127.0.0.1
+Domains=~
 EOF
 
 # Wireless
@@ -63,19 +65,19 @@ Name=wl*
 [Network]
 DHCP=yes
 IPv6AcceptRA=yes
+DNS=127.0.0.1
+Domains=~
 EOF
 
 # -------------------------------
-# 5. Configure systemd-resolved (Cloudflare + DoT)
+# 5. Configure systemd-resolved (Local DNS)
 # -------------------------------
 echo "[*] Configuring systemd-resolved..."
 sudo tee /etc/systemd/resolved.conf > /dev/null <<EOF
 [Resolve]
-DNS=1.1.1.1 1.0.0.1
-FallbackDNS=9.9.9.9 8.8.8.8
-DNSOverTLS=yes
-DNSSEC=yes
-Cache=yes
+DNS=127.0.0.1:5353
+FallbackDNS=
+Domains=~.
 EOF
 
 # Fix resolv.conf safely
@@ -190,6 +192,10 @@ echo "  resolvectl status"
 echo ""
 echo "Test internet:"
 echo "  ping archlinux.org"
+echo ""
+echo "IMPORTANT: Disable DNS-over-HTTPS (DoH) in your browsers to prevent bypassing AdGuard Home:"
+echo "  * Chrome/Brave/Edge: Settings -> Privacy and security -> Security -> Toggle \"Use secure DNS\" to OFF."
+echo "  * Firefox: Settings -> General -> Network Settings -> Uncheck \"Enable DNS over HTTPS\"."
 echo ""
 echo "Logs:"
 echo "  journalctl -u iwd -u systemd-networkd -u systemd-resolved"
