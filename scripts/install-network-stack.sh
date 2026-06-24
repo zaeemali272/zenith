@@ -14,27 +14,19 @@ fi
 # -------------------------------
 # 1. Install required packages
 # -------------------------------
-echo "[*] Installing required packages..."
-packages=("iwd" "systemd")
-aur_packages=("adguardhome-bin")
+echo "[*] Synchronizing package databases..."
+sudo pacman -Sy --noconfirm
 
-# Install missing system packages
-for pkg in "${packages[@]}"; do
-  if ! pacman -Qs "$pkg" > /dev/null; then
-    sudo pacman -S --noconfirm "$pkg"
-  else
-    echo "[!] $pkg is already installed, skipping."
-  fi
-done
+echo "[*] Installing required system packages..."
+sudo pacman -S --noconfirm --needed iwd systemd
 
-# Install missing AUR packages
-for pkg in "${aur_packages[@]}"; do
-  if ! pacman -Qs "$pkg" > /dev/null; then
-    yay -S --noconfirm "$pkg"
-  else
-    echo "[!] $pkg is already installed, skipping."
-  fi
-done
+echo "[*] Installing required AUR packages..."
+if command -v yay > /dev/null; then
+  yay -S --noconfirm --needed adguardhome-bin
+else
+  echo "[!] Error: yay is not installed. Please install yay to use AUR packages."
+  exit 1
+fi
 
 # -------------------------------
 # 2. Disable conflicting services
