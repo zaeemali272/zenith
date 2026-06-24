@@ -29,6 +29,12 @@ else
 fi
 
 # -------------------------------
+# 1.5. Enable AdGuard Home
+# -------------------------------
+echo "[*] Enabling AdGuard Home..."
+sudo systemctl enable --now adguardhome
+
+# -------------------------------
 # 2. Disable conflicting services
 # -------------------------------
 echo "[*] Disabling conflicting services..."
@@ -197,7 +203,7 @@ sudo systemctl restart systemd-timesyncd.service
 echo "[*] Checking services..."
 sleep 2
 
-for svc in iwd systemd-networkd systemd-resolved systemd-timesyncd; do
+for svc in iwd systemd-networkd systemd-resolved systemd-timesyncd adguardhome; do
   if systemctl is-active --quiet $svc; then
     echo "[✓] $svc is active"
   else
