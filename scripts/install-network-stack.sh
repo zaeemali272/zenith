@@ -15,7 +15,26 @@ fi
 # 1. Install required packages
 # -------------------------------
 echo "[*] Installing required packages..."
-sudo pacman -Sy --noconfirm iwd systemd adguardhome-bin
+packages=("iwd" "systemd")
+aur_packages=("adguardhome-bin")
+
+# Install missing system packages
+for pkg in "${packages[@]}"; do
+  if ! pacman -Qs "$pkg" > /dev/null; then
+    sudo pacman -S --noconfirm "$pkg"
+  else
+    echo "[!] $pkg is already installed, skipping."
+  fi
+done
+
+# Install missing AUR packages
+for pkg in "${aur_packages[@]}"; do
+  if ! pacman -Qs "$pkg" > /dev/null; then
+    yay -S --noconfirm "$pkg"
+  else
+    echo "[!] $pkg is already installed, skipping."
+  fi
+done
 
 # -------------------------------
 # 2. Disable conflicting services
@@ -33,6 +52,11 @@ done
 echo "[*] Configuring iwd..."
 sudo install -d /etc/iwd
 
+if [[ -f /etc/iwd/main.conf ]]; then
+  echo "[*] Backing up /etc/iwd/main.conf..."
+  sudo cp /etc/iwd/main.conf /etc/iwd/main.conf.backup
+fi
+
 sudo tee /etc/iwd/main.conf > /dev/null <<EOF
 [General]
 EnableNetworkConfiguration=false
@@ -46,6 +70,10 @@ echo "[*] Configuring systemd-networkd..."
 sudo install -d /etc/systemd/network
 
 # Wired
+if [[ -f /etc/systemd/network/20-wired.network ]]; then
+  echo "[*] Backing up /etc/systemd/network/20-wired.network..."
+  sudo cp /etc/systemd/network/20-wired.network /etc/systemd/network/20-wired.network.backup
+fi
 sudo tee /etc/systemd/network/20-wired.network > /dev/null <<EOF
 [Match]
 Name=en*
@@ -58,6 +86,10 @@ Domains=~
 EOF
 
 # Wireless
+if [[ -f /etc/systemd/network/25-wireless.network ]]; then
+  echo "[*] Backing up /etc/systemd/network/25-wireless.network..."
+  sudo cp /etc/systemd/network/25-wireless.network /etc/systemd/network/25-wireless.network.backup
+fi
 sudo tee /etc/systemd/network/25-wireless.network > /dev/null <<EOF
 [Match]
 Name=wl*
@@ -73,6 +105,10 @@ EOF
 # 5. Configure systemd-resolved (Local DNS)
 # -------------------------------
 echo "[*] Configuring systemd-resolved..."
+if [[ -f /etc/systemd/resolved.conf ]]; then
+  echo "[*] Backing up /etc/systemd/resolved.conf..."
+  sudo cp /etc/systemd/resolved.conf /etc/systemd/resolved.conf.backup
+fi
 sudo tee /etc/systemd/resolved.conf > /dev/null <<EOF
 [Resolve]
 DNS=127.0.0.1:5353
@@ -91,6 +127,10 @@ sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 # 6. Apply sysctl network optimizations
 # -------------------------------
 echo "[*] Applying kernel network optimizations..."
+if [[ -f /etc/sysctl.d/99-network-optimization.conf ]]; then
+  echo "[*] Backing up /etc/sysctl.d/99-network-optimization.conf..."
+  sudo cp /etc/sysctl.d/99-network-optimization.conf /etc/sysctl.d/99-network-optimization.conf.backup
+fi
 sudo tee /etc/sysctl.d/99-network-optimization.conf > /dev/null <<EOF
 # --- Queue and Congestion Control ---
 net.core.default_qdisc = fq
