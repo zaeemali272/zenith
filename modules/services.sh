@@ -43,7 +43,9 @@ setup_autologin() {
     sudo mkdir -p "$service_dir"
     echo -e "[Service]
 ExecStart=
-ExecStart=-/usr/bin/agetty --autologin $USER %I \$TERM >/dev/null 2>&1" | sudo tee "$service_dir/override.conf" >/dev/null
+ExecStart=-/usr/bin/agetty --autologin $USER %I \$TERM >/dev/null 2>&1
+TTYVTDisallocate=yes
+RestartSec=1" | sudo tee "$service_dir/override.conf" >/dev/null
     sudo systemctl daemon-reexec
     log_success "Autologin set."
 }
