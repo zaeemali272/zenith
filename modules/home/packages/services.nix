@@ -5,7 +5,6 @@
     brightnessctl
     playerctl
     ffmpeg
-    gnome-keyring
     gcr
     cliphist
     wl-clipboard

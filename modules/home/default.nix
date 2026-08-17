@@ -5,7 +5,6 @@
     inputs.zenith-shell.homeManagerModules.default
     inputs.hyprland-dots.homeManagerModules.default
     ./bat.nix
-    ./browser.nix
     ./btop.nix
     ./direnv.nix
     ./fish.nix
@@ -22,7 +21,6 @@
     ./starship.nix
     ./zen.nix
     ./antigravity.nix
-    ./code-cursor.nix
   ];
 
   home.username = vars.user;
