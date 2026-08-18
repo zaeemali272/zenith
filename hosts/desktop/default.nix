@@ -25,4 +25,21 @@
   ];
 
   networking.hostName = vars.hostname;
+
+  # Caught here rather than on the author's host, which legitimately uses these
+  # values. Without this, someone who cloned the repo and rebuilt without
+  # touching vars.nix would silently get an account named "zaeem" with the
+  # author's git identity, and none for themselves.
+  assertions = [
+    {
+      assertion = vars.user != "zaeem";
+      message = ''
+        vars.nix still has the repo author's identity (user = "zaeem").
+
+        Edit vars.nix and set at least user, fullName, email and hostname to
+        your own before building .#desktop -- otherwise this configuration
+        creates an account for someone else and none for you.
+      '';
+    }
+  ];
 }
