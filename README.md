@@ -75,7 +75,28 @@ Customize `vars.nix` to match your personal details and hardware specifications:
 }
 ```
 
-### 3. Build and Switch Configuration
+### 3. Generate Your Hardware Configuration (required)
+
+**Do not skip this.** A `hardware-configuration.nix` identifies your disks by
+UUID, and those UUIDs are true for exactly one computer. If you build with
+someone else's, the build succeeds and your **next boot drops into emergency
+mode**, because systemd cannot find the root filesystem.
+
+This repo therefore ships `hosts/desktop/hardware-configuration.nix` as a
+placeholder that refuses to evaluate. Replace it with your own:
+
+```bash
+sudo nixos-generate-config --show-hardware-config \
+  > hosts/desktop/hardware-configuration.nix
+```
+
+If you forget, the build stops with instructions instead of producing a system
+that fails at boot.
+
+> `hosts/v14/` is the repo author's machine and is the only host with real disk
+> UUIDs committed. Build `.#desktop`, not `.#V14`.
+
+### 4. Build and Switch Configuration
 Execute the helper script or rebuild directly with `nixos-rebuild`:
 
 ```bash
