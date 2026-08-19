@@ -11,6 +11,9 @@
   gpu = "intel"; # Options: "intel", "amd", "nvidia"
   hasBluetooth = true;
 
+  # NOTE: not read by anything in this repository. Monitor layout is set in
+  # Hyprland-dots (hyprland.lua -> hl.monitor), not here. Left in place so the
+  # shape is documented if it is ever wired up.
   monitors = [
     ", preferred, auto, 1"
   ];

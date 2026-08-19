@@ -57,19 +57,21 @@
         ];
       };
     in rec {
-      nixosConfigurations = {
-        # The author's machine -- the only host with real disk UUIDs committed.
-        # `nixos-rebuild switch --flake .` picks this up automatically by
-        # hostname, so nothing changes for it.
-        V14 = mkHost ./hosts/v14;
-
-        # What everybody else builds. Ships a placeholder
-        # hardware-configuration.nix that throws with instructions, so a
-        # stranger gets a readable error at build time instead of a machine
-        # that boots into emergency mode.
-        desktop = mkHost ./hosts/desktop;
-
-        vm = mkHost ./hosts/vm;
-      };
+      # Hosts are discovered from ./hosts rather than listed here.
+      #
+      # Anyone using this config adds hosts/<their-machine>/ and rebuilds; they
+      # never edit this file. That matters for a shared repo: flake.nix is
+      # something upstream changes, so every user edit to it becomes a merge
+      # conflict on the next pull. A new directory conflicts with nothing.
+      #
+      # `nixos-rebuild switch --flake .` picks the entry matching the current
+      # hostname automatically.
+      nixosConfigurations =
+        let
+          entries = builtins.readDir ./hosts;
+          hostNames = builtins.filter (name: entries.${name} == "directory")
+                                      (builtins.attrNames entries);
+        in
+          nixpkgs.lib.genAttrs hostNames (name: mkHost (./hosts + "/${name}"));
     };
 }

@@ -125,7 +125,7 @@ def get_user_from_vars():
         match = re.search(r'user\s*=\s*"([^"]*)";', content)
         if match:
             return match.group(1)
-    return "zaeem"
+    return getpass.getuser()
 
 def sync_repo(target_dir, repo_url):
     repo_name = os.path.basename(target_dir)
@@ -183,10 +183,10 @@ def main():
         locales = ["en_US.UTF-8", "en_GB.UTF-8", "de_DE.UTF-8", "fr_FR.UTF-8"]
         layouts = ["us", "uk", "fr", "de", "es"]
         
-        user = input_with_autocomplete("Username: ", default="zaeem")
-        fullName = input_with_autocomplete("Full Name: ", default="zaeem")
-        email = input_with_autocomplete("Email: ", default="zaeemali272@gmail.com")
-        hostname = input_with_autocomplete("Hostname: ", default="V14")
+        user = input_with_autocomplete("Username: ", default=getpass.getuser())
+        fullName = input_with_autocomplete("Full Name: ", default=getpass.getuser())
+        email = input_with_autocomplete("Email: ", default="")
+        hostname = input_with_autocomplete("Hostname: ", default="nixos")
         timeZone = input_with_autocomplete("Timezone/Country/City: ", default="Asia/Karachi", suggestions=timezones)
         locale = input_with_autocomplete("Locale: ", default="en_US.UTF-8", suggestions=locales)
         keyboardLayout = input_with_autocomplete("Keyboard Layout: ", default="us", suggestions=layouts)
@@ -223,29 +223,43 @@ def main():
             "gpu": gpu
         }
         
+        missed = []
         for var, val in replacements.items():
             pattern = re.compile(rf'({var}\s*=\s*")[^"]*(";)')
-            content = pattern.sub(rf'\g<1>{val}\g<2>', content)
-            
+            content, n = pattern.subn(rf'\g<1>{val}\g<2>', content)
+            if n == 0:
+                missed.append(var)
+
+        # The password hash belongs in vars.nix, which is where user.nix reads it
+        # from (`hashedPassword = vars.hashedPassword;`). This used to regex
+        # modules/core/user.nix for `hashedPassword = "..."` -- a literal that does
+        # not appear in that file -- so the substitution matched nothing, and the
+        # script printed a tick anyway. Anyone who ran the installer was left on the
+        # fallback password while being told their own had been set.
+        if re.search(r'hashedPassword\s*=\s*"', content):
+            content = re.sub(r'(hashedPassword\s*=\s*")[^"]*(";)',
+                             r'\g<1>' + password_hash + r'\g<2>', content)
+        else:
+            content = re.sub(r'\{',
+                             '{\n  hashedPassword = "' + password_hash + '";',
+                             content, count=1)
+
+        if missed:
+            print("WARNING: could not set in vars.nix: " + ", ".join(missed))
+
         with open(vars_path, "w") as f:
             f.write(content)
-        print("✓ Successfully updated vars.nix!")
 
-        # 4. Updating hashedPassword in modules/core/user.nix
-        print("\n[4/4] Updating user.nix with hashed password...")
-        user_nix_path = "modules/core/user.nix"
-        if os.path.exists(user_nix_path):
-            with open(user_nix_path, "r") as f:
-                user_content = f.read()
-                
-            pattern = re.compile(r'(hashedPassword\s*=\s*")[^"]*(";)')
-            user_content = pattern.sub(rf'\g<1>{password_hash}\g<2>', user_content)
-            
-            with open(user_nix_path, "w") as f:
-                f.write(user_content)
-            print("✓ Successfully updated hashedPassword in modules/core/user.nix!")
+        # Read it back and prove it, instead of trusting the regex.
+        with open(vars_path) as f:
+            written = f.read()
+        if password_hash in written:
+            print("OK: vars.nix updated, password hash written")
         else:
-            print(f"⚠️  Warning: {user_nix_path} not found!")
+            print("ERROR: password hash was NOT written to vars.nix. You would be "
+                  "left on the fallback password; set hashedPassword by hand.")
+            sys.exit(1)
+
     else:
         print("\nSkipping user and system variables setup.")
         user = get_user_from_vars()

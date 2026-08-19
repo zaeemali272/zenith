@@ -1,0 +1,12 @@
+# Files that belong to the machine, not to the project.
+#
+# `merge=ours` tells git to keep the local version whenever an update touches
+# these. It needs the driver registered once:
+#
+#     git config merge.ours.driver true
+#
+# update.sh does that for you. Without it git falls back to a normal merge and
+# you get a conflict instead of silent damage, which is still safe.
+vars.nix                            merge=ours
+hosts/*/hardware-configuration.nix  merge=ours
+hosts/*/default.nix                 merge=ours

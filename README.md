@@ -44,68 +44,101 @@ zenith-nixos/
 
 ---
 
-## ⚡ Quick Start
+## ⚡ Using this configuration
 
-### 1. Clone the Repository
+This is someone's personal system config. It is built to be reused, but a NixOS
+configuration describes one machine's disks, identity and hardware — so it
+cannot be cloned and applied unchanged. Two things are always yours.
+
+### Getting it
+
 ```bash
-git clone https://github.com/zaeemali272/zenith-nixos.git ~/.config/zenith-nixos
-cd ~/.config/zenith-nixos
+git clone https://github.com/zaeemali272/zenith-nixos.git ~/zenith/zenith-nixos
+cd ~/zenith/zenith-nixos
 ```
 
-### 2. Configure Variables (`vars.nix`)
-Customize `vars.nix` to match your personal details and hardware specifications:
+You do not need to fork. The two things that are yours — `vars.nix` and your
+host directory — are protected by a `merge=ours` rule in `.gitattributes`, so an
+update keeps your version of them and takes everything else. Fork only if you
+intend to publish your own changes.
+
+### Staying up to date
+
+```bash
+./update.sh              # fetch, merge, tell you what changed
+./update.sh --rebuild    # the above, then nixos-rebuild switch
+./update.sh --check      # show what an update would bring, change nothing
+```
+
+It commits any local edits first (nothing is ever discarded), merges, refuses to
+rebuild if your host does not evaluate, and stops with instructions if a genuine
+conflict needs you. Your identity and hardware configuration are never
+overwritten, even when an update changes the same file.
+
+### 1. Your hardware configuration
+
+**Skip this and your machine will not boot.** A `hardware-configuration.nix`
+names disks by UUID. Those UUIDs are true for exactly one computer, so applying
+someone else's produces a system that builds cleanly and then cannot mount its
+root filesystem — you land in emergency mode.
+
+Create a host directory named exactly after your hostname:
+
+```bash
+mkdir -p hosts/$(hostname)
+sudo nixos-generate-config --show-hardware-config \
+  > hosts/$(hostname)/hardware-configuration.nix
+cp hosts/desktop/default.nix hosts/$(hostname)/default.nix
+```
+
+Hosts are discovered automatically from `hosts/`, so there is nothing to add to
+`flake.nix` — which also means you never conflict with upstream over it.
+
+If you build `.#desktop` without doing this, the placeholder refuses to evaluate
+and tells you so. That is deliberate: a loud failure at build time beats a
+silent one at boot.
+
+### 2. Your identity
+
+Edit `vars.nix`:
 
 ```nix
 {
-  user = "zaeem";
-  fullName = "zaeem";
-  email = "zaeemali272@gmail.com";
-  hostname = "V14";
-  
-  timeZone = "Asia/Karachi";
+  user = "you";
+  fullName = "Your Name";
+  email = "you@example.com";
+  hostname = "your-hostname";
+
+  timeZone = "Region/City";
   locale = "en_US.UTF-8";
   keyboardLayout = "us";
 
-  gpu = "intel"; # Options: "intel", "amd", "nvidia"
+  gpu = "intel";        # "intel" | "amd" | "nvidia"
   hasBluetooth = true;
 
-  monitors = [
-    "eDP-1, 1920x1080@60, 0x0, 1"
-  ];
+  monitors = [ ", preferred, auto, 1" ];
 }
 ```
 
-### 3. Generate Your Hardware Configuration (required)
+The `desktop` host asserts that this is no longer the author's identity, so a
+rebuild that forgot it fails with an explanation rather than quietly creating an
+account named after someone else.
 
-**Do not skip this.** A `hardware-configuration.nix` identifies your disks by
-UUID, and those UUIDs are true for exactly one computer. If you build with
-someone else's, the build succeeds and your **next boot drops into emergency
-mode**, because systemd cannot find the root filesystem.
-
-This repo therefore ships `hosts/desktop/hardware-configuration.nix` as a
-placeholder that refuses to evaluate. Replace it with your own:
+### 3. Build
 
 ```bash
-sudo nixos-generate-config --show-hardware-config \
-  > hosts/desktop/hardware-configuration.nix
+sudo nixos-rebuild switch --flake .
 ```
 
-If you forget, the build stops with instructions instead of producing a system
-that fails at boot.
+With no `#host`, this selects the entry matching your current hostname — which
+is why the directory name has to match it.
 
-> `hosts/v14/` is the repo author's machine and is the only host with real disk
-> UUIDs committed. Build `.#desktop`, not `.#V14`.
+Or run `./install.sh`, which walks through identity, hashes a password and
+copies your hardware configuration into place.
 
-### 4. Build and Switch Configuration
-Execute the helper script or rebuild directly with `nixos-rebuild`:
-
-```bash
-# Using helper script
-./install.sh
-
-# Or directly with nixos-rebuild
-sudo nixos-rebuild switch --flake .#desktop
-```
+> **Password.** Until you set `hashedPassword` in `vars.nix` (the installer does
+> this for you), the account is created with `initialPassword = "nixos"`. Change
+> it immediately on a machine anyone else can reach.
 
 ---
 

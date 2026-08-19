@@ -2,6 +2,7 @@
 
 {
   imports = [
+    ./battery-care.nix
     ./bluetooth.nix
     ./bootloader.nix
     ./clean.nix
@@ -22,5 +23,6 @@
     ./virtualization.nix
     ./wayland.nix
     ./xserver.nix
+    ./zenith-cli.nix
   ];
 }
