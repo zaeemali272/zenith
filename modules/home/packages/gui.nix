@@ -8,5 +8,6 @@
    hicolor-icon-theme 
    qpwgraph 
    onlyoffice-desktopeditors 
+   losslesscut
    ]; 
 }

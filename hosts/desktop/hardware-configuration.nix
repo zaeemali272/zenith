@@ -1,30 +1,33 @@
-{ config, lib, pkgs, modulesPath, ... }:
+# Placeholder. Replace this with YOUR machine's hardware configuration.
+#
+# A hardware-configuration.nix describes physical disks by UUID. Those UUIDs are
+# true for exactly one computer, so shipping someone else's here is actively
+# dangerous: the build succeeds, and the next boot cannot mount root and drops
+# into emergency mode. This file therefore refuses to evaluate rather than hand
+# you a system that fails at boot instead of at build time.
+#
+# Generate your own:
+#
+#   sudo nixos-generate-config --show-hardware-config \
+#     > hosts/desktop/hardware-configuration.nix
+#
+# Then set your identity in vars.nix -- at minimum user, fullName, email,
+# hostname and gpu -- and build:
+#
+#   sudo nixos-rebuild switch --flake .#desktop
+throw ''
 
-{
-  imports = [
-    (modulesPath + "/installer/scan/not-detected.nix")
-  ];
+  hosts/desktop/hardware-configuration.nix is still the placeholder.
 
-  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usb_storage" "sd_mod" ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" ];
-  boot.extraModulePackages = [ ];
+  This config cannot know your disks, so you have to generate that one file:
 
-  fileSystems."/" = {
-    device = "/dev/disk/by-uuid/bd2af05c-37ab-4aa4-8087-134796e34aa8";
-    fsType = "ext4";
-  };
+      sudo nixos-generate-config --show-hardware-config > hosts/desktop/hardware-configuration.nix
 
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/5DC8-FA55";
-    fsType = "vfat";
-    options = [ "fmask=0077" "dmask=0077" ];
-  };
+  Then set your identity in vars.nix (user, fullName, email, hostname, gpu)
+  and build:
 
-  swapDevices = [
-    { device = "/dev/disk/by-uuid/d9c72e81-b306-4f04-af84-d126e8408092"; }
-  ];
+      sudo nixos-rebuild switch --flake .#desktop
 
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-}
+  Building without doing this would leave your machine in emergency mode on
+  the next boot, which is why it stops here instead.
+''

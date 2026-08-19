@@ -38,24 +38,38 @@
   outputs = { self, nixpkgs, home-manager, hermes-agent, zen-browser, antigravity-nix, ... }@inputs:
     let
       vars = import ./vars.nix;
+
+      # Every host is the same stack; they differ only in which
+      # hardware-configuration.nix they carry.
+      mkHost = hostPath: nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = { inherit inputs vars; };
+        modules = [
+          hermes-agent.nixosModules.default
+          hostPath
+          home-manager.nixosModules.home-manager {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.backupFileExtension = "backup";
+            home-manager.extraSpecialArgs = { inherit inputs vars; };
+            home-manager.users.${vars.user} = import ./modules/home/default.nix;
+          }
+        ];
+      };
     in rec {
       nixosConfigurations = {
-        desktop = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = { inherit inputs vars; };
-          modules = [
-            hermes-agent.nixosModules.default
-            ./hosts/desktop
-            home-manager.nixosModules.home-manager {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.backupFileExtension = "backup";
-              home-manager.extraSpecialArgs = { inherit inputs vars; };
-              home-manager.users.${vars.user} = import ./modules/home/default.nix;
-            }
-          ];
-        };
-        "${vars.hostname}" = nixosConfigurations.desktop;
+        # The author's machine -- the only host with real disk UUIDs committed.
+        # `nixos-rebuild switch --flake .` picks this up automatically by
+        # hostname, so nothing changes for it.
+        V14 = mkHost ./hosts/v14;
+
+        # What everybody else builds. Ships a placeholder
+        # hardware-configuration.nix that throws with instructions, so a
+        # stranger gets a readable error at build time instead of a machine
+        # that boots into emergency mode.
+        desktop = mkHost ./hosts/desktop;
+
+        vm = mkHost ./hosts/vm;
       };
     };
 }
