@@ -96,10 +96,21 @@ else
 fi
 
 if [ "$MODE" = "--rebuild" ]; then
-    step "rebuilding (sudo)"
-    sudo nixos-rebuild switch --flake ".#$HOST"
+    # nh when it is there -- it prints a readable diff of what actually changed
+    # and elevates itself. Plain nixos-rebuild otherwise, so this works on a
+    # machine that has not enabled nh.
+    if command -v nh >/dev/null 2>&1; then
+        step "rebuilding via nh"
+        nh os switch ".#$HOST"
+    else
+        step "rebuilding (sudo)"
+        sudo nixos-rebuild switch --flake ".#$HOST"
+    fi
 else
     echo
-    ok "ready. To apply:  sudo nixos-rebuild switch --flake .#$HOST"
-    echo "     or next time:  ./update.sh --rebuild"
+    if command -v zenith >/dev/null 2>&1; then
+        ok "ready. To apply:  zenith update --rebuild"
+    else
+        ok "ready. To apply:  sudo nixos-rebuild switch --flake .#$HOST"
+    fi
 fi

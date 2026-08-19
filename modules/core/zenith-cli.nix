@@ -55,8 +55,16 @@ let
         rebuild)
           action="''${1:-switch}"
           [ -d "$CONFIG/hosts/$HOST" ] || die "no hosts/$HOST in $CONFIG -- see 'zenith doctor'"
-          step "rebuilding $HOST ($action)"
-          exec sudo nixos-rebuild "$action" --flake "$CONFIG#$HOST"
+          # nh when it is available: it shows a readable diff of what changed
+          # and handles the sudo elevation itself. nixos-rebuild otherwise, so
+          # this still works on a machine that has not enabled nh.
+          if command -v nh >/dev/null 2>&1; then
+            step "rebuilding $HOST ($action) via nh"
+            exec nh os "$action" "$CONFIG#$HOST"
+          else
+            step "rebuilding $HOST ($action)"
+            exec sudo nixos-rebuild "$action" --flake "$CONFIG#$HOST"
+          fi
           ;;
 
         rollback)
@@ -97,10 +105,17 @@ let
           fi
 
           step "identity"
-          if grep -q 'user = "zaeem"' "$CONFIG/vars.nix" 2>/dev/null; then
-            warn "vars.nix still has the author's identity"
+          # Compared against whoever is running this, not against a hardcoded
+          # name -- otherwise the author of the config gets warned about their
+          # own perfectly correct configuration.
+          configured="$(sed -n 's/.*user[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$CONFIG/vars.nix" 2>/dev/null | head -1)"
+          if [ -z "$configured" ]; then
+            warn "could not read user from vars.nix"
+          elif [ "$configured" = "$(id -un)" ]; then
+            ok "vars.nix user is $configured"
           else
-            ok "vars.nix has been personalised"
+            warn "vars.nix says user = \"$configured\" but you are $(id -un)"
+            printf '       edit %s/vars.nix before rebuilding\n' "$CONFIG"
           fi
 
           step "desktop session"
