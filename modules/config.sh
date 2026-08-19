@@ -72,38 +72,178 @@ setup_extra_themes() {
         git clone "$theme_url" "$theme_path" || { log_error "Failed to clone theme repo"; return; }
     else
         log "Updating $theme_name..."
-        pushd "$theme_path" >/dev/null && git pull && popd >/dev/null
+        # `cd` failing here would leave the pull running somewhere unexpected.
+        ( cd "$theme_path" && git pull ) || log_warn "Could not update $theme_name"
     fi
 
     log "Copying theme contents into $themes_dest/$theme_name..."
     mkdir -p "$themes_dest/$theme_name"
     # Using trailing slash on source and dest to ensure contents sync correctly
     rsync -av --exclude=".git" "$theme_path/" "$themes_dest/$theme_name/"
-    gsettings set org.gnome.desktop.interface gtk-theme 'dynamic-materia-dark'
+    apply_desktop_theme
     log_success "Theme setup complete."
+}
+
+# Apply the desktop look: Orchis (darker) with Reversal icons.
+#
+# Every value is checked against what is actually installed before it is set.
+# gsettings accepts a theme name that does not exist and silently renders the
+# default, so a typo or a missing package looks like "the theme just did not
+# apply" with nothing to debug.
+apply_desktop_theme() {
+    log_step "🎨 Applying Orchis (darker) and Reversal icons..."
+
+    local gtk_theme="Orchis-Dark"
+    local icon_theme="Reversal-dark"
+    local cursor_theme="Bibata-Modern-Classic"
+
+    theme_installed() {  # kind, name
+        local kind="$1" name="$2"
+        [[ -d "/usr/share/$kind/$name" || -d "$HOME/.local/share/$kind/$name" \
+           || -d "$HOME/.$kind/$name" ]]
+    }
+
+    if theme_installed themes "$gtk_theme"; then
+        gsettings set org.gnome.desktop.interface gtk-theme "$gtk_theme"
+        gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+        log_success "GTK theme: $gtk_theme"
+    else
+        log_warn "$gtk_theme is not installed -- install orchis-theme-git, then rerun."
+    fi
+
+    if theme_installed icons "$icon_theme"; then
+        gsettings set org.gnome.desktop.interface icon-theme "$icon_theme"
+        log_success "Icons: $icon_theme"
+    else
+        log_warn "$icon_theme is not installed -- install reversal-icon-theme-git, then rerun."
+    fi
+
+    if theme_installed icons "$cursor_theme"; then
+        gsettings set org.gnome.desktop.interface cursor-theme "$cursor_theme"
+        gsettings set org.gnome.desktop.interface cursor-size 24
+    fi
+
+    # GTK reads these files, not just gsettings -- applications started outside
+    # a session with dconf (and every GTK4 app) use them.
+    local gtk3="$HOME/.config/gtk-3.0/settings.ini"
+    local gtk4="$HOME/.config/gtk-4.0/settings.ini"
+    mkdir -p "$(dirname "$gtk3")" "$(dirname "$gtk4")"
+    for f in "$gtk3" "$gtk4"; do
+        cat > "$f" <<EOF
+[Settings]
+gtk-theme-name=$gtk_theme
+gtk-icon-theme-name=$icon_theme
+gtk-cursor-theme-name=$cursor_theme
+gtk-cursor-theme-size=24
+gtk-application-prefer-dark-theme=1
+EOF
+    done
+
+    # libadwaita ignores gtk-theme-name entirely; it only follows these assets.
+    local src="/usr/share/themes/$gtk_theme/gtk-4.0"
+    if [[ -d "$src" ]]; then
+        mkdir -p "$HOME/.config/gtk-4.0"
+        for asset in assets gtk.css gtk-dark.css; do
+            [[ -e "$src/$asset" ]] && ln -sfn "$src/$asset" "$HOME/.config/gtk-4.0/$asset"
+        done
+        log_success "libadwaita assets linked"
+    fi
+
+    # Qt applications, so they match rather than staying Fusion-grey.
+    local qt_conf="$HOME/.config/qt5ct/qt5ct.conf"
+    for v in qt5ct qt6ct; do
+        qt_conf="$HOME/.config/$v/$v.conf"
+        if [[ -f "$qt_conf" ]]; then
+            sed -i 's/^icon_theme=.*/icon_theme='"$icon_theme"'/' "$qt_conf" 2>/dev/null || true
+        fi
+    done
+}
+
+# Add the user to the groups a desktop actually needs.
+#
+# The installer never did this, and the omission is not obvious: everything
+# works except the things that talk to hardware directly. The clearest symptom
+# was that tapping Super never opened the launcher, because super_tap.py reads
+# /dev/input/event* and could not open a single device without the "input"
+# group -- while every other keybind, which goes through Hyprland, worked fine.
+setup_user_groups() {
+    log_step "👤 Adding $USER to the required groups..."
+
+    # input   -> /dev/input/event* for the Super-tap listener
+    # video   -> backlight control
+    # audio   -> legacy ALSA/JACK access
+    # storage, optical, lp, scanner -> removable media, discs, printing
+    local wanted=(input video audio storage optical lp network users)
+
+    # Only if the corresponding service is actually installed.
+    getent group docker  >/dev/null 2>&1 && wanted+=(docker)
+    getent group libvirt >/dev/null 2>&1 && wanted+=(libvirt)
+    getent group kvm     >/dev/null 2>&1 && wanted+=(kvm)
+    getent group wheel   >/dev/null 2>&1 && wanted+=(wheel)
+
+    local added=()
+    local skipped=()
+    for grp in "${wanted[@]}"; do
+        if ! getent group "$grp" >/dev/null 2>&1; then
+            skipped+=("$grp")
+            continue
+        fi
+        if id -nG "$USER" | tr ' ' '\n' | grep -qx "$grp"; then
+            continue
+        fi
+        if sudo usermod -aG "$grp" "$USER"; then
+            added+=("$grp")
+        else
+            log_warn "Could not add $USER to $grp"
+        fi
+    done
+
+    if [[ ${#added[@]} -gt 0 ]]; then
+        log_success "Added to: ${added[*]}"
+        log_warn "Group changes only apply to a new session -- log out and back in."
+    else
+        log_success "Already in every required group."
+    fi
+    [[ ${#skipped[@]} -gt 0 ]] && log "Not present on this system: ${skipped[*]}"
 }
 
 # Function to optimize ZRAM (Perfection/Speed)
 setup_zram() {
-    log_step "🚀 Configuring ZRAM for lightning speed..."
-    sudo pacman -S --needed --noconfirm zram-generator || { log_error "Failed to install zram-generator"; return; }
-    
-    local zram_conf="/etc/systemd/zram-generator.conf"
-    if [[ -f "$zram_conf" ]]; then
-        log_warn "Existing zram configuration found. Backing up to $zram_conf$BACKUP_SUFFIX"
-        sudo cp "$zram_conf" "$zram_conf$BACKUP_SUFFIX"
+    log_step "🚀 Checking ZRAM..."
+
+    # archinstall configures zram on most modern installs, and this function
+    # used to overwrite /etc/systemd/zram-generator.conf regardless -- replacing
+    # a working, tuned configuration with its own. Taking a backup first does not
+    # make that acceptable: the user never asked for it to change.
+    #
+    # So it now only acts when nothing is providing zram already.
+    if swapon --show=NAME --noheadings 2>/dev/null | grep -q zram \
+       || systemctl is-active --quiet systemd-zram-setup@zram0.service 2>/dev/null; then
+        log_success "ZRAM is already active (archinstall or an existing config) -- leaving it alone."
+        return 0
     fi
 
-    cat <<'EOF' | sudo tee "$zram_conf" >/dev/null
+    if [[ -f /etc/systemd/zram-generator.conf ]]; then
+        log_success "zram-generator.conf already exists -- leaving it alone."
+        return 0
+    fi
+
+    sudo pacman -S --needed --noconfirm zram-generator || {
+        log_error "Failed to install zram-generator"; return 1; }
+
+    cat <<'EOF' | sudo tee /etc/systemd/zram-generator.conf >/dev/null
 [zram0]
 zram-size = min(ram / 2, 4096)
 compression-algorithm = zstd
 swap-priority = 100
 fs-type = swap
 EOF
-    sudo systemctl daemon-reload && sudo systemctl start /dev/zram0
+    sudo systemctl daemon-reload
+    sudo systemctl start systemd-zram-setup@zram0.service 2>/dev/null \
+        || sudo systemctl start /dev/zram0 2>/dev/null || true
     log_success "ZRAM configured."
 }
+
 
 sanitize_dotfiles() {
     log_step "🧹 Sanitizing dotfiles (Updating paths for $USER)..."

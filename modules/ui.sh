@@ -22,12 +22,104 @@ if [[ -f "$STATE_FILE" ]]; then
     while IFS='=' read -r key val; do RUN_STATE["$key"]="$val"; done < "$STATE_FILE"
 fi
 
+# Steps that failed on a previous run, so a rerun can retry exactly those.
+FAILED_FILE="$HOME/.zenith_install_failed"
+declare -a STEPS_RUN=() STEPS_SKIPPED=() STEPS_FAILED=()
+
 mark_done() {
     RUN_STATE["$1"]=1
-    echo "$1=1" >> "$STATE_FILE"
+    # Rewrite rather than append: this file was only ever appended to, so a few
+    # reruns left it full of duplicate lines.
+    { grep -v "^$1=" "$STATE_FILE" 2>/dev/null; echo "$1=1"; } > "$STATE_FILE.tmp" \
+        && mv "$STATE_FILE.tmp" "$STATE_FILE"
+    sed -i "/^$1$/d" "$FAILED_FILE" 2>/dev/null || true
+}
+
+mark_failed() {
+    RUN_STATE["$1"]=0
+    grep -qx "$1" "$FAILED_FILE" 2>/dev/null || echo "$1" >> "$FAILED_FILE"
 }
 
 has_run() { [[ "${RUN_STATE[$1]:-0}" -eq 1 ]]; }
+
+# run_step <id> <description> <command...>
+#
+# The point of this is that rerunning the installer after a failure fixes what
+# broke instead of repeating everything. has_run() existed but was never called
+# anywhere, so state was written and never read: every rerun redid every step,
+# including the ones that overwrite system configuration.
+#
+# A step that fails does not abort the run. It is recorded, the installer keeps
+# going, and the summary at the end says what to rerun.
+run_step() {
+    local id="$1" desc="$2"; shift 2
+
+    if has_run "$id" && [[ "${ZENITH_FORCE:-0}" -ne 1 ]]; then
+        echo -e "  ${GREEN}✓${NC} $desc ${CYAN}(already done)${NC}"
+        STEPS_SKIPPED+=("$id")
+        return 0
+    fi
+
+    log_step "$desc"
+
+    # Captured explicitly. Reading $? after an `if` block gives the status of
+    # the block, not of the command -- which reported every failure as "exit 0".
+    local rc=0
+    "$@" || rc=$?
+
+    if [[ $rc -eq 0 ]]; then
+        mark_done "$id"
+        STEPS_RUN+=("$id")
+        return 0
+    fi
+
+    mark_failed "$id"
+    STEPS_FAILED+=("$id")
+    log_error "$desc failed (exit $rc). Continuing; rerun the installer to retry just this."
+    echo "[$(date '+%F %T')] step failed: $id ($desc) exit=$rc" >> "$ERROR_LOG"
+    return 0
+}
+
+# What a rerun would do, without doing anything.
+show_status() {
+    print_header 2>/dev/null || true
+    echo -e "${BOLD}Installer state${NC}"
+    echo
+    if [[ -s "$STATE_FILE" ]]; then
+        echo -e "  ${GREEN}completed:${NC}"
+        sed 's/=1$//' "$STATE_FILE" | sort -u | sed 's/^/    /'
+    else
+        echo "  nothing completed yet"
+    fi
+    echo
+    if [[ -s "$FAILED_FILE" ]]; then
+        echo -e "  ${RED}failed, will be retried on the next run:${NC}"
+        sort -u "$FAILED_FILE" | sed 's/^/    /'
+    else
+        echo -e "  ${GREEN}no failed steps${NC}"
+    fi
+    echo
+    echo "  state:  $STATE_FILE"
+    echo "  rerun:  ./install.sh              retries only what is missing or failed"
+    echo "          ./install.sh --force      redo everything"
+    echo "          ./install.sh --reset      forget all state"
+}
+
+print_summary() {
+    echo
+    echo -e "${BOLD}Summary${NC}"
+    [[ ${#STEPS_RUN[@]}     -gt 0 ]] && echo -e "  ${GREEN}ran:${NC}     ${STEPS_RUN[*]}"
+    [[ ${#STEPS_SKIPPED[@]} -gt 0 ]] && echo -e "  ${CYAN}skipped:${NC} ${#STEPS_SKIPPED[@]} already done"
+    if [[ ${#STEPS_FAILED[@]} -gt 0 ]]; then
+        echo -e "  ${RED}failed:${NC}  ${STEPS_FAILED[*]}"
+        echo
+        echo -e "  ${YELLOW}Rerun ./install.sh to retry just those. Nothing else will be redone.${NC}"
+        echo -e "  Details: $ERROR_LOG"
+        return 1
+    fi
+    echo -e "  ${GREEN}Everything completed.${NC}"
+    return 0
+}
 
 # UI Functions
 print_header() {

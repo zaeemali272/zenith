@@ -103,8 +103,46 @@ for arg in "$@"; do
         --quickshell) export RUN_QUICKSHELL=1 ;;
         --configs) export RUN_CONFIGS=1 ;;
         --new-pkgs) export RUN_NEW_PKGS=1 ;;
+
+        # Rerunning after a failure is the normal case, so it is the default:
+        # completed steps are skipped and only what is missing or failed runs.
+        --force|--redo)  export ZENITH_FORCE=1 ;;
+        --status)        export SHOW_STATUS=1 ;;
+        --reset)         export RESET_STATE=1 ;;
+        -h|--help)       export SHOW_HELP=1 ;;
     esac
 done
+
+if [[ "${SHOW_HELP:-0}" -eq 1 ]]; then
+    cat <<'USAGE'
+zenith installer
+
+  ./install.sh                 install, or resume -- steps already completed are
+                               skipped, failed ones are retried
+  ./install.sh --status        show what is done and what failed, change nothing
+  ./install.sh --force         redo every step, including completed ones
+  ./install.sh --reset         forget all recorded state and start over
+
+  --no-gaming --no-themes --no-recommended --no-extras --no-fonts
+  --no-scripts --skip-xdg      leave those parts out
+  --auto                       no prompts
+
+A step that fails does not stop the run. It is recorded, the rest continues, and
+the summary at the end lists what to retry -- just run ./install.sh again.
+USAGE
+    exit 0
+fi
+
+if [[ "${RESET_STATE:-0}" -eq 1 ]]; then
+    rm -f "$HOME/.zenith_install_state" "$HOME/.zenith_install_failed"
+    echo "Installer state cleared. The next run starts from scratch."
+    exit 0
+fi
+
+if [[ "${SHOW_STATUS:-0}" -eq 1 ]]; then
+    show_status
+    exit 0
+fi
 
 # --- Super User System Tuning ---
 system_tuning() {
@@ -121,7 +159,7 @@ system_tuning() {
     sudo sed -i "s/COMPRESSZST=(zstd -c -T0 -)/COMPRESSZST=(zstd -c -T0 --threads=0 -)/" /etc/makepkg.conf
     
     # 3. ZRAM & Swap (Stability)
-    setup_zram
+    run_step "setup_zram" "Checking ZRAM" setup_zram
     log_success "System tuning complete."
 }
 
@@ -142,13 +180,35 @@ pre_network_fix() {
         log_success "Internet connection detected. Skipping DNS override."
     else
         log_warn "No internet connection. Attempting to fix DNS..."
-        if [[ -f /etc/resolv.conf ]]; then
+        # On a systemd-resolved or NetworkManager system /etc/resolv.conf is a
+        # symlink into their runtime state. Writing through it replaces a
+        # managed file with a static one, and DNS silently stops following the
+        # network from then on -- so the symlink is preserved and the override
+        # is written as a real file only after moving it aside.
+        if [[ -L /etc/resolv.conf ]]; then
+            log_warn "/etc/resolv.conf is a symlink to $(readlink -f /etc/resolv.conf)"
+            log_warn "Replacing it temporarily; the original link is saved as /etc/resolv.conf.bak"
+            sudo mv /etc/resolv.conf /etc/resolv.conf.bak
+        elif [[ -f /etc/resolv.conf ]]; then
             sudo cp /etc/resolv.conf /etc/resolv.conf.bak
         fi
         echo -e "nameserver 8.8.8.8\nnameserver 1.1.1.1" | sudo tee /etc/resolv.conf >/dev/null
+        DNS_OVERRIDDEN=1
         
         # Retry install
         sudo pacman -S --needed --noconfirm nano rsync git jq || log_error "Failed to install essential tools even after DNS fix."
+    fi
+}
+
+# Put DNS back the way it was, if this installer changed it.
+restore_dns() {
+    [[ "${DNS_OVERRIDDEN:-0}" -eq 1 ]] || return 0
+    if [[ -e /etc/resolv.conf.bak ]]; then
+        sudo mv -f /etc/resolv.conf.bak /etc/resolv.conf
+        log_success "Restored the original /etc/resolv.conf"
+    else
+        log_warn "DNS was overridden to 8.8.8.8/1.1.1.1 and no backup was found."
+        log_warn "If your network manages DNS, remove /etc/resolv.conf and let it regenerate."
     fi
 }
 
@@ -199,15 +259,17 @@ ${BOLD}${CYAN}❓ Would you like to run '$script_name'?${NC}"
 minimal_install() {
     init_sudo
     pre_network_fix
-    system_prep
-    system_tuning
-    detect_hardware
-    install_minimal_packages
-    sync_dotfiles
-    set_fish_shell
-    setup_post_boot_service
-    setup_autologin
+    run_step "system_prep" "Preparing the system (mirrors)" system_prep
+    run_step "system_tuning" "Tuning pacman and makepkg" system_tuning
+    run_step "detect_hardware" "Detecting hardware" detect_hardware
+    run_step "install_minimal_packages" "Installing core packages" install_minimal_packages
+    run_step "setup_user_groups" "Adding you to the required groups" setup_user_groups
+    run_step "sync_dotfiles" "Syncing dotfiles" sync_dotfiles
+    run_step "set_fish_shell" "Setting fish as the shell" set_fish_shell
+    run_step "setup_post_boot_service" "Installing the post-boot service" setup_post_boot_service
+    run_step "setup_autologin" "Configuring autologin" setup_autologin
 
+    print_summary || true
     installation_summary "Minimal"
     echo -e "
 ${YELLOW}${BOLD}Rebooting in 10s... (Press Ctrl+C to cancel)${NC}"
@@ -217,20 +279,22 @@ ${YELLOW}${BOLD}Rebooting in 10s... (Press Ctrl+C to cancel)${NC}"
 full_install() {
     init_sudo
     pre_network_fix
-    system_prep
-    system_tuning
-    detect_hardware
-    install_minimal_packages
-    install_remaining_packages
-    sync_dotfiles
+    run_step "system_prep" "Preparing the system (mirrors)" system_prep
+    run_step "system_tuning" "Tuning pacman and makepkg" system_tuning
+    run_step "detect_hardware" "Detecting hardware" detect_hardware
+    run_step "install_minimal_packages" "Installing core packages" install_minimal_packages
+    run_step "install_remaining_packages" "Installing the remaining packages" install_remaining_packages
+    run_step "setup_user_groups" "Adding you to the required groups" setup_user_groups
+    run_step "sync_dotfiles" "Syncing dotfiles" sync_dotfiles
     if [[ "$SKIP_XDG" -eq 0 ]]; then
-        setup_xdg_dirs
+        run_step "setup_xdg_dirs" "Creating XDG directories" setup_xdg_dirs
     fi
-    set_fish_shell
-    setup_system_services
+    run_step "set_fish_shell" "Setting fish as the shell" set_fish_shell
+    run_step "setup_system_services" "Enabling system services" setup_system_services
     bash scripts/power-profile-setup.sh || log_warn "Power profile setup failed."
-    setup_autologin
-    optimize_bootloader
+    run_step "setup_autologin" "Configuring autologin" setup_autologin
+    run_step "apply_desktop_theme" "Applying the desktop theme" apply_desktop_theme
+    run_step "optimize_bootloader" "Optimising the bootloader" optimize_bootloader
     
     echo -e "
 ${BOLD}${CYAN}❓ Would you like to install extra themes, animations and wallpapers?${NC}"
@@ -242,7 +306,9 @@ ${BOLD}${CYAN}❓ Would you like to install extra themes, animations and wallpap
     if [[ "$SKIP_SCRIPTS" -eq 0 ]]; then
         run_optional_scripts
     fi
+    restore_dns
     
+    print_summary || true
     installation_summary "Full"
     echo -e "
 ${YELLOW}${BOLD}Rebooting in 10s... (Press Ctrl+C to cancel)${NC}"
@@ -251,19 +317,21 @@ ${YELLOW}${BOLD}Rebooting in 10s... (Press Ctrl+C to cancel)${NC}"
 
 packages_only() {
     init_sudo
-    system_prep
-    detect_hardware
-    install_minimal_packages
-    install_remaining_packages
+    run_step "system_prep" "Preparing the system (mirrors)" system_prep
+    run_step "detect_hardware" "Detecting hardware" detect_hardware
+    run_step "install_minimal_packages" "Installing core packages" install_minimal_packages
+    run_step "install_remaining_packages" "Installing the remaining packages" install_remaining_packages
     log_success "Package installation complete."
 }
 
 configs_only() {
-    sync_dotfiles
+    run_step "setup_user_groups" "Adding you to the required groups" setup_user_groups
+    run_step "sync_dotfiles" "Syncing dotfiles" sync_dotfiles
     if [[ "$SKIP_XDG" -eq 0 ]]; then
-        setup_xdg_dirs
+        run_step "setup_xdg_dirs" "Creating XDG directories" setup_xdg_dirs
     fi
     log_success "Configuration sync complete."
+    run_step "apply_desktop_theme" "Applying the desktop theme" apply_desktop_theme
 }
 
 run_specific_script() {

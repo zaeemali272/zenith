@@ -82,9 +82,17 @@ ensure_yay() {
         local tmp_dir=$(mktemp -d)
         sudo pacman -S --needed --noconfirm base-devel git || { log_error "Failed to install base-devel for yay"; return 1; }
         git clone https://aur.archlinux.org/yay-bin.git "$tmp_dir/yay-bin" || { log_error "Failed to clone yay-bin"; return 1; }
-        pushd "$tmp_dir/yay-bin" >/dev/null
-        makepkg -si --noconfirm || { log_error "Failed to build/install yay"; popd >/dev/null; return 1; }
-        popd >/dev/null
+        # Checked: if the pushd fails, makepkg would build in whatever directory
+        # the installer happened to be in, and the rm -rf below would still fire.
+        pushd "$tmp_dir/yay-bin" >/dev/null || {
+            log_error "Could not enter $tmp_dir/yay-bin"; rm -rf "$tmp_dir"; return 1; }
+        if ! makepkg -si --noconfirm; then
+            log_error "Failed to build/install yay"
+            popd >/dev/null || true
+            rm -rf "$tmp_dir"
+            return 1
+        fi
+        popd >/dev/null || true
         rm -rf "$tmp_dir"
         log_success "yay installed successfully."
     fi
