@@ -84,6 +84,30 @@ EOF
 fi
 CREATED_DIR=0   # hosts/$HOST is complete now; nothing to undo
 
+# Nix reads a git repository's flake from the *tracked* tree, not the working
+# directory. An untracked hosts/$HOST is invisible to builtins.readDir, so the
+# rebuild fails with the exact same "does not provide attribute" error as if the
+# directory had never been made. Stage it so the flake can see it.
+if git rev-parse --git-dir >/dev/null 2>&1; then
+    step "Making hosts/$HOST visible to the flake"
+    if git add --intent-to-add "hosts/$HOST" 2>/dev/null && git add "hosts/$HOST" 2>/dev/null; then
+        ok "staged hosts/$HOST (git tracks it now; commit when you are ready)"
+    else
+        warn "could not stage hosts/$HOST automatically"
+        printf '      nix only sees tracked files, so run this before rebuilding:\n'
+        printf '      git add hosts/%s\n' "$HOST"
+    fi
+
+    # vars.nix is merge=ours and often already modified; that is expected and
+    # does not affect discovery. Only untracked *host* files break the build.
+    untracked="$(git ls-files --others --exclude-standard hosts/ 2>/dev/null)"
+    if [[ -n "$untracked" ]]; then
+        warn "these files under hosts/ are untracked and invisible to nix:"
+        printf '      %s\n' $untracked
+        printf '      git add hosts/\n'
+    fi
+fi
+
 # --- vars.nix ---------------------------------------------------------------
 step "Checking vars.nix"
 CURRENT_USER="$(sed -n 's/.*user[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' vars.nix | head -1)"
