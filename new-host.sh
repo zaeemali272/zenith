@@ -22,6 +22,20 @@ die()  { printf '%serror%s %s\n' "$RED" "$OFF" "$*" >&2; exit 1; }
 HOST="${1:-$(hostname)}"
 [[ -n "$HOST" ]] || die "could not determine the hostname; pass one: ./new-host.sh myhost"
 
+# vars.nix and the hardware configs are marked merge=ours in .gitattributes so
+# that pulling an update never overwrites this machine's settings. That only
+# works if the driver is registered, and registration is per-clone local config
+# that git cannot version. update.sh sets it, but anyone who runs a plain
+# `git pull` never goes through update.sh and gets a conflict in vars.nix
+# instead -- leaving conflict markers that break evaluation. Set it here too,
+# since this script runs once on every new machine.
+if git rev-parse --git-dir >/dev/null 2>&1; then
+    if [[ "$(git config --get merge.ours.driver 2>/dev/null)" != "true" ]]; then
+        git config merge.ours.driver true &&
+            ok "registered the merge driver; updates will keep your vars.nix"
+    fi
+fi
+
 step "Setting up hosts/$HOST"
 
 CREATED_DIR=0

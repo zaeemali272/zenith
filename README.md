@@ -296,6 +296,26 @@ the same file. Everything else merges normally, so you still receive fixes.
 discarded — verifies that your host still evaluates before rebuilding, and stops
 with instructions if a genuine conflict needs a decision from you.
 
+### Use `zenith update`, not `git pull`
+
+`merge=ours` needs a driver registered in each clone, and that registration is
+local git config — git cannot ship it in the repository. `zenith update` and
+`new-host.sh` both set it for you:
+
+```bash
+git config merge.ours.driver true
+```
+
+Without it, `git pull` falls back to an ordinary merge and leaves conflict
+markers in `vars.nix`, which then fails to evaluate:
+
+```
+CONFLICT (content): Merge conflict in vars.nix
+```
+
+Your settings are not lost — they are the `<<<<<<< HEAD` half — but you have to
+resolve it by hand. Run the line above once and pulls keep your values silently.
+
 ---
 
 <a id="troubleshooting"></a>
