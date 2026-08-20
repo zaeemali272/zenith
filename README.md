@@ -91,7 +91,19 @@ Fork only if you want to publish your own changes.
 ### 2. Create your host
 
 The directory name **must equal your hostname**; that is how `nixos-rebuild`
-finds it.
+finds it. One command does all of it:
+
+```bash
+./new-host.sh
+```
+
+It creates `hosts/<your-hostname>/`, generates the hardware configuration from
+this machine, writes the host module, and tells you what is still to set in
+`vars.nix`. If anything fails part way it removes what it made, because a host
+directory without a `default.nix` breaks every build on the machine.
+
+<details>
+<summary>By hand, if you prefer</summary>
 
 ```bash
 mkdir -p hosts/$(hostname)
@@ -99,6 +111,17 @@ sudo nixos-generate-config --show-hardware-config \
   > hosts/$(hostname)/hardware-configuration.nix
 cp hosts/desktop/default.nix hosts/$(hostname)/default.nix
 ```
+</details>
+
+Skip this and you get a nix error that does not explain itself:
+
+```
+error: flake ... does not provide attribute 'nixosConfigurations."CB"...'
+       Did you mean vm?
+```
+
+It means exactly one thing: there is no `hosts/CB/`.
+
 
 Hosts are discovered from `hosts/` automatically. You never edit `flake.nix`,
 which is also why upstream changes to it never conflict with yours.
