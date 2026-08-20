@@ -120,7 +120,16 @@ error: flake ... does not provide attribute 'nixosConfigurations."CB"...'
        Did you mean vm?
 ```
 
-It means exactly one thing: there is no `hosts/CB/`.
+It means the flake found no `hosts/CB/` — either because it was never created,
+or because it exists but is **untracked by git**. Nix reads a git repo's flake
+from the committed tree, so a new host directory is invisible until you stage
+it. `new-host.sh` does that for you; by hand it is:
+
+```bash
+git add hosts/$(hostname)
+```
+
+The `warning: Git tree ... is dirty` line above the error is the giveaway.
 
 
 Hosts are discovered from `hosts/` automatically. You never edit `flake.nix`,
