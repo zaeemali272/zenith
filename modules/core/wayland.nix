@@ -10,6 +10,8 @@
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
     ELECTRON_OZONE_PLATFORM_HINT = "auto";
+    MOZ_ENABLE_WAYLAND = "1";
+    MOZ_WEBRENDER = "1";
   };
 
   xdg.portal = {
@@ -26,6 +28,8 @@
         default = [ "hyprland" "gtk" ];
         "org.freedesktop.impl.portal.ScreenCast" = "hyprland";
         "org.freedesktop.impl.portal.Screenshot" = "hyprland";
+        "org.freedesktop.impl.portal.FileChooser" = "gtk";
+        "org.freedesktop.impl.portal.OpenURI" = "gtk";
       };
     };
   };
