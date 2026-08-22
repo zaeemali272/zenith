@@ -6,6 +6,7 @@
       commandLineArgs = "--ozone-platform=x11";
     })
     pear-desktop
+    google-chrome
   ];
 }
 
