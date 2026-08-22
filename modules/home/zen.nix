@@ -21,6 +21,8 @@ let
     "full-screen-api.warning.timeout" = 0;
     "full-screen-api.warning.delay" = 0;
     "full-screen-api.transition.timeout" = 0;
+    "browser.sessionstore.restore_on_demand" = true;
+    "browser.tabs.unloadOnLowMemory" = true;
   };
 
   extensions = [
@@ -32,6 +34,11 @@ let
   ];
 in
 {
+  home.sessionVariables = {
+    MOZ_ENABLE_WAYLAND = "1";
+    MOZ_WEBRENDER = "1";
+  };
+
   home.packages = [
     (pkgs.wrapFirefox
       inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.zen-browser-unwrapped
