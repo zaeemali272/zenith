@@ -43,11 +43,6 @@ in
     (pkgs.wrapFirefox
       inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.zen-browser-unwrapped
       {
-        extraEnv = ''
-          export MOZ_ENABLE_WAYLAND=1
-          export MOZ_WEBRENDER=1
-        '';
-
         extraPrefs = lib.concatLines (
           lib.mapAttrsToList (
             name: value: ''lockPref(${lib.strings.toJSON name}, ${lib.strings.toJSON value});''
