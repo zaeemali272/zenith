@@ -21,6 +21,7 @@
     ./starship.nix
     ./zen.nix
     ./antigravity.nix
+    ./omniroute.nix
   ];
 
   home.username = vars.user;
