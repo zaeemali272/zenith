@@ -160,16 +160,10 @@ EOF
 }
 
 # Add the user to the groups a desktop actually needs.
-#
-# The installer never did this, and the omission is not obvious: everything
-# works except the things that talk to hardware directly. The clearest symptom
-# was that tapping Super never opened the launcher, because super_tap.py reads
-# /dev/input/event* and could not open a single device without the "input"
-# group -- while every other keybind, which goes through Hyprland, worked fine.
 setup_user_groups() {
     log_step "👤 Adding $USER to the required groups..."
 
-    # input   -> /dev/input/event* for the Super-tap listener
+    # input   -> input device access (gamepads, libinput tools)
     # video   -> backlight control
     # audio   -> legacy ALSA/JACK access
     # storage, optical, lp, scanner -> removable media, discs, printing
