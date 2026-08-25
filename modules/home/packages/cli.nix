@@ -11,5 +11,6 @@
     yazi
     github-cli
     claude-code
+    yt-dlp
   ];
 }
