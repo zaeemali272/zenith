@@ -3,6 +3,11 @@
 {
   security.polkit.enable = true;
 
+  # PAM stack for the shell's session lock (zenith-shell windows/lock) --
+  # what programs.hyprlock does for hyprlock. Until a rebuild lands it, the
+  # lock authenticates through the "login" service instead.
+  security.pam.services.zenith-lock = { };
+
   # polkit itself is only the policy engine. Something has to actually show the
   # password dialog, and without an agent every privileged action from the
   # desktop fails silently -- pkexec has nowhere to ask, so it just returns an

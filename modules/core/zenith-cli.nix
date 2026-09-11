@@ -86,9 +86,15 @@ let
 
         shell)
           step "restarting the desktop shell"
-          pkill -x quickshell 2>/dev/null || true
-          sleep 1
-          (setsid quickshell -d >/dev/null 2>&1 &)
+          # launch.sh knows how to find the wrapped NixOS binary; a bare
+          # `pkill -x quickshell` never matches it.
+          if [ -x "$HOME/.config/quickshell/launch.sh" ]; then
+            "$HOME/.config/quickshell/launch.sh" restart
+          else
+            pkill -f '^quickshell( |$)' 2>/dev/null || true
+            sleep 1
+            (setsid quickshell -d >/dev/null 2>&1 &)
+          fi
           ok "restarted"
           ;;
 
