@@ -14,11 +14,12 @@
       # Sets the commit identity in the current repo (if in one) and makes
       # gh hand git that account's token for pushes and pulls.
       gituser = ''
+        set -l login; set -l name; set -l email
         switch "$argv[1]"
           case zaeem zaeemali272
-            set -l login zaeemali272; set -l name zaeem; set -l email zaeemali272@gmail.com
+            set login zaeemali272; set name zaeem; set email zaeemali272@gmail.com
           case zenova zenovadevs ZENOVA-WEB
-            set -l login ZENOVA-WEB; set -l name zenovadevs; set -l email zenovadevs@gmail.com
+            set login ZENOVA-WEB; set name zenovadevs; set email zenovadevs@gmail.com
           case '*'
             echo "usage: gituser zaeem | zenova"; return 1
         end
