@@ -7,6 +7,7 @@
     })
     pear-desktop
     chromium
+    proton-vpn
   ];
 }
 
