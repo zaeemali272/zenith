@@ -8,8 +8,7 @@
     pear-desktop
     chromium
     proton-vpn
-    librewolf
-    floorp
+
   ];
 }
 
