@@ -22,7 +22,7 @@
     };
 
     thorium = {
-      url = "github:almahdi/nix-thorium";
+      url = "github:Rishabh5321/custom-packages-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
