@@ -696,6 +696,7 @@
         "hyprland-dots": "hyprland-dots",
         "nixpkgs": "nixpkgs_4",
         "quickshell": "quickshell",
+        "thorium": "thorium",
         "zen-browser": "zen-browser",
         "zenith-shell": "zenith-shell"
       }
@@ -727,6 +728,26 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default-linux",
+        "type": "github"
+      }
+    },
+    "thorium": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1710661150,
+        "narHash": "sha256-jDDJcI6wab6JMji5WZzUMno387QQXs3lvcv5V1Qjc3g=",
+        "owner": "almahdi",
+        "repo": "nix-thorium",
+        "rev": "7ba813492bb6ab6b302cf0821c19e96762afdc1f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "almahdi",
+        "repo": "nix-thorium",
         "type": "github"
       }
     },
