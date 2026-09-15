@@ -21,6 +21,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    thorium = {
+      url = "github:almahdi/nix-thorium";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     antigravity-nix.url = "github:jacopone/antigravity-nix";
     hermes-agent.url = "github:NousResearch/hermes-agent";
 

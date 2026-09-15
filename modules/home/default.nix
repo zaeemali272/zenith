@@ -20,8 +20,6 @@
     ./quickshell.nix
     ./starship.nix
     ./zen.nix
-    ./librewolf.nix
-    ./floorp.nix
     ./antigravity.nix
     ./omniroute.nix
   ];

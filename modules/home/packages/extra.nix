@@ -1,14 +1,13 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 
 {
-  home.packages = with pkgs; [
-    (element-desktop.override {
+  home.packages = [
+    (pkgs.element-desktop.override {
       commandLineArgs = "--ozone-platform=x11";
     })
-    pear-desktop
-    chromium
-    proton-vpn
-
+    pkgs.pear-desktop
+    inputs.thorium.packages.${pkgs.stdenv.hostPlatform.system}.default
+    pkgs.proton-vpn
   ];
 }
 
