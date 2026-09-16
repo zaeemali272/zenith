@@ -18,6 +18,8 @@ let
     "extensions.autoDisableScopes" = 0;
     "extensions.pocket.enabled" = false;
     "full-screen-api.allow-trusted-requests-only" = false;
+    "full-screen-api.warning.timeout" = 0;
+    "full-screen-api.warning.delay" = 0;
     "browser.sessionstore.restore_on_demand" = true;
     "browser.tabs.unloadOnLowMemory" = true;
   };

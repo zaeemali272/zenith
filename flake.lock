@@ -738,16 +738,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1710661150,
-        "narHash": "sha256-jDDJcI6wab6JMji5WZzUMno387QQXs3lvcv5V1Qjc3g=",
-        "owner": "almahdi",
-        "repo": "nix-thorium",
-        "rev": "7ba813492bb6ab6b302cf0821c19e96762afdc1f",
+        "lastModified": 1789506121,
+        "narHash": "sha256-dHacIcEXTgv7shn5WAbAZYTUuSlPnZC1mIcGLYXcOts=",
+        "owner": "Rishabh5321",
+        "repo": "custom-packages-flake",
+        "rev": "362111688c2bb66cfaeefa4ae007c578dbb02582",
         "type": "github"
       },
       "original": {
-        "owner": "almahdi",
-        "repo": "nix-thorium",
+        "owner": "Rishabh5321",
+        "repo": "custom-packages-flake",
         "type": "github"
       }
     },
