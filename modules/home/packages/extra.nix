@@ -8,6 +8,7 @@
     pkgs.pear-desktop
     inputs.thorium.packages.${pkgs.stdenv.hostPlatform.system}.thorium-avx
     pkgs.proton-vpn
+    pkgs.cameractrls
   ];
 }
 
