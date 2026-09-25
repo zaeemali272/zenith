@@ -6,6 +6,9 @@
   services.dbus.enable = true;
   services.fstrim.enable = true;
 
+  # Enable Gnome Keyring for secret service API (org.freedesktop.secrets)
+  services.gnome.gnome-keyring.enable = true;
+
   # Always run during `sudo nixos-rebuild switch`:
   # Checks if ~/.config/hypr & ~/.config/quickshell exist, clones/pulls them, and makes scripts executable (+x)
   system.activationScripts.syncDotfilesAndShell = {
@@ -82,8 +85,12 @@
         sync_repo "$HYPR_DIR" "https://github.com/zaeemali272/Hyprland-dots.git" "Hyprland-dots"
         sync_repo "$QUICKSHELL_DIR" "https://github.com/zaeemali272/zenith-shell.git" "zenith-shell"
 
-        # 3. Restore user ownership
-        $CHOWN -R $USER:users "$HYPR_DIR" "$QUICKSHELL_DIR" 2>/dev/null || true
+        # 3. Restore user ownership and ensure app data directories are fully writable
+        GEMINI_DIR="$USER_HOME/.gemini"
+        ANTIGRAVITY_CFG_DIR="$USER_HOME/.config/antigravity"
+        mkdir -p "$GEMINI_DIR" "$ANTIGRAVITY_CFG_DIR"
+        $CHOWN -R $USER:users "$HYPR_DIR" "$QUICKSHELL_DIR" "$GEMINI_DIR" "$USER_HOME/.config/antigravity"* 2>/dev/null || true
+        $CHMOD -R u+rw "$GEMINI_DIR" "$USER_HOME/.config/antigravity"* 2>/dev/null || true
       fi
     '';
   };

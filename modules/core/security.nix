@@ -3,17 +3,21 @@
 {
   security.polkit.enable = true;
 
-  # PAM stack for the shell's session lock (zenith-shell windows/lock) --
-  # what programs.hyprlock does for hyprlock. Until a rebuild lands it, the
-  # lock authenticates through the "login" service instead.
-  security.pam.services.zenith-lock = { };
+  # Enable PAM gnome-keyring integration to automatically unlock keyring on login
+  security.pam.services.login.enableGnomeKeyring = true;
+  security.pam.services.hyprlock.enableGnomeKeyring = true;
+  security.pam.services.zenith-lock.enableGnomeKeyring = true;
 
   # polkit itself is only the policy engine. Something has to actually show the
   # password dialog, and without an agent every privileged action from the
   # desktop fails silently -- pkexec has nowhere to ask, so it just returns an
   # error nobody sees. That is why toggling battery conservation from the shell
   # appeared to do nothing at all.
-  environment.systemPackages = [ pkgs.hyprpolkitagent ];
+  environment.systemPackages = [
+    pkgs.hyprpolkitagent
+    pkgs.libsecret
+    pkgs.seahorse
+  ];
 
   systemd.user.services.hyprpolkitagent = {
     description = "Hyprland polkit authentication agent";
