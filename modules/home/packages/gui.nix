@@ -1,6 +1,6 @@
 { pkgs, ... }: {
   home.packages = with pkgs; [
-    brave-origin-bin
+    brave-origin
     eog
     zed-editor
     file-roller
