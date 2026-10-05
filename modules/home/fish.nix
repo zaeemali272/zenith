@@ -20,8 +20,10 @@
             set login zaeemali272; set name zaeem; set email zaeemali272@gmail.com
           case zenova zenovadevs ZENOVA-WEB
             set login ZENOVA-WEB; set name zenovadevs; set email zenovadevs@gmail.com
+          case ayahlink ayahlinkacademy
+            set login ayahlink; set name ayahlink; set email ayahlinkacademy@gmail.com
           case '*'
-            echo "usage: gituser zaeem | zenova"; return 1
+            echo "usage: gituser zaeem | zenova | ayahlink"; return 1
         end
         gh auth switch -h github.com -u $login; or return 1
         if git rev-parse --is-inside-work-tree >/dev/null 2>&1
