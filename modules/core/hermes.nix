@@ -2,7 +2,7 @@
 
 {
   services.hermes-agent = {
-    enable = false;
-    addToSystemPackages = false;
+    enable = true;
+    addToSystemPackages = true;
   };
 }
