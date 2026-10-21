@@ -21,7 +21,18 @@ let
     "full-screen-api.warning.timeout" = 0;
     "full-screen-api.warning.delay" = 0;
     "browser.sessionstore.restore_on_demand" = true;
+    "browser.sessionstore.restore_tabs_lazily" = true;
+    "browser.sessionstore.restore_pinned_tabs_on_demand" = true;
     "browser.tabs.unloadOnLowMemory" = true;
+    "layers.acceleration.disabled" = false;
+    "browser.preferences.defaultPerformanceSettings.enabled" = true;
+    "gfx.webrender.all" = true;
+    "gfx.webrender.compositor" = true;
+    "media.ffmpeg.vaapi.enabled" = true;
+    "media.hardware-video-decoding.enabled" = true;
+    "media.rdd-ffmpeg.enabled" = true;
+    "widget.use-aspect-ratio" = true;
+    "accessibility.force_disabled" = 1;
   };
 
   extensions = [
@@ -34,6 +45,7 @@ in
 {
   home.sessionVariables = {
     MOZ_ENABLE_WAYLAND = "1";
+    LIBVA_DRIVER_NAME = "iHD";
   };
 
   home.packages = [
