@@ -31,7 +31,7 @@
     exec = "${pkgs.brave-origin}/bin/brave-origin --app=https://www.figma.com %U";
     icon = "figma-linux";
     terminal = false;
-    categories = [ "Graphics" "Design" ];
+    categories = [ "Graphics" "2DGraphics" ];
     mimeType = [ "x-scheme-handler/figma" ];
   };
 }
