@@ -8,6 +8,7 @@
 
   # Run figma-agent in background to provide system fonts to Figma
   systemd.user.services.figma-agent = {
+    enable = false;
     Unit = {
       Description = "Figma Agent font helper daemon";
       After = [ "graphical-session.target" ];

@@ -2,7 +2,7 @@
 
 {
   virtualisation.libvirtd.enable = true;
-  virtualisation.docker.enable = true;
+  virtualisation.docker.enable = false;
   programs.virt-manager.enable = true;
 
   # libvirt ships a "default" NAT network but leaves it defined-and-stopped with
