@@ -203,6 +203,7 @@ place, and rebuilds.
 | `zenith rebuild [switch\|boot\|test]` | rebuild your own edits, without pulling |
 | `zenith rollback` | boot the previous generation |
 | `zenith gc [days]` | delete generations older than N days (default 7) |
+| `zenith clean [days]` | deep disk cleanup: gc, temp files, caches, and logs |
 | `zenith doctor` | check the things that commonly go wrong |
 | `zenith shell` | restart the desktop shell |
 | `zenith where` | print the config directory |

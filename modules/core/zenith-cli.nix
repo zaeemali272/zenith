@@ -3,7 +3,7 @@
 let
   zenith = pkgs.writeShellApplication {
     name = "zenith";
-    runtimeInputs = with pkgs; [ git nix coreutils gnugrep gnused hostname ];
+    runtimeInputs = with pkgs; [ git nix coreutils gnugrep gnused hostname findutils gawk ];
     text = ''
       # One entry point for the things you actually do to this system.
       #
@@ -33,6 +33,7 @@ let
         zenith rebuild [switch|boot|test]  rebuild this host (default: switch)
         zenith rollback                    boot the previous generation
         zenith gc [days]                   delete generations older than N days (default 7)
+        zenith clean [days]                deep disk cleanup: gc, temp files, caches, and logs
         zenith doctor                      check the things that commonly go wrong
         zenith shell                       restart the desktop shell
         zenith where                       print the config directory
@@ -78,6 +79,51 @@ let
           sudo nix-collect-garbage --delete-older-than "''${days}d"
           nix-collect-garbage --delete-older-than "''${days}d" || true
           ok "done"
+          ;;
+
+        clean)
+          days="''${1:-7}"
+          step "1/5: running garbage collection (older than ''${days}d)"
+          sudo nix-collect-garbage --delete-older-than "''${days}d" 2>/dev/null || nix-collect-garbage --delete-older-than "''${days}d" || true
+          nix-collect-garbage --delete-older-than "''${days}d" || true
+          ok "generations cleaned"
+
+          step "2/5: removing build artifacts and temp files"
+          rm -rf "$CONFIG/result" "$CONFIG"/result-* ~/result ~/result-* 2>/dev/null || true
+          rm -rf /tmp/nix-* /tmp/nix-build-* /var/tmp/nix-* 2>/dev/null || true
+          find /tmp -maxdepth 1 -user "$(id -u)" -mtime +2 -exec rm -rf {} + 2>/dev/null || true
+          ok "temp files purged"
+
+          step "3/5: clearing user cache files and trash"
+          rm -rf "$HOME/.cache/nix" "$HOME/.cache/nh" "$HOME/.cache/nixpkgs-review" 2>/dev/null || true
+          rm -rf "$HOME/.cache/thumbnails"/* 2>/dev/null || true
+          rm -rf "$HOME/.cache/fontconfig" "$HOME/.cache/typescript" 2>/dev/null || true
+          rm -rf "$HOME/.local/share/Trash"/* 2>/dev/null || true
+          ok "caches and trash emptied"
+
+          step "4/5: vacuuming systemd journal logs"
+          if [ "$(id -u)" -eq 0 ]; then
+            journalctl --vacuum-time=2d --vacuum-size=50M 2>/dev/null || true
+          elif command -v sudo >/dev/null 2>&1; then
+            sudo journalctl --vacuum-time=2d --vacuum-size=50M 2>/dev/null || true
+          else
+            journalctl --user --vacuum-time=2d --vacuum-size=50M 2>/dev/null || true
+          fi
+          ok "journal logs vacuumed"
+
+          step "5/5: optimizing nix store (hardlinking duplicates)"
+          if [ "$(id -u)" -eq 0 ]; then
+            nix-store --optimise 2>/dev/null || true
+          elif command -v sudo >/dev/null 2>&1; then
+            sudo nix-store --optimise 2>/dev/null || nix-store --optimise 2>/dev/null || true
+          else
+            nix-store --optimise 2>/dev/null || true
+          fi
+          ok "nix store optimized"
+
+          step "disk space summary"
+          df -h / | awk 'NR==1 || NR==2 {print "     " $0}'
+          ok "cleanup complete"
           ;;
 
         where)
