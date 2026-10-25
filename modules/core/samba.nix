@@ -1,10 +1,10 @@
 { pkgs, vars, ... }:
 
 {
-  # Enable Samba File Sharing
+  # Samba File Sharing (Disabled on startup)
   services.samba = {
-    enable = true;
-    openFirewall = true;
+    enable = false;
+    openFirewall = false;
     settings = {
       global = {
         "workgroup" = "WORKGROUP";
@@ -29,9 +29,9 @@
     };
   };
 
-  # Enable WSD for Windows network discovery
+  # WSD for Windows network discovery (Disabled on startup)
   services.samba-wsdd = {
-    enable = true;
-    openFirewall = true;
+    enable = false;
+    openFirewall = false;
   };
 }

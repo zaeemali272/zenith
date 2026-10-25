@@ -5,6 +5,10 @@
       # Multi-line pastes count as "control codes" and trigger a confirm
       # dialog on every paste; only warn on large ones and keep URLs quoted.
       paste_actions = "quote-urls-at-prompt,confirm-if-large";
+
+      # Memory & buffer optimizations (prevent unbounded scrollback/pager memory retention)
+      scrollback_lines = 2000;
+      scrollback_pager_history_size = 0;
     };
   };
 

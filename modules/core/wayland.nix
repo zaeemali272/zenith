@@ -12,6 +12,8 @@
     ELECTRON_OZONE_PLATFORM_HINT = "auto";
     MOZ_ENABLE_WAYLAND = "1";
     MOZ_WEBRENDER = "1";
+    MALLOC_ARENA_MAX = "2";
+    MALLOC_TRIM_THRESHOLD_ = "131072";
   };
 
   xdg.portal = {
