@@ -12,5 +12,8 @@
     github-cli
     claude-code
     yt-dlp
+    bitwarden-cli
+    proton-vpn-cli
+    wireguard-tools
   ];
 }

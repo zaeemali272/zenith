@@ -10,6 +10,8 @@
     qpwgraph
     onlyoffice-desktopeditors
     losslesscut
+    bitwarden-desktop
+    proton-vpn
   ];
 }
 
