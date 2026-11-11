@@ -22,9 +22,20 @@
     '';
   };
 
-  # 4. ADB tools for USB pairing and Elevated wireless debugging
-  environment.systemPackages = [ pkgs.android-tools ];
+  # 4. ADB tools for USB pairing and Elevated wireless debugging, plus webcam utilities
+  environment.systemPackages = with pkgs; [
+    android-tools
+    v4l-utils
+    config.boot.kernelPackages.v4l2loopback.bin
+  ];
 
-  # 5. User permissions for uinput devices
-  users.users.${vars.user}.extraGroups = [ "uinput" ];
+  # 5. Compatibility symlinks so NectarLink can inspect kernel modules and invoke modprobe
+  systemd.tmpfiles.rules = [
+    "L+ /lib/modules - - - - /run/booted-system/kernel-modules/lib/modules"
+    "L+ /usr/sbin/modprobe - - - - ${pkgs.kmod}/bin/modprobe"
+    "L+ /usr/sbin/modinfo - - - - ${pkgs.kmod}/bin/modinfo"
+  ];
+
+  # 6. User permissions for uinput and video devices
+  users.users.${vars.user}.extraGroups = [ "uinput" "video" ];
 }
