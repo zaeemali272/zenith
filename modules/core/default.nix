@@ -10,6 +10,7 @@
     ./fonts.nix
     ./hardware.nix
     ./hermes.nix
+    ./nectarlink.nix
     ./network.nix
     ./nh.nix
     ./nixpkgs.nix

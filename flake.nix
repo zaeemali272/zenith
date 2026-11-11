@@ -29,6 +29,11 @@
     antigravity-nix.url = "github:jacopone/antigravity-nix";
     hermes-agent.url = "github:NousResearch/hermes-agent";
 
+    nectarlink = {
+      url = "github:thtbee/nectarlink";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     zenith-shell = {
       url = "github:zaeemali272/zenith-shell";
       inputs.nixpkgs.follows = "nixpkgs";

@@ -22,6 +22,7 @@
     ./starship.nix
     ./zen.nix
     ./antigravity.nix
+    ./nectarlink.nix
     ./omniroute.nix
   ];
 
