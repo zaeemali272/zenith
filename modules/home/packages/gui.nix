@@ -1,5 +1,6 @@
 { pkgs, ... }: {
   home.packages = with pkgs; [
+    anydesk
     brave-origin
     eog
     zed-editor

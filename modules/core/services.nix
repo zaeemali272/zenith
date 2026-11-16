@@ -9,6 +9,10 @@
   # Enable Gnome Keyring for secret service API (org.freedesktop.secrets)
   services.gnome.gnome-keyring.enable = true;
 
+  # Enable AnyDesk service
+  systemd.packages = [ pkgs.anydesk ];
+  systemd.services.anydesk.wantedBy = [ "multi-user.target" ];
+
   # Always run during `sudo nixos-rebuild switch`:
   # Checks if ~/.config/hypr & ~/.config/quickshell exist, clones/pulls them, and makes scripts executable (+x)
   system.activationScripts.syncDotfilesAndShell = {
