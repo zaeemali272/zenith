@@ -6,6 +6,12 @@
   services.dbus.enable = true;
   services.fstrim.enable = true;
 
+  # Disable direct poweroff on power button tap so Hyprland/zenith-shell can open the power menu instead
+  services.logind = {
+    powerKey = "ignore";
+    powerKeyLongPress = "poweroff";
+  };
+
   # Enable Gnome Keyring for secret service API (org.freedesktop.secrets)
   services.gnome.gnome-keyring.enable = true;
 
