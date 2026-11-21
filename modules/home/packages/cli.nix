@@ -6,7 +6,14 @@
     glances
     ncdu
     tree
+    eza
+    bat
+    fzf
+    zoxide
+    fisher
     fastfetch
+    krabby
+    pokemon-colorscripts
     btop
     yazi
     github-cli

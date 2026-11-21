@@ -14,41 +14,26 @@
 
       palettes.zenith = {
         primary = "#ffb4a7";
+        on_primary = "#561e15";
         secondary = "#e7bdb5";
+        on_secondary = "#442a25";
         tertiary = "#ddc48c";
-        accent = "#ffdad4";
-        subtext = "#d8c2be";
+        on_tertiary = "#3d2e04";
         surface = "#271d1c";
-        background = "#1a1110";
+        surface_high = "#3d3230";
+        text = "#f1dfdb";
+        subtext = "#d8c2be";
         red = "#ffb4ab";
-        green = "#a6d189";
+        on_red = "#690005";
         yellow = "#fae0a6";
+        green = "#a6d189";
         blue = "#89b4fa";
-        purple = "#cba6f7";
       };
 
-      # Minimalist Poweruser Layout
+      # Powerlevel10k Style Rounded Pill Layout
       format = lib.concatStrings [
-        "$os"
-        "$username"
-        "$hostname"
-        "$directory"
-        "$git_branch"
-        "$git_status"
-        "$git_state"
-        "$nix_shell"
-        "$c"
-        "$rust"
-        "$golang"
-        "$nodejs"
-        "$python"
-        "$java"
-        "$lua"
-        "$docker_context"
-        "$cmd_duration"
-        "$status"
-        "$line_break"
-        "$character"
+        "╭─$os$username$hostname$directory$git_branch$git_status$git_state$nix_shell$direnv$rust$nodejs$bun$deno$python$golang$c$java$kotlin$lua$docker_context$package$jobs$cmd_duration$status$time\n"
+        "╰─$character"
       ];
 
       # Prompt Character
@@ -58,170 +43,183 @@
         vimcmd_symbol = "[❮](bold tertiary)";
       };
 
-      # OS Icon - Subtle & sleek
+      # OS Icon Capsule
       os = {
         disabled = false;
-        style = "bold primary";
+        style = "bg:primary fg:on_primary";
+        format = "[](fg:primary)[$symbol]($style)[](fg:primary) ";
         symbols = {
-          NixOS = "󱄅 ";
-          Arch = "󰣇 ";
-          Debian = "󰣚 ";
-          Ubuntu = "󰕈 ";
-          Linux = "󰌽 ";
+          NixOS = "󱄅 NixOS";
+          Arch = "󰣇 Arch";
+          Debian = "󰣚 Debian";
+          Ubuntu = "󰕈 Ubuntu";
+          Linux = "󰌽 Linux";
         };
-        format = "[$symbol]($style)";
       };
 
       # Username - Only show when SSH or root
       username = {
-        style_user = "bold tertiary";
-        style_root = "bold red";
-        format = "[$user]($style)@";
-        disabled = false;
         show_always = false;
+        style_user = "bg:tertiary fg:on_tertiary";
+        style_root = "bg:red fg:on_red";
+        format = "[](fg:tertiary)[ $user]($style)[](fg:tertiary) ";
       };
 
       # Hostname - Only show when SSH
       hostname = {
         ssh_only = true;
-        style = "bold tertiary";
-        format = "[$hostname]($style) ";
-        disabled = false;
+        style = "bg:tertiary fg:on_tertiary";
+        format = "[](fg:tertiary)[󰒍 $hostname]($style)[](fg:tertiary) ";
       };
 
-      # Directory - Clean path with truncation and subtle colors
+      # Directory Capsule
       directory = {
-        home_symbol = "~";
+        style = "bg:surface_high fg:text";
+        format = "[](fg:surface_high)[ $path]($style)[$read_only]($read_only_style)[](fg:surface_high) ";
         read_only = " 󰌾";
-        read_only_style = "bold red";
-        style = "bold primary";
+        read_only_style = "bg:surface_high fg:red";
         truncation_length = 3;
         truncation_symbol = "…/";
-        format = "[$path]($style)[$read_only]($read_only_style) ";
         substitutions = {
           "Documents" = "󰈙 Documents";
-          "Downloads" = "󰇚 Downloads";
-          "Music" = "󰎈 Music";
-          "Pictures" = "󰋩 Pictures";
-          "Videos" = "󰕧 Videos";
+          "Downloads" = " Downloads";
+          "Music" = "󰝚 Music";
+          "Pictures" = " Pictures";
           "GitHub" = "󰊤 GitHub";
         };
       };
 
       # Git Branch & Status
       git_branch = {
-        style = "bold secondary";
-        symbol = "󰘬 ";
-        format = "on [$symbol$branch]($style) ";
-      };
-
-      git_commit = {
-        commit_hash_length = 7;
-        tag_symbol = "🏷 ";
-      };
-
-      git_state = {
-        style = "bold yellow";
-        format = "[\($state( $progress_current/$progress_total)\)]($style) ";
+        symbol = " ";
+        style = "bg:secondary fg:on_secondary";
+        format = "[](fg:secondary)[$symbol$branch]($style)";
       };
 
       git_status = {
-        style = "bold red";
-        format = "([$all_status$ahead_behind]($style) )";
-        conflicted = "=";
-        ahead = "⇡\${count}";
-        behind = "⇣\${count}";
-        diverged = "⇡\${ahead_count}⇣\${behind_count}";
-        untracked = "?";
-        stashed = "$";
-        modified = "!";
-        staged = "+";
-        renamed = "»";
-        deleted = "✘";
+        style = "bg:secondary fg:on_secondary";
+        format = "[$all_status$ahead_behind]($style)[](fg:secondary) ";
+        conflicted = " =";
+        ahead = " ⇡\${count}";
+        behind = " ⇣\${count}";
+        diverged = " ⇡\${ahead_count}⇣\${behind_count}";
+        untracked = " ?";
+        modified = " !";
+        staged = " +";
+        renamed = " »";
+        deleted = " ✘";
       };
 
-      # Command Duration - Only show if > 2 seconds
-      cmd_duration = {
-        min_time = 2000;
-        style = "bold yellow";
-        format = "took [⏱ $duration]($style) ";
+      git_state = {
+        style = "bg:secondary fg:on_secondary";
+        format = "([$state $progress_current/$progress_total]($style) )";
       };
 
-      # Nix Shell - Minimal indicator
+      # Nix Shell Indicator
       nix_shell = {
         symbol = "󱄅 ";
-        style = "bold tertiary";
-        format = "via [$symbol$state]($style) ";
+        style = "bg:tertiary fg:on_tertiary";
+        format = "[](fg:tertiary)[$symbol$state]($style)[](fg:tertiary) ";
         impure_msg = "nix";
         pure_msg = "nix (pure)";
       };
 
-      # Language & Runtime Indicators (Minimal text + version)
-      c = {
-        symbol = " ";
-        style = "bold blue";
-        format = "[$symbol$version]($style) ";
+      direnv = {
+        disabled = false;
+        style = "bg:surface_high fg:tertiary";
+        format = "[](fg:surface_high)[▼ direnv]($style)[](fg:surface_high) ";
       };
 
+      # Language & Runtime Indicators
       rust = {
         symbol = " ";
-        style = "bold bright-red";
-        format = "[$symbol$version]($style) ";
-      };
-
-      golang = {
-        symbol = " ";
-        style = "bold bright-cyan";
-        format = "[$symbol$version]($style) ";
+        style = "bg:tertiary fg:on_tertiary";
+        format = "[](fg:tertiary)[$symbol$version]($style)[](fg:tertiary) ";
       };
 
       nodejs = {
         symbol = " ";
-        style = "bold bright-green";
-        format = "[$symbol$version]($style) ";
+        style = "bg:tertiary fg:on_tertiary";
+        format = "[](fg:tertiary)[$symbol$version]($style)[](fg:tertiary) ";
+      };
+
+      bun = {
+        symbol = " ";
+        style = "bg:tertiary fg:on_tertiary";
+        format = "[](fg:tertiary)[$symbol$version]($style)[](fg:tertiary) ";
+      };
+
+      deno = {
+        symbol = "🦕 ";
+        style = "bg:tertiary fg:on_tertiary";
+        format = "[](fg:tertiary)[$symbol$version]($style)[](fg:tertiary) ";
       };
 
       python = {
         symbol = " ";
-        style = "bold yellow";
-        format = "[$symbol$version]($style) ";
+        style = "bg:tertiary fg:on_tertiary";
+        format = "[](fg:tertiary)[$symbol$version]($style)[](fg:tertiary) ";
+      };
+
+      golang = {
+        symbol = " ";
+        style = "bg:tertiary fg:on_tertiary";
+        format = "[](fg:tertiary)[$symbol$version]($style)[](fg:tertiary) ";
+      };
+
+      c = {
+        symbol = " ";
+        style = "bg:tertiary fg:on_tertiary";
+        format = "[](fg:tertiary)[$symbol$version]($style)[](fg:tertiary) ";
       };
 
       java = {
         symbol = " ";
-        style = "bold red";
-        format = "[$symbol$version]($style) ";
+        style = "bg:tertiary fg:on_tertiary";
+        format = "[](fg:tertiary)[$symbol$version]($style)[](fg:tertiary) ";
+      };
+
+      kotlin = {
+        symbol = " ";
+        style = "bg:tertiary fg:on_tertiary";
+        format = "[](fg:tertiary)[$symbol$version]($style)[](fg:tertiary) ";
       };
 
       lua = {
         symbol = " ";
-        style = "bold blue";
-        format = "[$symbol$version]($style) ";
+        style = "bg:tertiary fg:on_tertiary";
+        format = "[](fg:tertiary)[$symbol$version]($style)[](fg:tertiary) ";
       };
 
       docker_context = {
         symbol = "󰡨 ";
-        style = "bold blue";
-        format = "[$symbol$context]($style) ";
+        style = "bg:tertiary fg:on_tertiary";
+        format = "[](fg:tertiary)[$symbol$context]($style)[](fg:tertiary) ";
       };
 
-      memory_usage = {
-        disabled = true;
+      jobs = {
+        style = "bg:surface_high fg:yellow";
+        format = "[](fg:surface_high)[✦ $number]($style)[](fg:surface_high) ";
       };
 
-      time = {
-        disabled = true;
-      };
-
-      battery = {
-        disabled = true;
+      cmd_duration = {
+        min_time = 2000;
+        style = "bg:surface_high fg:yellow";
+        format = "[](fg:surface_high)[ $duration]($style)[](fg:surface_high) ";
       };
 
       status = {
         disabled = false;
         symbol = "✘ ";
-        style = "bold red";
-        format = "[$symbol$status]($style) ";
+        style = "bg:red fg:on_red";
+        format = "[](fg:red)[$symbol$status]($style)[](fg:red) ";
+      };
+
+      time = {
+        disabled = false;
+        time_format = "%R";
+        style = "bg:surface_high fg:subtext";
+        format = "[](fg:surface_high)[ $time]($style)[](fg:surface_high) ";
       };
 
       package.disabled = true;

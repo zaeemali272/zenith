@@ -5,9 +5,32 @@
     enable = true;
     shellAliases = {
       neofetch = "zenfetch";
+      ls = "eza --icons";
+      ll = "eza -la --icons --git";
+      tree = "eza --tree --icons";
+      cat = "bat --paging=never";
     };
+
+    plugins = with pkgs.fishPlugins; [
+      { name = "fzf-fish"; src = fzf-fish.src; }
+      { name = "done"; src = done.src; }
+      { name = "bass"; src = bass.src; }
+      { name = "autopair"; src = autopair.src; }
+      { name = "puffer"; src = puffer.src; }
+      { name = "sponge"; src = sponge.src; }
+    ];
+
     interactiveShellInit = ''
       set -g fish_greeting
+
+      # Modern tool hooks
+      if type -q zoxide
+        zoxide init fish | source
+      end
+
+      if type -q direnv
+        direnv hook fish | source
+      end
 
       # Run Zenith Fetch on initial interactive launch
       if status is-interactive
