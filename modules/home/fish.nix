@@ -3,8 +3,23 @@
 {
   programs.fish = {
     enable = true;
+    shellAliases = {
+      neofetch = "zenfetch";
+    };
     interactiveShellInit = ''
       set -g fish_greeting
+
+      # Run Zenith Fetch on initial interactive launch
+      if status is-interactive
+        if not set -q ZENFETCH_SHOWN
+          set -gx ZENFETCH_SHOWN 1
+          if test -z "$NVIM" -a -z "$YAZI_LEVEL" -a -z "$RANGER_LEVEL" -a "$TERM" != "dumb"
+            if test -x ~/.local/bin/zenfetch
+              ~/.local/bin/zenfetch
+            end
+          end
+        end
+      end
     '';
 
     functions = {

@@ -10,6 +10,22 @@
     settings = {
       add_newline = true;
       scan_timeout = 10;
+      palette = "zenith";
+
+      palettes.zenith = {
+        primary = "#ffb4a7";
+        secondary = "#e7bdb5";
+        tertiary = "#ddc48c";
+        accent = "#ffdad4";
+        subtext = "#d8c2be";
+        surface = "#271d1c";
+        background = "#1a1110";
+        red = "#ffb4ab";
+        green = "#a6d189";
+        yellow = "#fae0a6";
+        blue = "#89b4fa";
+        purple = "#cba6f7";
+      };
 
       # Minimalist Poweruser Layout
       format = lib.concatStrings [
@@ -37,15 +53,15 @@
 
       # Prompt Character
       character = {
-        success_symbol = "[❯](bold bright-cyan)";
-        error_symbol = "[❯](bold bright-red)";
-        vimcmd_symbol = "[❮](bold bright-yellow)";
+        success_symbol = "[❯](bold primary)";
+        error_symbol = "[❯](bold red)";
+        vimcmd_symbol = "[❮](bold tertiary)";
       };
 
       # OS Icon - Subtle & sleek
       os = {
         disabled = false;
-        style = "bold bright-blue";
+        style = "bold primary";
         symbols = {
           NixOS = "󱄅 ";
           Arch = "󰣇 ";
@@ -58,7 +74,7 @@
 
       # Username - Only show when SSH or root
       username = {
-        style_user = "bold bright-yellow";
+        style_user = "bold tertiary";
         style_root = "bold red";
         format = "[$user]($style)@";
         disabled = false;
@@ -68,7 +84,7 @@
       # Hostname - Only show when SSH
       hostname = {
         ssh_only = true;
-        style = "bold bright-yellow";
+        style = "bold tertiary";
         format = "[$hostname]($style) ";
         disabled = false;
       };
@@ -77,7 +93,8 @@
       directory = {
         home_symbol = "~";
         read_only = " 󰌾";
-        style = "bold bright-cyan";
+        read_only_style = "bold red";
+        style = "bold primary";
         truncation_length = 3;
         truncation_symbol = "…/";
         format = "[$path]($style)[$read_only]($read_only_style) ";
@@ -93,7 +110,7 @@
 
       # Git Branch & Status
       git_branch = {
-        style = "bold bright-purple";
+        style = "bold secondary";
         symbol = "󰘬 ";
         format = "on [$symbol$branch]($style) ";
       };
@@ -133,7 +150,7 @@
       # Nix Shell - Minimal indicator
       nix_shell = {
         symbol = "󱄅 ";
-        style = "bold bright-blue";
+        style = "bold tertiary";
         format = "via [$symbol$state]($style) ";
         impure_msg = "nix";
         pure_msg = "nix (pure)";
