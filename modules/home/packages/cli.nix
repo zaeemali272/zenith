@@ -10,7 +10,6 @@
     bat
     fzf
     zoxide
-    fisher
     fastfetch
     krabby
     pokemon-colorscripts
