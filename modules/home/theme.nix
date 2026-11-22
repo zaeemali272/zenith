@@ -7,6 +7,7 @@
     })
     pkgs.reversal-icon-theme
     pkgs.bibata-cursors
+    pkgs.gsettings-desktop-schemas
   ];
 
   home.sessionVariables = {
@@ -49,5 +50,10 @@
     enable = true;
     gtk.enable = true;
     x11.enable = true;
+  };
+
+  qt = {
+    enable = true;
+    platformTheme.name = "gtk3";
   };
 }

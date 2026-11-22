@@ -5,6 +5,7 @@
   networking.firewall.checkReversePath = false;  
   networking.networkmanager.enable = true;
   networking.networkmanager.dns = "systemd-resolved";
+  networking.modemmanager.enable = false;
 
   # Encrypted DNS over TLS (DoT) with malware & tracker blocking (Quad9 + Cloudflare)
   services.resolved = {

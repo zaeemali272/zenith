@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
   virtualisation = {
@@ -14,6 +14,10 @@
     spiceUSBRedirection.enable = true;
     docker.enable = false;
   };
+
+  # Socket activation only: start on demand when virt-manager or virsh connects, not on boot
+  systemd.services.libvirtd.wantedBy = lib.mkForce [ ];
+  systemd.services.libvirt-guests.wantedBy = lib.mkForce [ ];
 
   programs.virt-manager.enable = true;
 
