@@ -1,0 +1,15 @@
+# Nix build artifacts
+result
+result-*
+.direnv/
+.envrc.cache
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Editor and temporary files
+*~
+*.swp
+*.swo
+.DS_Store

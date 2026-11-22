@@ -9,27 +9,25 @@ import termios
 import tty
 
 def generate_sha512_hash(password):
-    try:
-        res = subprocess.run(["openssl", "passwd", "-6", password], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
-        if res.stdout.strip():
-            return res.stdout.strip()
-    except Exception:
-        pass
-    
-    try:
-        res = subprocess.run(["mkpasswd", "-m", "sha-512", password], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
-        if res.stdout.strip():
-            return res.stdout.strip()
-    except Exception:
-        pass
+    for cmd in [
+        ["openssl", "passwd", "-6", password],
+        ["mkpasswd", "-m", "sha-512", password],
+        ["nix", "--extra-experimental-features", "nix-command flakes", "shell", "nixpkgs#openssl", "--command", "openssl", "passwd", "-6", password],
+    ]:
+        try:
+            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+            if res.stdout.strip():
+                return res.stdout.strip()
+        except Exception:
+            continue
 
     try:
-        import crypt
+        import crypt  # type: ignore # Fallback for older python (<3.13)
         return crypt.crypt(password, crypt.mksalt(crypt.METHOD_SHA512))
     except Exception:
         pass
 
-    raise RuntimeError("Could not find a tool (openssl/mkpasswd/crypt) to hash the password!")
+    raise RuntimeError("Could not find a tool (openssl/mkpasswd/nix) to hash the password!")
 
 def get_timezones():
     zones = []

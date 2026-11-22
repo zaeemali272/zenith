@@ -28,6 +28,9 @@
         yellow = "#fae0a6";
         green = "#a6d189";
         blue = "#89b4fa";
+        purple = "#cba6f7";
+        accent = "#ffdad4";
+        background = "#1a1110";
       };
 
       # Powerlevel10k Style Rounded Pill Layout
@@ -226,4 +229,8 @@
       line_break.disabled = false;
     };
   };
+
+  # Disable Home Manager's immutable store symlink for starship.toml so zenith-theme.sh
+  # can dynamically manage starship palettes without triggering activation collisions on boot.
+  xdg.configFile."starship.toml".enable = lib.mkForce false;
 }
