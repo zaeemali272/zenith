@@ -18,8 +18,7 @@ SUDO_KEEP_ALIVE_PID=0
 
 stop_sudo_keepalive() {
     if [[ ${SUDO_KEEP_ALIVE_PID:-0} -ne 0 ]]; then
-        # Kill the entire process group
-        kill -TERM -"$SUDO_KEEP_ALIVE_PID" 2>/dev/null || true
+        kill "$SUDO_KEEP_ALIVE_PID" 2>/dev/null || true
         SUDO_KEEP_ALIVE_PID=0
     fi
 }
@@ -49,17 +48,14 @@ init_sudo() {
     log_step "🔐 Authenticating sudo..."
     sudo -v < /dev/tty || { log_error "Sudo authentication failed."; exit 1; }
     
-    # Start a new process group for the keep-alive loop
-    set -m
+    # Automatically terminates when the parent script exits
     (
-        while true; do
+        while kill -0 $$ 2>/dev/null; do
             sudo -n true
-            sleep 60
+            sleep 50
         done
     ) &
     SUDO_KEEP_ALIVE_PID=$!
-    # Put the background process in its own group
-    disown %1
     log_success "Sudo keep-alive started (PID: $SUDO_KEEP_ALIVE_PID)"
 }
 

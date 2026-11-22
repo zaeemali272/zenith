@@ -1,10 +1,11 @@
 #!/bin/bash
 
 # Configuration Sync Script for Zenith
-# Links files from ~/Documents/Dots/zenith/.config/ to ~/.config/
+# Links files from zenith/.config/ to ~/.config/
 
-DOTS_DIR="$HOME/Documents/Dots/zenith/.config"
-CONFIG_DIR="$HOME/.config"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTS_DIR="${DOTS_DIR:-$(cd "$SCRIPT_DIR/../.config" 2>/dev/null && pwd || echo "$HOME/zenith/zenith/.config")}"
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}"
 BACKUP_DIR="$CONFIG_DIR/old_backups"
 
 # List of directories to link

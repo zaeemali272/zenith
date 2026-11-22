@@ -1,0 +1,38 @@
+name: Zenith Validation CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    name: Lint & Validate Scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq shellcheck
+
+      - name: Validate Bash syntax
+        run: |
+          echo "==> Checking bash script syntax..."
+          while IFS= read -r f; do
+            bash -n "$f" || exit 1
+          done < <(find . -name "*.sh" -not -path "*/.git/*")
+
+      - name: ShellCheck warning level
+        run: |
+          echo "==> Running ShellCheck..."
+          find . -name "*.sh" -not -path "*/.git/*" -exec shellcheck --severity=warning {} + || true
+
+      - name: Validate JSON files
+        run: |
+          echo "==> Validating JSON syntax..."
+          find . -name "*.json" -not -path "*/.git/*" -exec jq empty {} +

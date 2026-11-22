@@ -1,2 +1,15 @@
+# Runtime and generated files
 dynamic-materia-dark
 .config/gtk-3.0/bookmarks
+
+# Logs and caches
+*.log
+.cache/
+__pycache__/
+*.py[cod]
+
+# Editor and temporary files
+*~
+*.swp
+*.swo
+.DS_Store
