@@ -23,6 +23,11 @@
     interactiveShellInit = ''
       set -g fish_greeting
 
+      # Dynamic Zenith theme (FZF & syntax colors)
+      if test -f ~/.cache/zenith/zenith-fzf.fish
+        source ~/.cache/zenith/zenith-fzf.fish
+      end
+
       # Modern tool hooks
       if type -q zoxide
         zoxide init fish | source

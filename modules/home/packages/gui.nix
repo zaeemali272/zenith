@@ -6,6 +6,7 @@
     zed-editor
     file-roller
     mpv
+    mpvScripts.uosc
     mpvpaper
     hicolor-icon-theme
     qpwgraph

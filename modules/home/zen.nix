@@ -15,6 +15,7 @@ let
   };
 
   prefs = {
+    "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
     "extensions.autoDisableScopes" = 0;
     "extensions.pocket.enabled" = false;
     "full-screen-api.allow-trusted-requests-only" = false;

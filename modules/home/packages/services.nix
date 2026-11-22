@@ -10,6 +10,7 @@
     wl-clipboard
     geoclue2
     gammastep
+    hyprsunset
     awww
     docker
     libnotify
