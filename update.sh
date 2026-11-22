@@ -77,6 +77,10 @@ if [ "$BEHIND" != "0" ]; then
     fi
 fi
 
+step "updating zenith-shell and hyprland-dots flake inputs"
+nix flake update zenith-shell hyprland-dots 2>/dev/null || true
+ok "flake inputs updated"
+
 step "checking the configuration still evaluates"
 HOST="$(hostname)"
 if [ ! -d "hosts/$HOST" ]; then
