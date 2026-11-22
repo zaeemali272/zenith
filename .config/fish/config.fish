@@ -1,5 +1,8 @@
 if status is-interactive
     set fish_greeting
+    if test -f ~/.cache/zenith/zenith-fzf.fish
+        source ~/.cache/zenith/zenith-fzf.fish
+    end
 end
 
 # Enable Starship prompt
