@@ -1,14 +1,39 @@
 { pkgs, inputs, config, vars, lib, ... }:
 
+let
+  end4-shell = pkgs.writeShellScriptBin "end4-shell" ''
+    export QML_IMPORT_PATH="${pkgs.kdePackages.kirigami.unwrapped}/lib/qt-6/qml:${pkgs.kdePackages.syntax-highlighting}/lib/qt-6/qml:${pkgs.kdePackages.qtpositioning}/lib/qt-6/qml:${pkgs.kdePackages.qt5compat}/lib/qt-6/qml:${pkgs.kdePackages.qtmultimedia}/lib/qt-6/qml:${pkgs.kdePackages.qtsvg}/lib/qt-6/qml:/etc/profiles/per-user/$USER/lib/qt-6/qml:''${QML_IMPORT_PATH:-}"
+    export PATH="${lib.makeBinPath [ pkgs.imagemagick pkgs.procps pkgs.coreutils ]}:$PATH"
+    SHELL_DIR="${inputs.end-4-dots}/dots/.config/quickshell/ii"
+    if [ -d "$HOME/zenith/end-4-dots/dots/.config/quickshell/ii" ]; then
+      SHELL_DIR="$HOME/zenith/end-4-dots/dots/.config/quickshell/ii"
+    fi
+    exec ${inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/quickshell -p "$SHELL_DIR" "$@"
+  '';
+in
 {
   programs.quickshell = {
     enable = true;
     package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
   };
 
-  home.packages = [
-    inputs.caelestia-shell.packages.${pkgs.stdenv.hostPlatform.system}.with-cli
+  home.packages = with pkgs; [
+    inputs.caelestia-shell.packages.${pkgs.stdenv.hostPlatform.system}.default
+    inputs.caelestia-cli.packages.${pkgs.stdenv.hostPlatform.system}.default
+    end4-shell
+    kdePackages.qt5compat
+    kdePackages.qtmultimedia
+    kdePackages.qtsvg
+    kdePackages.qtpositioning
+    kdePackages.kirigami
+    kdePackages.kirigami.unwrapped
+    kdePackages.syntax-highlighting
+    imagemagick
   ];
+
+  home.sessionVariables = {
+    QML_IMPORT_PATH = "${pkgs.kdePackages.kirigami.unwrapped}/lib/qt-6/qml:${pkgs.kdePackages.syntax-highlighting}/lib/qt-6/qml:${pkgs.kdePackages.qtpositioning}/lib/qt-6/qml:${pkgs.kdePackages.qt5compat}/lib/qt-6/qml:${pkgs.kdePackages.qtmultimedia}/lib/qt-6/qml:${pkgs.kdePackages.qtsvg}/lib/qt-6/qml:/etc/profiles/per-user/${vars.user}/lib/qt-6/qml:\${QML_IMPORT_PATH:-}";
+  };
 
   # Disable Home Manager hyprland.conf generator to prevent collision with out-of-store hypr directory link
   wayland.windowManager.hyprland.enable = lib.mkForce false;
@@ -42,11 +67,11 @@
       # 1. Clone or pull repository
       if [ ! -d "$src_dir" ]; then
         echo "[Dotfiles Sync] Cloning $repo_name into $src_dir..."
-        $SU -s ${pkgs.bash}/bin/bash ${vars.user} -c "$GIT clone '$repo_url' '$src_dir'" || true
+        $SU -s ${pkgs.bash}/bin/bash ${vars.user} -c "$GIT clone --recurse-submodules '$repo_url' '$src_dir'" || true
       else
         if [ -d "$src_dir/.git" ]; then
           echo "[Dotfiles Sync] Updating $repo_name in $src_dir..."
-          $SU -s ${pkgs.bash}/bin/bash ${vars.user} -c "$GIT -C '$src_dir' pull --rebase origin main" || true
+          $SU -s ${pkgs.bash}/bin/bash ${vars.user} -c "$GIT -C '$src_dir' pull --rebase origin main && $GIT -C '$src_dir' submodule update --init --recursive" || true
         fi
       fi
 
@@ -56,18 +81,21 @@
       fi
 
       # 3. Ensure target in ~/.config is a symlink pointing to ~/zenith/$repo_name
-      if [ -e "$target_link" ] && [ ! -L "$target_link" ]; then
-        # If target exists as a regular directory (not a symlink), replace it with a symlink
-        echo "[Dotfiles Sync] Replacing directory $target_link with symlink to $src_dir"
-        rm -rf "$target_link"
+      if [ -n "$target_link" ]; then
+        if [ -e "$target_link" ] && [ ! -L "$target_link" ]; then
+          # If target exists as a regular directory (not a symlink), replace it with a symlink
+          echo "[Dotfiles Sync] Replacing directory $target_link with symlink to $src_dir"
+          rm -rf "$target_link"
+        fi
+
+        if [ ! -L "$target_link" ]; then
+          echo "[Dotfiles Sync] Symlinking $target_link -> $src_dir"
+          ln -s "$src_dir" "$target_link"
+        fi
+
+        chown -h ${vars.user}:users "$target_link" 2>/dev/null || true
       fi
 
-      if [ ! -L "$target_link" ]; then
-        echo "[Dotfiles Sync] Symlinking $target_link -> $src_dir"
-        ln -s "$src_dir" "$target_link"
-      fi
-
-      chown -h ${vars.user}:users "$target_link" 2>/dev/null || true
       if [ -d "$src_dir" ]; then
         chown -R ${vars.user}:users "$src_dir" 2>/dev/null || true
       fi

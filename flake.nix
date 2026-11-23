@@ -45,6 +45,12 @@
     };
 
     caelestia-shell.url = "github:caelestia-dots/shell";
+    caelestia-cli.url = "github:caelestia-dots/cli";
+
+    end-4-dots = {
+      url = "git+https://github.com/end-4/dots-hyprland.git?submodules=1";
+      flake = false;
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, hermes-agent, zen-browser, antigravity-nix, ... }@inputs:

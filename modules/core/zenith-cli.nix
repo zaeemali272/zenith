@@ -1,6 +1,8 @@
-{ pkgs, vars, ... }:
+{ pkgs, vars, inputs, ... }:
 
 let
+  end4QmlPath = "${pkgs.kdePackages.kirigami.unwrapped}/lib/qt-6/qml:${pkgs.kdePackages.syntax-highlighting}/lib/qt-6/qml:${pkgs.kdePackages.qtpositioning}/lib/qt-6/qml:${pkgs.kdePackages.qt5compat}/lib/qt-6/qml:${pkgs.kdePackages.qtmultimedia}/lib/qt-6/qml:${pkgs.kdePackages.qtsvg}/lib/qt-6/qml:/etc/profiles/per-user/$USER/lib/qt-6/qml";
+
   zenith = pkgs.writeShellApplication {
     name = "zenith";
     runtimeInputs = with pkgs; [ git nix coreutils gnugrep gnused hostname findutils gawk procps ];
@@ -35,7 +37,7 @@ let
         zenith gc [days]                   delete generations older than N days (default 7)
         zenith clean [days]                deep disk cleanup: gc, temp files, caches, and logs
         zenith doctor                      check the things that commonly go wrong
-        zenith shell [switch|list|restart] manage & switch desktop shell (zenith, caelestia)
+        zenith shell [switch|list|restart] manage & switch desktop shell (zenith, caelestia, end-4)
         zenith where                       print the config directory
 
       Anything after -- is passed through to nixos-rebuild.
@@ -132,6 +134,21 @@ let
 
         shell)
           sub="''${1:-}"
+          reset_shell_themes() {
+            # 1. Clean up stray GTK Thunar styles
+            rm -f "$HOME/.config/gtk-3.0/thunar.css" "$HOME/.config/gtk-4.0/thunar.css" 2>/dev/null || true
+
+            # 2. Reset duplicate fuzzel color blocks if any
+            if [ -f "$HOME/.config/fuzzel/fuzzel.ini" ]; then
+              sed -i '/^\[colors\]/{n;:a;/^\[/!{d;n;ba;}}' "$HOME/.config/fuzzel/fuzzel.ini" 2>/dev/null || true
+            fi
+
+            # 3. Reload Thunar daemon cleanly so file manager drops stale styling
+            if command -v thunar >/dev/null 2>&1; then
+              thunar -q 2>/dev/null || true
+            fi
+          }
+
           case "$sub" in
             list|ls)
               step "available desktop shells"
@@ -139,7 +156,7 @@ let
               if [ -f "$HOME/.config/zenith/active-shell" ]; then
                 current="$(cat "$HOME/.config/zenith/active-shell" 2>/dev/null || echo "zenith")"
               fi
-              for s in zenith caelestia; do
+              for s in zenith caelestia end-4; do
                 if [ "$s" = "$current" ]; then
                   printf '  * %s%s%s (active)\n' "$GREEN" "$s" "$OFF"
                 else
@@ -150,19 +167,37 @@ let
 
             switch|use)
               target="''${2:-}"
-              [ -n "$target" ] || die "usage: zenith shell switch <zenith|caelestia>"
+              [ -n "$target" ] || die "usage: zenith shell switch <zenith|caelestia|end-4>"
               case "$target" in
                 zenith)
                   step "switching desktop shell to zenith..."
                   mkdir -p "$HOME/.config/zenith"
                   printf '%s' "zenith" > "$HOME/.config/zenith/active-shell"
+                  if [ -x "$HOME/.config/quickshell/launch.sh" ]; then
+                    "$HOME/.config/quickshell/launch.sh" stop 2>/dev/null || true
+                  fi
                   pkill -f 'caelestia-shell' 2>/dev/null || true
                   pkill -f '^quickshell( |$)' 2>/dev/null || true
+                  reset_shell_themes
+                  if command -v dconf >/dev/null 2>&1; then
+                    dconf write /org/gnome/desktop/interface/gtk-theme "'Orchis-Dark'" 2>/dev/null || true
+                    dconf write /org/gnome/desktop/interface/color-scheme "'prefer-dark'" 2>/dev/null || true
+                  fi
+                  if command -v gsettings >/dev/null 2>&1; then
+                    gsettings set org.gnome.desktop.interface gtk-theme 'Orchis-Dark' 2>/dev/null || true
+                    gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
+                  fi
                   sleep 1
                   if [ -x "$HOME/.config/quickshell/launch.sh" ]; then
                     "$HOME/.config/quickshell/launch.sh" start
                   else
                     (setsid quickshell -d >/dev/null 2>&1 &)
+                  fi
+                  if [ -x "$HOME/.config/quickshell/scripts/zenith-theme.sh" ]; then
+                    "$HOME/.config/quickshell/scripts/zenith-theme.sh" --current >/dev/null 2>&1 || true
+                  fi
+                  if command -v hyprctl >/dev/null 2>&1; then
+                    hyprctl reload >/dev/null 2>&1 || true
                   fi
                   ok "switched to zenith shell"
                   ;;
@@ -175,16 +210,54 @@ let
                   fi
                   pkill -f '^quickshell( |$)' 2>/dev/null || true
                   pkill -f 'caelestia-shell' 2>/dev/null || true
+                  reset_shell_themes
+                  if command -v caelestia >/dev/null 2>&1; then
+                    caelestia scheme set -n dynamic 2>/dev/null || true
+                    curr_wall=""
+                    if [ -f "$HOME/.local/state/caelestia/wallpaper/path.txt" ]; then
+                      curr_wall="$(cat "$HOME/.local/state/caelestia/wallpaper/path.txt" 2>/dev/null || true)"
+                    elif [ -f "$HOME/.current_wallpaper" ]; then
+                      curr_wall="$(cat "$HOME/.current_wallpaper" 2>/dev/null || true)"
+                    fi
+                    if [ -n "$curr_wall" ] && [ -f "$curr_wall" ]; then
+                      caelestia wallpaper -f "$curr_wall" >/dev/null 2>&1 || true
+                    fi
+                  fi
                   sleep 1
                   if command -v caelestia-shell >/dev/null 2>&1; then
                     (setsid caelestia-shell -d >/dev/null 2>&1 &)
                   else
                     die "caelestia-shell is not installed or not in PATH"
                   fi
+                  if command -v hyprctl >/dev/null 2>&1; then
+                    hyprctl reload >/dev/null 2>&1 || true
+                  fi
                   ok "switched to caelestia shell"
                   ;;
+                end-4)
+                  step "switching desktop shell to end-4..."
+                  mkdir -p "$HOME/.config/zenith"
+                  printf '%s' "end-4" > "$HOME/.config/zenith/active-shell"
+                  if [ -x "$HOME/.config/quickshell/launch.sh" ]; then
+                    "$HOME/.config/quickshell/launch.sh" stop 2>/dev/null || true
+                  fi
+                  pkill -f 'caelestia-shell' 2>/dev/null || true
+                  pkill -f '^quickshell( |$)' 2>/dev/null || true
+                  reset_shell_themes
+                  sleep 1
+                  if command -v end4-shell >/dev/null 2>&1; then
+                    (setsid end4-shell -d >/tmp/quickshell-end4.log 2>&1 &)
+                  else
+                    export QML_IMPORT_PATH="${end4QmlPath}:''${QML_IMPORT_PATH:-}"
+                    (setsid quickshell -d -p "${inputs.end-4-dots}/dots/.config/quickshell/ii" >/tmp/quickshell-end4.log 2>&1 &)
+                  fi
+                  if command -v hyprctl >/dev/null 2>&1; then
+                    hyprctl reload >/dev/null 2>&1 || true
+                  fi
+                  ok "switched to end-4 shell"
+                  ;;
                 *)
-                  die "unknown shell: $target (available: zenith, caelestia)"
+                  die "unknown shell: $target (available: zenith, caelestia, end-4)"
                   ;;
               esac
               ;;
@@ -196,6 +269,13 @@ let
               fi
               if [ "$current" = "caelestia" ] && command -v caelestia-shell >/dev/null 2>&1; then
                 (setsid caelestia-shell -d >/dev/null 2>&1 &)
+              elif [ "$current" = "end-4" ]; then
+                if command -v end4-shell >/dev/null 2>&1; then
+                  (setsid end4-shell -d >/tmp/quickshell-end4.log 2>&1 &)
+                else
+                  export QML_IMPORT_PATH="${end4QmlPath}:''${QML_IMPORT_PATH:-}"
+                  (setsid quickshell -d -p "${inputs.end-4-dots}/dots/.config/quickshell/ii" >/tmp/quickshell-end4.log 2>&1 &)
+                fi
               else
                 if [ -x "$HOME/.config/quickshell/launch.sh" ]; then
                   "$HOME/.config/quickshell/launch.sh" start
@@ -216,6 +296,16 @@ let
                 sleep 1
                 (setsid caelestia-shell -d >/dev/null 2>&1 &)
                 ok "caelestia shell restarted"
+              elif [ "$current" = "end-4" ]; then
+                pkill -f '^quickshell( |$)' 2>/dev/null || true
+                sleep 1
+                if command -v end4-shell >/dev/null 2>&1; then
+                  (setsid end4-shell -d >/tmp/quickshell-end4.log 2>&1 &)
+                else
+                  export QML_IMPORT_PATH="${end4QmlPath}:''${QML_IMPORT_PATH:-}"
+                  (setsid quickshell -d -p "${inputs.end-4-dots}/dots/.config/quickshell/ii" >/tmp/quickshell-end4.log 2>&1 &)
+                fi
+                ok "end-4 shell restarted"
               else
                 if [ -x "$HOME/.config/quickshell/launch.sh" ]; then
                   "$HOME/.config/quickshell/launch.sh" restart

@@ -5,6 +5,7 @@
     (pkgs.orchis-theme.override {
       tweaks = [ "black" ];
     })
+    pkgs.adw-gtk3
     pkgs.reversal-icon-theme
     pkgs.bibata-cursors
     pkgs.gsettings-desktop-schemas
