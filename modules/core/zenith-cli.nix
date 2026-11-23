@@ -3,7 +3,7 @@
 let
   zenith = pkgs.writeShellApplication {
     name = "zenith";
-    runtimeInputs = with pkgs; [ git nix coreutils gnugrep gnused hostname findutils gawk ];
+    runtimeInputs = with pkgs; [ git nix coreutils gnugrep gnused hostname findutils gawk procps ];
     text = ''
       # One entry point for the things you actually do to this system.
       #
@@ -35,7 +35,7 @@ let
         zenith gc [days]                   delete generations older than N days (default 7)
         zenith clean [days]                deep disk cleanup: gc, temp files, caches, and logs
         zenith doctor                      check the things that commonly go wrong
-        zenith shell                       restart the desktop shell
+        zenith shell [switch|list|restart] manage & switch desktop shell (zenith, caelestia)
         zenith where                       print the config directory
 
       Anything after -- is passed through to nixos-rebuild.
@@ -131,17 +131,107 @@ let
           ;;
 
         shell)
-          step "restarting the desktop shell"
-          # launch.sh knows how to find the wrapped NixOS binary; a bare
-          # `pkill -x quickshell` never matches it.
-          if [ -x "$HOME/.config/quickshell/launch.sh" ]; then
-            "$HOME/.config/quickshell/launch.sh" restart
-          else
-            pkill -f '^quickshell( |$)' 2>/dev/null || true
-            sleep 1
-            (setsid quickshell -d >/dev/null 2>&1 &)
-          fi
-          ok "restarted"
+          sub="''${1:-}"
+          case "$sub" in
+            list|ls)
+              step "available desktop shells"
+              current="zenith"
+              if [ -f "$HOME/.config/zenith/active-shell" ]; then
+                current="$(cat "$HOME/.config/zenith/active-shell" 2>/dev/null || echo "zenith")"
+              fi
+              for s in zenith caelestia; do
+                if [ "$s" = "$current" ]; then
+                  printf '  * %s%s%s (active)\n' "$GREEN" "$s" "$OFF"
+                else
+                  printf '    %s\n' "$s"
+                fi
+              done
+              ;;
+
+            switch|use)
+              target="''${2:-}"
+              [ -n "$target" ] || die "usage: zenith shell switch <zenith|caelestia>"
+              case "$target" in
+                zenith)
+                  step "switching desktop shell to zenith..."
+                  mkdir -p "$HOME/.config/zenith"
+                  printf '%s' "zenith" > "$HOME/.config/zenith/active-shell"
+                  pkill -f 'caelestia-shell' 2>/dev/null || true
+                  pkill -f '^quickshell( |$)' 2>/dev/null || true
+                  sleep 1
+                  if [ -x "$HOME/.config/quickshell/launch.sh" ]; then
+                    "$HOME/.config/quickshell/launch.sh" start
+                  else
+                    (setsid quickshell -d >/dev/null 2>&1 &)
+                  fi
+                  ok "switched to zenith shell"
+                  ;;
+                caelestia)
+                  step "switching desktop shell to caelestia..."
+                  mkdir -p "$HOME/.config/zenith"
+                  printf '%s' "caelestia" > "$HOME/.config/zenith/active-shell"
+                  if [ -x "$HOME/.config/quickshell/launch.sh" ]; then
+                    "$HOME/.config/quickshell/launch.sh" stop 2>/dev/null || true
+                  fi
+                  pkill -f '^quickshell( |$)' 2>/dev/null || true
+                  pkill -f 'caelestia-shell' 2>/dev/null || true
+                  sleep 1
+                  if command -v caelestia-shell >/dev/null 2>&1; then
+                    (setsid caelestia-shell -d >/dev/null 2>&1 &)
+                  else
+                    die "caelestia-shell is not installed or not in PATH"
+                  fi
+                  ok "switched to caelestia shell"
+                  ;;
+                *)
+                  die "unknown shell: $target (available: zenith, caelestia)"
+                  ;;
+              esac
+              ;;
+
+            start)
+              current="zenith"
+              if [ -f "$HOME/.config/zenith/active-shell" ]; then
+                current="$(cat "$HOME/.config/zenith/active-shell" 2>/dev/null || echo "zenith")"
+              fi
+              if [ "$current" = "caelestia" ] && command -v caelestia-shell >/dev/null 2>&1; then
+                (setsid caelestia-shell -d >/dev/null 2>&1 &)
+              else
+                if [ -x "$HOME/.config/quickshell/launch.sh" ]; then
+                  "$HOME/.config/quickshell/launch.sh" start
+                else
+                  (setsid quickshell -d >/dev/null 2>&1 &)
+                fi
+              fi
+              ;;
+
+            restart|"")
+              step "restarting the active desktop shell"
+              current="zenith"
+              if [ -f "$HOME/.config/zenith/active-shell" ]; then
+                current="$(cat "$HOME/.config/zenith/active-shell" 2>/dev/null || echo "zenith")"
+              fi
+              if [ "$current" = "caelestia" ]; then
+                pkill -f 'caelestia-shell' 2>/dev/null || true
+                sleep 1
+                (setsid caelestia-shell -d >/dev/null 2>&1 &)
+                ok "caelestia shell restarted"
+              else
+                if [ -x "$HOME/.config/quickshell/launch.sh" ]; then
+                  "$HOME/.config/quickshell/launch.sh" restart
+                else
+                  pkill -f '^quickshell( |$)' 2>/dev/null || true
+                  sleep 1
+                  (setsid quickshell -d >/dev/null 2>&1 &)
+                fi
+                ok "zenith shell restarted"
+              fi
+              ;;
+
+            *)
+              die "unknown shell subcommand: $sub (try 'zenith shell switch <name>' or 'zenith shell list')"
+              ;;
+          esac
           ;;
 
         doctor)

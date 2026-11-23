@@ -8,5 +8,8 @@
     font-awesome
     nerd-fonts.jetbrains-mono
     nerd-fonts.meslo-lg
+    nerd-fonts.caskaydia-cove
+    material-symbols
+    rubik
   ];
 }

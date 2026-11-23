@@ -6,6 +6,10 @@
     package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
   };
 
+  home.packages = [
+    inputs.caelestia-shell.packages.${pkgs.stdenv.hostPlatform.system}.with-cli
+  ];
+
   # Disable Home Manager hyprland.conf generator to prevent collision with out-of-store hypr directory link
   wayland.windowManager.hyprland.enable = lib.mkForce false;
 

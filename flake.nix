@@ -43,6 +43,8 @@
       url = "github:zaeemali272/Hyprland-dots";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    caelestia-shell.url = "github:caelestia-dots/shell";
   };
 
   outputs = { self, nixpkgs, home-manager, hermes-agent, zen-browser, antigravity-nix, ... }@inputs:
