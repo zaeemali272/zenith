@@ -5,7 +5,7 @@
 
   # Enable PAM gnome-keyring integration to automatically unlock keyring on login
   security.pam.services.login.enableGnomeKeyring = true;
-  security.pam.services.zenith-lock.enableGnomeKeyring = true;
+  security.pam.services.zenith-lock.enableGnomeKeyring = false;
 
   # polkit itself is only the policy engine. Something has to actually show the
   # password dialog, and without an agent every privileged action from the
