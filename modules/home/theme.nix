@@ -44,6 +44,17 @@
     };
   };
 
+  xdg.configFile."caelestia/cli.json" = {
+    text = builtins.toJSON {
+      theme = {
+        iconTheme = "Reversal-dark";
+        iconThemeDark = "Reversal-dark";
+        iconThemeLight = "Reversal";
+      };
+    };
+    force = true;
+  };
+
   home.pointerCursor = {
     name = "Bibata-Modern-Classic";
     package = pkgs.bibata-cursors;

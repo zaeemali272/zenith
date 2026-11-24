@@ -62,10 +62,10 @@ Everything else is shared. Both are protected from updates (see
 
 | | |
 |---|---|
-| 🖥️ **Desktop** | Hyprland on Wayland, the Zenith QuickShell bar and menus, hyprlock, GTK + Qt theming driven by a wallpaper-derived Material palette |
-| 🔊 **Audio & hardware** | PipeWire with low-latency config, Bluetooth, GPU drivers chosen by `vars.gpu`, battery charge limiting, earlyoom, zram, fstrim |
-| 📦 **Applications** | Zen browser, kitty, yazi, Obsidian, Steam, virt-manager + libvirt, Docker |
-| 🐟 **Shell & tooling** | fish with starship, direnv, lazygit, bat, btop, fzf, and the `zenith` command |
+| 🖥️ **Desktop & Multi-Shell** | Hyprland on Wayland with dynamic multi-shell support: **Zenith Shell** (Quickshell), **Caelestia Shell**, and **End-4 Shell**, with seamless `zenith shell switch` capability, PAM `zenith-lock`, and GTK Orchis-Dark / Reversal-dark icon theming |
+| 🔊 **Audio & hardware** | PipeWire with low-latency config, Bluetooth, GPU drivers chosen by `vars.gpu`, `hyprsunset` native hardware CTM night light, battery charge limiting, earlyoom, zram, fstrim |
+| 📦 **Applications** | Zen browser, kitty, ghostty, yazi, zed, mpv with modern uosc menu, Obsidian, Steam, virt-manager + libvirt, Docker |
+| 🐟 **Shell & tooling** | fish with starship, fzf dynamic colors, btop with custom Zenith theme, direnv, lazygit, bat, and the `zenith` command |
 | 🧹 **Maintenance** | store auto-optimisation, scheduled GC via `nh`, capped boot generations so `/boot` cannot silently fill |
 
 ---
@@ -205,7 +205,8 @@ place, and rebuilds.
 | `zenith gc [days]` | delete generations older than N days (default 7) |
 | `zenith clean [days]` | deep disk cleanup: gc, temp files, caches, and logs |
 | `zenith doctor` | check the things that commonly go wrong |
-| `zenith shell` | restart the desktop shell |
+| `zenith shell` | restart the active desktop shell |
+| `zenith shell switch [zenith\|caelestia\|end4]` | dynamically switch shells with theme & icon sync |
 | `zenith where` | print the config directory |
 
 `zenith` finds the repository itself — `$ZENITH_DIR`, `~/zenith/zenith-nixos`,

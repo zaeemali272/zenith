@@ -181,10 +181,12 @@ let
                   reset_shell_themes
                   if command -v dconf >/dev/null 2>&1; then
                     dconf write /org/gnome/desktop/interface/gtk-theme "'Orchis-Dark'" 2>/dev/null || true
+                    dconf write /org/gnome/desktop/interface/icon-theme "'Reversal-dark'" 2>/dev/null || true
                     dconf write /org/gnome/desktop/interface/color-scheme "'prefer-dark'" 2>/dev/null || true
                   fi
                   if command -v gsettings >/dev/null 2>&1; then
                     gsettings set org.gnome.desktop.interface gtk-theme 'Orchis-Dark' 2>/dev/null || true
+                    gsettings set org.gnome.desktop.interface icon-theme 'Reversal-dark' 2>/dev/null || true
                     gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
                   fi
                   sleep 1
@@ -211,6 +213,16 @@ let
                   pkill -f '^quickshell( |$)' 2>/dev/null || true
                   pkill -f 'caelestia-shell' 2>/dev/null || true
                   reset_shell_themes
+                  if command -v dconf >/dev/null 2>&1; then
+                    dconf write /org/gnome/desktop/interface/icon-theme "'Reversal-dark'" 2>/dev/null || true
+                  fi
+                  if command -v gsettings >/dev/null 2>&1; then
+                    gsettings set org.gnome.desktop.interface icon-theme 'Reversal-dark' 2>/dev/null || true
+                  fi
+                  mkdir -p "$HOME/.config/caelestia"
+                  if [ ! -f "$HOME/.config/caelestia/cli.json" ]; then
+                    printf '{\n  "theme": {\n    "iconTheme": "Reversal-dark",\n    "iconThemeDark": "Reversal-dark",\n    "iconThemeLight": "Reversal"\n  }\n}\n' > "$HOME/.config/caelestia/cli.json"
+                  fi
                   if command -v caelestia >/dev/null 2>&1; then
                     caelestia scheme set -n dynamic 2>/dev/null || true
                     curr_wall=""
@@ -222,6 +234,12 @@ let
                     if [ -n "$curr_wall" ] && [ -f "$curr_wall" ]; then
                       caelestia wallpaper -f "$curr_wall" >/dev/null 2>&1 || true
                     fi
+                  fi
+                  if command -v dconf >/dev/null 2>&1; then
+                    dconf write /org/gnome/desktop/interface/icon-theme "'Reversal-dark'" 2>/dev/null || true
+                  fi
+                  if command -v gsettings >/dev/null 2>&1; then
+                    gsettings set org.gnome.desktop.interface icon-theme 'Reversal-dark' 2>/dev/null || true
                   fi
                   sleep 1
                   if command -v caelestia-shell >/dev/null 2>&1; then
@@ -244,6 +262,12 @@ let
                   pkill -f 'caelestia-shell' 2>/dev/null || true
                   pkill -f '^quickshell( |$)' 2>/dev/null || true
                   reset_shell_themes
+                  if command -v dconf >/dev/null 2>&1; then
+                    dconf write /org/gnome/desktop/interface/icon-theme "'Reversal-dark'" 2>/dev/null || true
+                  fi
+                  if command -v gsettings >/dev/null 2>&1; then
+                    gsettings set org.gnome.desktop.interface icon-theme 'Reversal-dark' 2>/dev/null || true
+                  fi
                   sleep 1
                   if command -v end4-shell >/dev/null 2>&1; then
                     (setsid end4-shell -d >/tmp/quickshell-end4.log 2>&1 &)
