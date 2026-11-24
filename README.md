@@ -70,19 +70,20 @@ Zenith identifies your hardware and installs the correct drivers automatically:
 ### 3. Core Software Stack
 Zenith pulls in a curated list of modern, efficient tools:
 *   **Window Manager**: [Hyprland](https://hyprland.org/) (Wayland)
-*   **Status Bar**: [Quickshell](https://quickshell.org/)
-*   **Shell**: [Fish](https://fishshell.com/) with [Starship](https://starship.rs/) prompt.
-*   **Terminal**: [Kitty](https://sw.kovidgoyal.net/kitty/)
-*   **File Manager**: [Thunar](https://docs.xfce.org/xfce/thunar/start) (with archive and volume plugins).
-*   **Editor**: [Zed](https://zed.dev/) & [VS Code](https://code.visualstudio.com/).
-*   **App Launcher**: [Anyrun](https://github.com/Kirogi/anyrun).
-*   **System Monitor**: `glances` & `ncdu`.
+*   **Desktop Shell & Lockscreen**: [Zenith Shell](https://github.com/zaeemali272/zenith-shell) powered by Quickshell.
+*   **Shell**: [Fish](https://fishshell.com/) with [Starship](https://starship.rs/) prompt and dynamic `fzf` color schemes.
+*   **Terminal**: [Kitty](https://sw.kovidgoyal.net/kitty/) & [Ghostty](https://ghostty.org/).
+*   **File Managers**: [Thunar](https://docs.xfce.org/xfce/thunar/start) & [Yazi](https://github.com/sxyazi/yazi) with custom Zenith theme.
+*   **Editors**: [Zed](https://zed.dev/) & [Antigravity IDE](https://github.com/zaeemali272/zenith).
+*   **App Launcher**: Zenith Dynamic Island runner & app search (`zenith:launcher`).
+*   **System Monitor**: [btop](https://github.com/aristocratos/btop) (with custom Zenith theme) & `glances`.
+*   **System Management CLI**: `zenith` CLI utility for updates, shell switching, diagnostics, and maintenance.
 
 ### 4. Zero-Touch Experience (The Magic)
 Zenith is designed to get you into your environment without a single extra keystroke:
 *   **TTY1 Autologin**: Configures systemd to automatically log your user into TTY1 upon boot.
 *   **Auto-Hyprland**: Your Fish shell detects if you are on TTY1 and automatically executes the Hyprland compositor.
-*   **Post-Boot UI**: After the first reboot, a custom **Zenith-Shell** (powered by Quickshell) window appears to guide you through the final steps of the installation.
+*   **Post-Boot UI**: After the first reboot, a custom **Zenith-Shell** window appears to guide you through the final steps of the installation.
 
 ---
 
@@ -94,13 +95,15 @@ Zenith is designed to get you into your environment without a single extra keyst
 *   **zram-generator**: Manages high-speed swap in RAM.
 *   **pipewire**: The modern standard for audio/video handling on Linux.
 *   **fusuma**: Multitouch gesture support for laptops.
+*   **hyprsunset**: Native hardware CTM night light control.
 
 ### Themes & Fonts
-*   **GTK/Kvantum**: [Dynamic Materia Dark](https://github.com/zaeemali272/dynamic-materia-dark) for a consistent, dark aesthetic.
-*   **Icons**: [OneUI Dark](https://github.com/vinceliuice/oneUI-icon-theme) icons for a clean, professional look.
+*   **GTK Theme**: [Orchis-Dark](https://github.com/vinceliuice/Orchis-theme) with dark-mode enforcement across dconf and gsettings.
+*   **Icon Theme**: [Reversal-dark](https://github.com/vinceliuice/Reversal-icon-theme) / [OneUI](https://github.com/vinceliuice/oneUI-icon-theme).
 *   **Cursors**: [Bibata Modern Classic](https://github.com/ful1e5/Bibata_Cursor).
+*   **Terminal & Tool Themes**: Dynamically synced Material You color schemes across Kitty, Starship, btop, yazi, and Zed.
 *   **Fonts**:
-    *   **Interface**: Noto Sans / Noto CJK.
+    *   **Interface**: Quicksand, Nunito, Noto Sans.
     *   **Monospace**: JetBrains Mono Nerd Font.
     *   **Icons**: Material Design Icons & Symbols.
 
@@ -110,15 +113,22 @@ Zenith is designed to get you into your environment without a single extra keyst
 
 ```text
 zenith/
-├── .config/             # Comprehensive dotfiles for all apps
+├── .config/             # Comprehensive dotfiles (btop, fish, hypr, kitty, yazi, zed, etc.)
 ├── .themes/             # Custom GTK and Kvantum themes
 ├── modules/             # Modular bash scripts for installation logic
+│   ├── config.sh        # System configurations and user shell setup
 │   ├── hardware.sh      # GPU/Laptop/VM detection
 │   ├── packages.sh      # Package installation logic
-│   └── services.sh      # Systemd service configuration
+│   ├── services.sh      # Systemd service configuration
+│   └── ui.sh            # CLI installer visual components
 ├── pkgs/
 │   └── packages.json    # The master list of all software
-├── scripts/             # Extra utility scripts (VM setup, audio fixes, etc.)
+├── scripts/             # Extra utility scripts
+│   ├── install-secure-mode.sh   # Sudoers hardening with visudo validation
+│   ├── install-zenith-cli.sh    # Installs the global 'zenith' command
+│   ├── sync_configs.sh          # Dynamic dotfiles synchronizer
+│   └── post_boot_install.sh     # Post-boot GUI installer helper
+├── extra_scripts/       # Optional setup scripts (KVM, LAMP, MySQL, Git, Neovim)
 └── install.sh           # The main entry point
 ```
 
@@ -133,18 +143,28 @@ Don't panic! During the "Full" or "Minimal" installation, the script will reboot
 3.  The **Zenith Post-Boot Installer** will open to finish the setup.
 
 ### How do I change my wallpaper?
-Zenith uses `swww` for wallpaper management. You can find your wallpapers in `~/Pictures/Wallpapers`.
+Zenith includes an interactive wallpaper chooser in Zenith Shell (`Super + Ctrl + T` or from Dashboard). You can also place custom wallpapers in `~/Pictures/Wallpapers`.
 
 ### How do I update?
-Simply `cd` into your `zenith` directory, run `git pull`, and then run `bash install.sh` and select **Configs Only** to sync the latest changes, or **Packages Only** to ensure you have all new dependencies.
+Simply run:
+```bash
+zenith update
+```
+Or run `bash install.sh` and select **Configs Only** to sync dotfiles, or **Packages Only** to install any new dependencies.
 
 ### Keybinds
-*   **Mod (Super) + Q**: Open Kitty Terminal
-*   **Mod (Super) + E**: Open Thunar File Manager
-*   **Mod (Super) + R**: Open App Launcher (Anyrun)
-*   **Mod (Super) + B**: Open Zen Browser
-*   **Mod (Super) + Ctrl + T**: Open Wallpaper Selector
-*   **Mod (Super) + Ctrl + K**: Open Keybinds
+*   **Super / Super + D**: Open App Launcher (Dynamic Island)
+*   **Super + Return / Super + T**: Open Terminal (Kitty / Ghostty)
+*   **Super + E**: Open File Manager (Thunar)
+*   **Super + B / Super + W**: Open Zen Browser
+*   **Super + Q**: Close Active Window
+*   **Super + A**: Open Overview & Dashboard
+*   **Ctrl + Super + Q**: Open Quick Settings Drawer
+*   **Ctrl + Super + T**: Open Wallpaper Selector
+*   **Super + V**: Open Clipboard Manager
+*   **Super + Period (.)**: Open Emoji Selector
+*   **Ctrl + Alt + Delete**: Open Session & Power Menu
+*   **Super + L**: Lock Screen (Quickshell PAM Session Lock)
 
 ---
 
