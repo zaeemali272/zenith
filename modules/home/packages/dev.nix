@@ -3,7 +3,6 @@
 { 
   home.packages = with pkgs; [
     # --- Core Languages & Runtimes ---
-    git
     gcc
     gnumake
     
@@ -25,21 +24,19 @@
     libtool
 
     gemini-cli
-    pavucontrol
 
     # --- Common Native Libraries & Development Headers ---
     openssl
 
     uv
 
-# Rust Toolchain
+    # Rust Toolchain
     rustc
     cargo
     rustfmt
     clippy
 
     # Required C libraries & headers for gtk-rs / rust-gtk crates
-    pkg-config
     gtk4
     gtk3
     cairo

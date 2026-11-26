@@ -9,8 +9,7 @@
     ./file-manager.nix
     ./fonts.nix
     ./hardware.nix
-    ./hermes.nix
-    ./nectarlink.nix
+    ./mariadb.nix
     ./network.nix
     ./nh.nix
     ./nixpkgs.nix

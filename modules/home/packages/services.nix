@@ -8,11 +8,8 @@
     gcr
     cliphist
     wl-clipboard
-    geoclue2
-    gammastep
     hyprsunset
     awww
-    docker
     libnotify
     libappindicator-gtk3
     motrix-next

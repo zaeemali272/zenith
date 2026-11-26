@@ -1,8 +1,14 @@
-{ pkgs, vars, ... }:
+{ pkgs, vars, lib, ... }:
 
 {
   services.udisks2.enable = true;
   services.power-profiles-daemon.enable = true;
+  services.thermald.enable = lib.mkDefault (vars.gpu == "intel");
+  services.ananicy = {
+    enable = true;
+    package = pkgs.ananicy-cpp;
+    rulesProvider = pkgs.ananicy-rules-cachyos;
+  };
   services.dbus.enable = true;
   services.fstrim.enable = true;
 
@@ -26,8 +32,12 @@
     text = ''
       USER="${vars.user}"
       USER_HOME="/home/$USER"
-      ZENITH_DIR="$USER_HOME/zenith"
       CONFIG_DIR="$USER_HOME/.config"
+      REPO_ROOT="$(dirname "${vars.configDir or "/home/${vars.user}/zenith/zenith-nixos"}")"
+      ZENITH_DIR="$USER_HOME/zenith"
+      if [ -d "$REPO_ROOT/Hyprland-dots" ]; then
+        ZENITH_DIR="$REPO_ROOT"
+      fi
       CHMOD="${pkgs.coreutils}/bin/chmod"
       CHOWN="${pkgs.coreutils}/bin/chown"
       FIND="${pkgs.findutils}/bin/find"

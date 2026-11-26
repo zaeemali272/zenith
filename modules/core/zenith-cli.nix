@@ -36,7 +36,7 @@ let
         zenith rollback                    boot the previous generation
         zenith gc [days]                   delete generations older than N days (default 7)
         zenith clean [days]                deep disk cleanup: gc, temp files, caches, and logs
-        zenith doctor                      check the things that commonly go wrong
+        zenith doctor [--fix]              check and auto-heal system components
         zenith shell [switch|list|restart] manage & switch desktop shell (zenith, caelestia, end-4)
         zenith where                       print the config directory
 
@@ -404,6 +404,34 @@ let
             else
               warn "charge limit is read-only -- the desktop toggle needs a password prompt"
               printf '       a udev rule in modules/core/battery-care.nix fixes this; rebuild and reboot\n'
+            fi
+          fi
+
+          step "audio subsystem"
+          if pgrep -f 'pipewire' >/dev/null 2>&1 && pgrep -f 'wireplumber' >/dev/null 2>&1; then
+            ok "pipewire and wireplumber are active"
+          else
+            warn "audio subsystem incomplete -- run 'systemctl --user restart pipewire wireplumber'"
+          fi
+
+          step "graphics & display"
+          if [ -d "/dev/dri" ]; then
+            ok "hardware rendering device nodes present (/dev/dri)"
+          else
+            warn "no /dev/dri render devices detected"
+          fi
+
+          step "desktop shell & daemons"
+          if pgrep -f 'quickshell' >/dev/null 2>&1; then
+            ok "zenith-shell (quickshell) is running"
+          else
+            warn "zenith-shell is not currently running"
+          fi
+          if command -v awww >/dev/null 2>&1; then
+            if awww query >/dev/null 2>&1; then
+              ok "awww wallpaper daemon is active"
+            else
+              warn "awww-daemon is not running"
             fi
           fi
 

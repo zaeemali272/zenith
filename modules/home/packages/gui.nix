@@ -10,9 +10,11 @@
     mpvpaper
     hicolor-icon-theme
     qpwgraph
+    pavucontrol
     onlyoffice-desktopeditors
     losslesscut
     proton-vpn
+    vesktop
   ];
 }
 

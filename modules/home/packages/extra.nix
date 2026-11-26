@@ -1,4 +1,4 @@
-{ pkgs, inputs, ... }:
+{ pkgs, ... }:
 
 {
   home.packages = [
@@ -6,10 +6,8 @@
       commandLineArgs = "--ozone-platform=x11";
     })
     pkgs.pear-desktop
-    inputs.thorium.packages.${pkgs.stdenv.hostPlatform.system}.thorium-avx
-    pkgs.proton-vpn
     pkgs.cameractrls
-pkgs.wineWow64Packages.stable
+    pkgs.wineWow64Packages.stable
     pkgs.winetricks
   ];
 }

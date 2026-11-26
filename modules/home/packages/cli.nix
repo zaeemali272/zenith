@@ -3,18 +3,12 @@
     ripgrep
     fd
     jq
-    glances
-    ncdu
-    tree
+    dua
     eza
-    bat
     fzf
     zoxide
     fastfetch
     krabby
-    pokemon-colorscripts
-    btop
-    yazi
     github-cli
     claude-code
     yt-dlp

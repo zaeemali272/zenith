@@ -21,18 +21,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    thorium = {
-      url = "github:Rishabh5321/custom-packages-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     antigravity-nix.url = "github:jacopone/antigravity-nix";
-    hermes-agent.url = "github:NousResearch/hermes-agent";
-
-    nectarlink = {
-      url = "github:thtbee/nectarlink";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     zenith-shell = {
       url = "github:zaeemali272/zenith-shell";
@@ -53,7 +42,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, hermes-agent, zen-browser, antigravity-nix, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, zen-browser, antigravity-nix, ... }@inputs:
     let
       vars = import ./vars.nix;
 
@@ -63,7 +52,6 @@
         system = "x86_64-linux";
         specialArgs = { inherit inputs vars; };
         modules = [
-          hermes-agent.nixosModules.default
           hostPath
           home-manager.nixosModules.home-manager {
             home-manager.useGlobalPkgs = true;

@@ -1,4 +1,4 @@
-{ pkgs, inputs, ... }:
+{ pkgs, inputs, vars, ... }:
 
 {
   programs.hyprland = {
@@ -14,6 +14,7 @@
     MOZ_WEBRENDER = "1";
     MALLOC_ARENA_MAX = "2";
     MALLOC_TRIM_THRESHOLD_ = "131072";
+    HYPRLAND_KB_LAYOUT = vars.keyboardLayout or "us";
   };
 
   xdg.portal = {
