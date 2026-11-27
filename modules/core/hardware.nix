@@ -48,6 +48,26 @@ in
   services.qemuGuest.enable = lib.mkIf isVm true;
   services.spice-vdagentd.enable = lib.mkIf isVm true;
 
+  # Display backlight permissions for direct brightness control without logind session constraints
+  services.udev.extraRules = ''
+    ACTION=="add|change", SUBSYSTEM=="backlight", RUN+="${pkgs.coreutils}/bin/chmod a+w /sys/class/backlight/%k/brightness"
+  '';
+
+  systemd.services.backlight-permissions = {
+    description = "Allow users to adjust display backlight brightness directly";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "systemd-udev-settle.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "grant-backlight-perms" ''
+        for f in /sys/class/backlight/*/brightness; do
+          [ -e "$f" ] && ${pkgs.coreutils}/bin/chmod a+w "$f" || true
+        done
+      '';
+    };
+  };
+
   # Session variables tuned per GPU vendor
   environment.sessionVariables = lib.mkMerge [
     (lib.mkIf isIntel {

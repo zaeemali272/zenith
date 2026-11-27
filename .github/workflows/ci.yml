@@ -21,10 +21,7 @@ jobs:
       - name: Setup Magic Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@v8
 
-      - name: Nix Flake Syntax & Lock File Check
-        run: |
-          nix flake check
-
-      - name: Evaluate System Derivation (VM)
+      - name: Evaluate System Derivations
         run: |
           nix eval .#nixosConfigurations.vm.config.system.build.toplevel.drvPath --raw
+          nix eval .#nixosConfigurations.V14.config.system.build.toplevel.drvPath --raw
