@@ -25,6 +25,6 @@ jobs:
         run: |
           nix flake check
 
-      - name: Evaluate System Derivation (Desktop)
+      - name: Evaluate System Derivation (VM)
         run: |
-          nix eval .#nixosConfigurations.desktop.config.system.build.toplevel.drvPath --raw
+          nix eval .#nixosConfigurations.vm.config.system.build.toplevel.drvPath --raw
