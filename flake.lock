@@ -309,11 +309,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795527817,
-        "narHash": "sha256-QzDSpKMfHLTIekitSmzt+g7fri+4Dnyuy5npN+T1haY=",
+        "lastModified": 1795759068,
+        "narHash": "sha256-FVunQNtZCr6d+y5hbpR2N8YzGg+I7ibe7snfNb+YsJU=",
         "owner": "zaeemali272",
         "repo": "Hyprland-dots",
-        "rev": "b4401e51e131f150ad8581066e86a01c99456fd4",
+        "rev": "93b5de6cef2ca1b493f2842a257904dec2b6200a",
         "type": "github"
       },
       "original": {
@@ -898,11 +898,11 @@
         "quickshell": "quickshell_4"
       },
       "locked": {
-        "lastModified": 1795527980,
-        "narHash": "sha256-8oofXEP+f9V3gjK+x5WNPX8G0NMqeWd3uZfD4ZpPPZI=",
+        "lastModified": 1795759073,
+        "narHash": "sha256-M2CA9Pyl6pEtGHaXFPsM7s7ZN4ksHnvYHobqolV+h/8=",
         "owner": "zaeemali272",
         "repo": "zenith-shell",
-        "rev": "1375f8f657bcfe78d77d45980c088811ea6bcf8e",
+        "rev": "030a9d03db97c876985cf395213830df8faf0ef2",
         "type": "github"
       },
       "original": {
