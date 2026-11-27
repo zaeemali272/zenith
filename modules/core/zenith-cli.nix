@@ -21,6 +21,7 @@ let
 
       find_config() {
         for d in "''${ZENITH_DIR:-}" "$HOME/zenith/zenith-nixos" \
+                 "$HOME/zenith/nixos" "$HOME/zenith" \
                  "$HOME/.config/zenith-nixos" "$HOME/zenith-nixos" /etc/nixos; do
           [ -n "$d" ] && [ -f "$d/flake.nix" ] && { printf '%s' "$d"; return 0; }
         done
