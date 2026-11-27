@@ -1,171 +1,110 @@
-# 🌌 Zenith: The Ultimate Arch Linux Experience
+# 🌌 Zenith: The Universal Desktop Experience (NixOS & Arch Linux)
 
-Welcome to **Zenith**, a meticulously crafted, performance-oriented, and aesthetically stunning Arch Linux environment powered by **Hyprland**. Zenith isn't just a set of dotfiles; it's a complete automation suite designed to transform a fresh Arch install into a powerful, modern workstation with zero friction.
+Welcome to **Zenith**, a performance-oriented, fluid desktop environment powered by **Hyprland** and **Quickshell**.
 
----
+Zenith is organized into three specialized repositories modeled after the modular desktop ecosystem:
 
-## 🚀 The Zenith Philosophy
-Zenith is built on three pillars:
-1.  **Automation**: From mirrors to hardware drivers, everything is handled for you.
-2.  **Performance**: System-level optimizations (ZRAM, Pacman tuning, Makepkg) ensure your hardware runs at its peak.
-3.  **Aesthetics**: A cohesive, modern look using Material Design principles and intuitive UX.
-
----
-
-## 🎥 Quick Overview
-  <[![Zenith Showcase](https://img.youtube.com/vi/09G4APMCORQ/0.jpg)](https://www.youtube.com/watch?v=09G4APMCORQ)
-
-
-### 📸 Screenshots
-
-<details>
-<summary>✨ Desktop & UI</summary>
-<p align="center">
-  <img src="assets/2026-05-25-113908_hyprshot.png" width="800"><br>
-  <img src="assets/2026-05-25-113646_hyprshot.png" width="800"><br>
-  <img src="assets/2026-05-25-113837_hyprshot.png" width="800"><br>
-  <img src="assets/2026-05-25-113807_hyprshot.png" width="800"><br>
-  <img src="assets/2026-05-25-113549_hyprshot.png" width="800"><br>
-  <img src="assets/2026-05-25-113535_hyprshot.png" width="800">
-</p>
-</details>
+| Repository | Purpose | Description |
+| :--- | :--- | :--- |
+| **[zenith](https://github.com/zaeemali272/zenith)** *(this repo)* | **System & Dotfiles** | Unified dotfiles (`dots/hypr`, `kitty`, `fish`, `btop`, etc.), NixOS flake & modules, and Arch Linux automated installer. |
+| **[zenith-shell](https://github.com/zaeemali272/zenith-shell)** | **Desktop Shell UI** | Complete Qt6/QML desktop shell powered by Quickshell: Dynamic Island, bar, sidebar, dashboard, notifications, and lockscreen. |
+| **[zenith-cli](https://github.com/zaeemali272/zenith-cli)** | **Desktop & System CLI** | Unified command line interface for shell switching, special workspaces, recording, screenshots, and system maintenance. |
 
 ---
 
-## 🏃 How to Run It
+## 🚀 Key Highlights
 
-Ready to reach the Zenith? Run the following command in your terminal:
+- **Dual-Distro First Class Support**:
+  - **NixOS**: Declarative system configuration via Flakes with reproducible host derivations (`hosts/V14`, `hosts/vm`, `hosts/desktop`).
+  - **Arch Linux**: One-click automated setup (`./install.sh`) with intelligent hardware detection, mirror optimization, and ZRAM tuning.
+- **Unified Dotfiles**: All configurations live together in `dots/` (Hyprland Lua/Hyprlang, Kitty, Fish, Starship, Btop, Yazi, Zed).
+- **Multi-Shell Switcher**: Switch seamlessly between `zenith-shell`, `caelestia-shell`, and `end-4` with dynamic theme reloading.
+- **Hardware-Integrated Audio & Brightness**: Granular OSD feedback, sysfs fallback brightness control, and multitouch gestures.
+- **Self-Healing Diagnostics**: Built-in `zenith doctor` health check verifies session, audio, render nodes, polkit, and hardware interfaces.
+
+---
+
+## 🏃 Quick Start
+
+### ❄️ Option A: NixOS (Flake)
 
 ```bash
-git clone https://github.com/zaeemali272/zenith.git
-cd zenith
+# Clone the repository
+git clone https://github.com/zaeemali272/zenith.git ~/zenith/zenith
+cd ~/zenith/zenith
+
+# Check system health & requirements
+zenith doctor
+
+# Rebuild and switch (using your hostname or desktop profile)
+zenith rebuild switch
+# or:
+sudo nixos-rebuild switch --flake .#V14
+```
+
+### 🏹 Option B: Arch Linux
+
+```bash
+git clone https://github.com/zaeemali272/zenith.git ~/zenith/zenith
+cd ~/zenith/zenith
 ./install.sh
 ```
 
-### Installation Modes
-1.  **Minimal Installation (Recommended)**: Installs the base system and sets up the Post-boot GUI installer. This is the fastest way to get started.
-2.  **Full Installation**: Installs everything (Gaming, Themes, Extras) in one go.
-3.  **Configs Only**: Only syncs your dotfiles without installing packages.
-
 ---
 
+## 🛠️ CLI Commands (`zenith`)
 
-## 🛠️ What Happens During Installation?
+The `zenith` command provides full control over the desktop and underlying operating system:
 
-The `install.sh` script is the orchestrator of the Zenith experience. Here is a breakdown of the process:
-
-### 1. System Preparation & Tuning
-*   **Mirror Optimization**: Uses `reflector` to find the fastest Arch mirrors in your region.
-*   **Pacman Tuning**: Enables parallel downloads (10) and adds some "eye candy" to the terminal.
-*   **Makepkg Speedup**: Configures `makepkg` to use all available CPU cores for faster AUR builds.
-*   **ZRAM Configuration**: Automatically sets up ZRAM with ZSTD compression for superior memory management and system responsiveness.
-
-### 2. Intelligent Hardware Detection
-Zenith identifies your hardware and installs the correct drivers automatically:
-*   **GPUs**: Proprietary drivers for **NVIDIA**, open-source drivers for **AMD** and **Intel**.
-*   **Laptops**: Installs `tlp`, `acpi`, and `brightnessctl` for power management and battery health.
-*   **Virtualization**: Detects if you are in a VM (VirtualBox, VMware, KVM) and installs guest utilities.
-*   **Peripherals**: Sets up Bluetooth (`bluez`) and Audio (`pipewire`) out of the box.
-
-### 3. Core Software Stack
-Zenith pulls in a curated list of modern, efficient tools:
-*   **Window Manager**: [Hyprland](https://hyprland.org/) (Wayland)
-*   **Desktop Shell & Lockscreen**: [Zenith Shell](https://github.com/zaeemali272/zenith-shell) powered by Quickshell.
-*   **Shell**: [Fish](https://fishshell.com/) with [Starship](https://starship.rs/) prompt and dynamic `fzf` color schemes.
-*   **Terminal**: [Kitty](https://sw.kovidgoyal.net/kitty/) & [Ghostty](https://ghostty.org/).
-*   **File Managers**: [Thunar](https://docs.xfce.org/xfce/thunar/start) & [Yazi](https://github.com/sxyazi/yazi) with custom Zenith theme.
-*   **Editors**: [Zed](https://zed.dev/) & [Antigravity IDE](https://github.com/zaeemali272/zenith).
-*   **App Launcher**: Zenith Dynamic Island runner & app search (`zenith:launcher`).
-*   **System Monitor**: [btop](https://github.com/aristocratos/btop) (with custom Zenith theme) & `glances`.
-*   **System Management CLI**: `zenith` CLI utility for updates, shell switching, diagnostics, and maintenance.
-
-### 4. Zero-Touch Experience (The Magic)
-Zenith is designed to get you into your environment without a single extra keystroke:
-*   **TTY1 Autologin**: Configures systemd to automatically log your user into TTY1 upon boot.
-*   **Auto-Hyprland**: Your Fish shell detects if you are on TTY1 and automatically executes the Hyprland compositor.
-*   **Post-Boot UI**: After the first reboot, a custom **Zenith-Shell** window appears to guide you through the final steps of the installation.
-
----
-
-## 📦 Services & Packages
-
-### System Services
-*   **iwd**: Fast and modern wireless daemon (replaces NetworkManager for better performance).
-*   **bluez**: Bluetooth support with an auto-fix service for reliability.
-*   **zram-generator**: Manages high-speed swap in RAM.
-*   **pipewire**: The modern standard for audio/video handling on Linux.
-*   **fusuma**: Multitouch gesture support for laptops.
-*   **hyprsunset**: Native hardware CTM night light control.
-
-### Themes & Fonts
-*   **GTK Theme**: [Orchis-Dark](https://github.com/vinceliuice/Orchis-theme) with dark-mode enforcement across dconf and gsettings.
-*   **Icon Theme**: [Reversal-dark](https://github.com/vinceliuice/Reversal-icon-theme) / [OneUI](https://github.com/vinceliuice/oneUI-icon-theme).
-*   **Cursors**: [Bibata Modern Classic](https://github.com/ful1e5/Bibata_Cursor).
-*   **Terminal & Tool Themes**: Dynamically synced Material You color schemes across Kitty, Starship, btop, yazi, and Zed.
-*   **Fonts**:
-    *   **Interface**: Quicksand, Nunito, Noto Sans.
-    *   **Monospace**: JetBrains Mono Nerd Font.
-    *   **Icons**: Material Design Icons & Symbols.
-
----
-
-## 📂 Project Structure
-
-```text
-zenith/
-├── .config/             # Comprehensive dotfiles (btop, fish, hypr, kitty, yazi, zed, etc.)
-├── .themes/             # Custom GTK and Kvantum themes
-├── modules/             # Modular bash scripts for installation logic
-│   ├── config.sh        # System configurations and user shell setup
-│   ├── hardware.sh      # GPU/Laptop/VM detection
-│   ├── packages.sh      # Package installation logic
-│   ├── services.sh      # Systemd service configuration
-│   └── ui.sh            # CLI installer visual components
-├── pkgs/
-│   └── packages.json    # The master list of all software
-├── scripts/             # Extra utility scripts
-│   ├── install-secure-mode.sh   # Sudoers hardening with visudo validation
-│   ├── install-zenith-cli.sh    # Installs the global 'zenith' command
-│   ├── sync_configs.sh          # Dynamic dotfiles synchronizer
-│   └── post_boot_install.sh     # Post-boot GUI installer helper
-├── extra_scripts/       # Optional setup scripts (KVM, LAMP, MySQL, Git, Neovim)
-└── install.sh           # The main entry point
-```
-
----
-
-## 🧩 Documentation for New Users
-
-### Why did my screen just go black?
-Don't panic! During the "Full" or "Minimal" installation, the script will reboot your computer. Upon reboot:
-1.  **Autologin** will kick in on TTY1.
-2.  **Hyprland** will start automatically.
-3.  The **Zenith Post-Boot Installer** will open to finish the setup.
-
-### How do I change my wallpaper?
-Zenith includes an interactive wallpaper chooser in Zenith Shell (`Super + Ctrl + T` or from Dashboard). You can also place custom wallpapers in `~/Pictures/Wallpapers`.
-
-### How do I update?
-Simply run:
 ```bash
-zenith update
-```
-Or run `bash install.sh` and select **Configs Only** to sync dotfiles, or **Packages Only** to install any new dependencies.
+# System Management
+zenith rebuild [switch|boot|test]   # Rebuild system configuration (nh / nixos-rebuild / yay)
+zenith update                       # Pull repository updates and rebuild
+zenith rollback                     # Rollback to the previous NixOS generation
+zenith doctor                       # 10-point system component verification
+zenith clean [days]                 # Deep cleanup: garbage collection, cache, logs, temp files
+zenith where                        # Print active configuration directory
 
-### Keybinds
-*   **Super / Super + D**: Open App Launcher (Dynamic Island)
-*   **Super + Return / Super + T**: Open Terminal (Kitty / Ghostty)
-*   **Super + E**: Open File Manager (Thunar)
-*   **Super + B / Super + W**: Open Zen Browser
-*   **Super + Q**: Close Active Window
-*   **Super + A**: Open Overview & Dashboard
-*   **Ctrl + Super + Q**: Open Quick Settings Drawer
-*   **Ctrl + Super + T**: Open Wallpaper Selector
-*   **Super + V**: Open Clipboard Manager
-*   **Super + Period (.)**: Open Emoji Selector
-*   **Ctrl + Alt + Delete**: Open Session & Power Menu
-*   **Super + L**: Lock Screen (Quickshell PAM Session Lock)
+# Desktop Shell
+zenith shell switch <name>          # Switch between zenith, caelestia, and end-4
+zenith shell restart                # Restart the active desktop shell
+zenith shell list                   # Show available desktop shells
+
+# Hyprland & Media
+zenith toggle <workspace>           # Toggle special workspaces (sysmon, communication, music, todo)
+zenith screenshot [-r|-f]           # Fullscreen or region screenshot with swappy editor
+zenith record [-r|-s|-p]            # Toggle screen recording with audio and region support
+zenith wallpaper -f <path>          # Set active wallpaper and dynamically update color palettes
+zenith clipboard [-d]               # Fast clipboard history search via Fuzzel
+```
 
 ---
 
-**Welcome to Zenith. Your Arch experience, perfected.**
+## 📁 Repository Structure
+
+```
+zenith/
+├── dots/                     # Unified user dotfiles
+│   ├── hypr/                 # Hyprland window manager configurations & scripts
+│   ├── fish/                 # Fish shell configuration
+│   ├── kitty/                # Kitty terminal emulator configuration
+│   ├── btop/                 # System monitor theme & config
+│   ├── yazi/                 # Terminal file manager configuration
+│   └── zed/                  # Zed editor configuration
+├── hosts/                    # NixOS machine configurations
+│   ├── V14/                  # Primary workstation profile
+│   ├── vm/                   # Virtual machine testing profile
+│   └── desktop/              # Template profile for custom hardware
+├── modules/                  # Modular configuration components
+│   ├── core/                 # NixOS system services, audio, bootloader, networking
+│   ├── home/                 # Home-Manager user programs & environment
+│   └── arch/                 # Arch Linux installation modules & helpers
+├── flake.nix                 # Top-level NixOS Flake definition
+└── install.sh                # Smart dual-distro installer & updater
+```
+
+---
+
+## 📜 License
+
+Licensed under the MIT License. See [LICENSE](LICENSE) for details.

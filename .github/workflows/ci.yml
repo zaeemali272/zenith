@@ -36,3 +36,17 @@ jobs:
         run: |
           echo "==> Validating JSON syntax..."
           find . -name "*.json" -not -path "*/.git/*" -exec jq empty {} +
+
+  nix-eval:
+    name: Evaluate NixOS Configurations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Evaluate VM Host Derivation
+        run: nix eval .#nixosConfigurations.vm.config.system.build.toplevel.drvPath
+
+      - name: Evaluate V14 Host Derivation
+        run: nix eval .#nixosConfigurations.V14.config.system.build.toplevel.drvPath

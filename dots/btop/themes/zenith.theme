@@ -1,0 +1,53 @@
+# Zenith Material Design 3 theme for Btop
+# Generated dynamically by Zenith Shell
+
+theme[main_bg]="#140d08"
+theme[main_fg]="#f0dfd6"
+theme[title]="#ffb785"
+theme[hi_fg]="#c8ca94"
+theme[selected_bg]="#312822"
+theme[selected_fg]="#ffb785"
+theme[inactive_fg]="#9f8d83"
+theme[graph_text]="#d7c3b7"
+theme[meter_bg]="#261e19"
+theme[proc_misc]="#e4bfa8"
+
+# Box outlines and dividers
+theme[cpu_box]="#52443b"
+theme[mem_box]="#52443b"
+theme[net_box]="#52443b"
+theme[proc_box]="#52443b"
+theme[div_line]="#52443b"
+
+# Temperature gradient
+theme[temp_start]="#ffb785"
+theme[temp_mid]="#c8ca94"
+theme[temp_end]="#ffb4ab"
+
+# CPU usage gradient
+theme[cpu_start]="#ffb785"
+theme[cpu_mid]="#e4bfa8"
+theme[cpu_end]="#c8ca94"
+
+# Memory gradient (available)
+theme[free_start]="#c8ca94"
+theme[free_mid]="#e4bfa8"
+theme[free_end]="#ffb785"
+
+# Memory gradient (used)
+theme[used_start]="#e4bfa8"
+theme[used_mid]="#c8ca94"
+theme[used_end]="#ffb4ab"
+
+# Network transfer gradient
+theme[download_start]="#e4bfa8"
+theme[download_mid]="#c8ca94"
+theme[download_end]="#ffb785"
+theme[upload_start]="#c8ca94"
+theme[upload_mid]="#e4bfa8"
+theme[upload_end]="#ffb785"
+
+# Process usage gradient
+theme[process_start]="#ffb785"
+theme[process_mid]="#e4bfa8"
+theme[process_end]="#c8ca94"

@@ -1,0 +1,39 @@
+{ pkgs, inputs, vars, ... }:
+
+{
+  programs.hyprland = {
+    enable = true;
+    package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+    portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+  };
+
+  environment.sessionVariables = {
+    NIXOS_OZONE_WL = "1";
+    ELECTRON_OZONE_PLATFORM_HINT = "auto";
+    MOZ_ENABLE_WAYLAND = "1";
+    MOZ_WEBRENDER = "1";
+    MALLOC_ARENA_MAX = "2";
+    MALLOC_TRIM_THRESHOLD_ = "131072";
+    HYPRLAND_KB_LAYOUT = vars.keyboardLayout or "us";
+  };
+
+  xdg.portal = {
+    enable = true;
+    extraPortals = [
+      inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland
+      pkgs.xdg-desktop-portal-gtk
+    ];
+    config = {
+      common = {
+        default = [ "hyprland" "gtk" ];
+      };
+      hyprland = {
+        default = [ "hyprland" "gtk" ];
+        "org.freedesktop.impl.portal.ScreenCast" = "hyprland";
+        "org.freedesktop.impl.portal.Screenshot" = "hyprland";
+        "org.freedesktop.impl.portal.FileChooser" = "gtk";
+        "org.freedesktop.impl.portal.OpenURI" = "gtk";
+      };
+    };
+  };
+}

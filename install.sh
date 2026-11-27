@@ -5,9 +5,26 @@ set -euo pipefail
 DOTS_DIR="$(pwd)"
 export DOTS_DIR
 
+# --- Distro Check: NixOS Routing ---
+if [[ -f /etc/NIXOS ]] || command -v nixos-rebuild &>/dev/null; then
+    echo "❄️  Detected NixOS! Zenith on NixOS is managed declaratively via Flakes."
+    echo ""
+    echo "To rebuild your system configuration:"
+    echo "    zenith rebuild"
+    echo "or:"
+    echo "    sudo nixos-rebuild switch --flake .#$(hostname)"
+    echo ""
+    echo "To run health checks and diagnostics:"
+    echo "    zenith doctor"
+    echo ""
+    exit 0
+fi
+
 # --- Load Modules Early (For Colors and UI) ---
 if [[ -d "modules" ]]; then
-    for f in modules/*.sh; do source "$f"; done
+    for f in modules/arch/*.sh modules/*.sh; do
+        [[ -f "$f" ]] && source "$f"
+    done
 else
     echo "❌ 'modules' directory not found. Please run from the zenith/ root."
     exit 1

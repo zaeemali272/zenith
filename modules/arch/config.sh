@@ -27,31 +27,26 @@ setup_quickshell() {
     log_success "Quickshell setup complete."
 }
 
-# Function to clone and setup Hyprland-dots
+# Function to setup Hyprland configs
 setup_hyprland_dots() {
-    log_step "✨ Setting up Hyprland-dots..."
+    log_step "✨ Setting up Hyprland configs..."
     local hypr_dir="$HOME/.config/hypr"
-    local repo_url="https://github.com/zaeemali272/Hyprland-dots.git"
 
-    # FORCE CHECK: Is it actually a git repo?
-    if [[ -d "$hypr_dir" ]]; then
-        if [[ ! -d "$hypr_dir/.git" ]]; then
-            log_warn "Directory exists but is NOT a git repo. Deleting for fresh clone..."
-            rm -rf "$hypr_dir"
-        fi
+    if [[ -d "$DOTS_DIR/dots/hypr" ]]; then
+        log "Linking Hyprland configuration from $DOTS_DIR/dots/hypr..."
+        mkdir -p "$HOME/.config"
+        ln -sfn "$DOTS_DIR/dots/hypr" "$hypr_dir"
+        find "$DOTS_DIR/dots/hypr" -type f \( -name "*.sh" -o -name "*.py" \) -exec chmod +x {} + 2>/dev/null || true
+        log_success "Hyprland configs linked from dots/hypr."
+        return 0
     fi
 
+    local repo_url="https://github.com/zaeemali272/zenith.git"
     if [[ ! -d "$hypr_dir" ]]; then
-        log "Cloning Hyprland-dots from GitHub..."
-        git clone "$repo_url" "$hypr_dir" || log_error "Failed to clone Hyprland-dots"
-    else
-        log "Updating existing Hyprland-dots in $hypr_dir..."
-        # Force a reset in case local files are messed up
-        git -C "$hypr_dir" fetch --all
-        git -C "$hypr_dir" reset --hard origin/main || log_warn "Git reset failed."
+        log "Cloning Zenith from GitHub..."
+        git clone "$repo_url" "$HOME/zenith" && ln -sfn "$HOME/zenith/dots/hypr" "$hypr_dir" || log_error "Failed to setup Hyprland configs"
     fi
-    
-    log_success "Hyprland-dots setup complete."
+    log_success "Hyprland setup complete."
 }
 
 # Function to setup extra themes
@@ -289,10 +284,12 @@ sync_dotfiles() {
         rsync_args="$rsync_args --ignore-existing"
     fi
 
-    # Sync .config
-    if [[ -d "$DOTS_DIR/.config" ]]; then
+    # Sync user dotfiles
+    if [[ -d "$DOTS_DIR/dots" ]]; then
         mkdir -p "$HOME/.config"
-        # Sync standard configs
+        rsync $rsync_args --exclude ".git" --exclude "hypr" "$DOTS_DIR/dots/" "$HOME/.config/"
+    elif [[ -d "$DOTS_DIR/.config" ]]; then
+        mkdir -p "$HOME/.config"
         rsync $rsync_args --exclude ".git" --exclude "README.md" --exclude "install.sh" "$DOTS_DIR/.config/" "$HOME/.config/"
         
         # --- NEW: Conditional copy for hyprlock colors ---
