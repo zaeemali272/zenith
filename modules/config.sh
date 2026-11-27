@@ -316,7 +316,8 @@ sync_dotfiles() {
 
     # --- NEW: Conditional copy for zenith-shell/Colors.qml ---
     # Since zenith-shell is synced via setup_quickshell, we handle it there or here
-    local quickshell_dir="$HOME/.config/quickshell"
+    # Assuming it's inside ~/.config/quickshell/zenith-shell/Colors.qml based on usage
+    local quickshell_dir="$HOME/.config/quickshell/zenith-shell"
     if [[ ! -f "$quickshell_dir/Colors.qml" && -f "$DOTS_DIR/zenith-shell/Colors.qml" ]]; then
         mkdir -p "$quickshell_dir"
         cp "$DOTS_DIR/zenith-shell/Colors.qml" "$quickshell_dir/Colors.qml"
@@ -386,16 +387,16 @@ setup_xdg_dirs() {
 
 setup_post_boot_service() {
     log_step "🚀 Setting up post-boot installer autostart..."
-    local hypr_conf="$HOME/.config/hypr/hyprland.conf"
+    local execs_file="$HOME/.config/hypr/hyprland/execs.conf"
     local post_boot_cmd="exec-once = bash $DOTS_DIR/scripts/post_boot_install.sh"
 
     # Create directory if missing
-    mkdir -p "$(dirname "$hypr_conf")"
+    mkdir -p "$(dirname "$execs_file")"
 
     # Add the line if not already present
-    if ! grep -q "post_boot_install.sh" "$hypr_conf" 2>/dev/null; then
-        echo -e "\n$post_boot_cmd" >> "$hypr_conf"
-        log "Post-boot autostart added to $hypr_conf."
+    if ! grep -q "post_boot_install.sh" "$execs_file" 2>/dev/null; then
+        echo -e "\n$post_boot_cmd" >> "$execs_file"
+        log "Post-boot autostart added to $execs_file."
     fi
 
     log_success "Post-boot autostart configured for Hyprland."

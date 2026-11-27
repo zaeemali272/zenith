@@ -59,12 +59,12 @@ run_phase_2() {
     
     # Self-destruct sequence
     log_step "✅ Installation Complete. Cleaning up autostart..."
-    for conf_file in "$HOME/.config/hypr/hyprland.conf" "$HOME/.config/hypr/hyprland/execs.conf"; do
-        if [[ -f "$conf_file" ]]; then
-            sed -i "/post_boot_install.sh/d" "$conf_file"
-            log "Removed autostart from $conf_file."
-        fi
-    done
+    local execs_file="$HOME/.config/hypr/hyprland/execs.conf"
+    if [[ -f "$execs_file" ]]; then
+        # Remove the specific line
+        sed -i "/post_boot_install.sh/d" "$execs_file"
+        log "Removed autostart from $execs_file."
+    fi
 
     # Cleanup old method files if they exist
     rm -f "$HOME/.config/systemd/user/zenith-post-boot.service"

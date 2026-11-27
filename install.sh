@@ -83,9 +83,6 @@ export RUN_QUICKSHELL=0
 export RUN_CONFIGS=0
 export RUN_NEW_PKGS=0
 export SKIP_XDG=0
-export FORCE_ARCH=0
-export FORCE_NIXOS=0
-export NIXOS_REBUILD=0
 
 # Parse Arguments
 for arg in "$@"; do
@@ -102,9 +99,6 @@ for arg in "$@"; do
         --quickshell) export RUN_QUICKSHELL=1 ;;
         --configs) export RUN_CONFIGS=1 ;;
         --new-pkgs) export RUN_NEW_PKGS=1 ;;
-        --arch) export FORCE_ARCH=1 ;;
-        --nixos) export FORCE_NIXOS=1 ;;
-        --rebuild) export NIXOS_REBUILD=1 ;;
 
         # Rerunning after a failure is the normal case, so it is the default:
         # completed steps are skipped and only what is missing or failed runs.
@@ -117,23 +111,20 @@ done
 
 if [[ "${SHOW_HELP:-0}" -eq 1 ]]; then
     cat <<'USAGE'
-zenith installer (Unified Arch Linux & NixOS)
+zenith installer
 
-  ./install.sh                 install, or resume -- auto-detects Arch or NixOS
+  ./install.sh                 install, or resume -- steps already completed are
+                               skipped, failed ones are retried
   ./install.sh --status        show what is done and what failed, change nothing
   ./install.sh --force         redo every step, including completed ones
   ./install.sh --reset         forget all recorded state and start over
 
-NixOS Options:
-  ./install.sh --nixos         force NixOS deployment workflow
-  ./install.sh --rebuild       rebuild and switch current NixOS host immediately
-
-Arch Linux Options:
-  ./install.sh --arch          force Arch Linux installer
   --no-gaming --no-themes --no-recommended --no-extras --no-fonts
   --no-scripts --skip-xdg      leave those parts out
   --auto                       no prompts
 
+A step that fails does not stop the run. It is recorded, the rest continues, and
+the summary at the end lists what to retry -- just run ./install.sh again.
 USAGE
     exit 0
 fi
@@ -147,87 +138,6 @@ fi
 if [[ "${SHOW_STATUS:-0}" -eq 1 ]]; then
     show_status
     exit 0
-fi
-
-# --- NixOS System Detection & Handler ---
-handle_nixos() {
-    log_step "❄️  Zenith: NixOS System Detected"
-    echo -e "${CYAN}Welcome to Zenith — Universal Desktop Environment for NixOS & Arch Linux.${NC}\n"
-
-    local nixos_dir="$DOTS_DIR/nixos"
-    if [[ ! -f "$nixos_dir/flake.nix" ]]; then
-        log_step "📦 Initializing NixOS submodule..."
-        git -C "$DOTS_DIR" submodule update --init --recursive nixos || {
-            log_error "Failed to initialize nixos submodule."
-            exit 1
-        }
-    fi
-
-    local host
-    host="$(hostname)"
-
-    if [[ "${NIXOS_REBUILD:-0}" -eq 1 || "${AUTO_INSTALL:-0}" -eq 1 ]]; then
-        log_step "🚀 Switching NixOS configuration for host: $host"
-        if command -v nh &>/dev/null; then
-            nh os switch "$nixos_dir#$host"
-        else
-            sudo nixos-rebuild switch --flake "$nixos_dir#$host"
-        fi
-        exit 0
-    fi
-
-    echo -e "Available actions for NixOS:"
-    echo -e "  ${WHITE}1)${NC} Rebuild & Switch configuration (${CYAN}flake ./nixos#$host${NC})"
-    echo -e "  ${WHITE}2)${NC} Setup a new host / hardware (${CYAN}./nixos/new-host.sh${NC})"
-    echo -e "  ${WHITE}3)${NC} Run interactive installer (${CYAN}./nixos/install.py${NC})"
-    echo -e "  ${WHITE}4)${NC} Update Zenith inputs & flake lock"
-    echo -e "  ${WHITE}5)${NC} Run Zenith Doctor (System Health Check)"
-    echo -e "  ${WHITE}6)${NC} Exit"
-    echo ""
-    read -rp "Select option [1-6] (default 1): " choice
-    choice="${choice:-1}"
-
-    case "$choice" in
-        1)
-            log_step "🚀 Rebuilding and switching NixOS..."
-            if command -v nh &>/dev/null; then
-                nh os switch "$nixos_dir#$host"
-            else
-                sudo nixos-rebuild switch --flake "$nixos_dir#$host"
-            fi
-            ;;
-        2)
-            log_step "🖥️ Setting up new host..."
-            bash "$nixos_dir/new-host.sh"
-            ;;
-        3)
-            log_step "🐍 Running Python installer..."
-            python3 "$nixos_dir/install.py"
-            ;;
-        4)
-            log_step "🔄 Updating flake inputs..."
-            nix flake update --flake "$nixos_dir"
-            ;;
-        5)
-            if command -v zenith &>/dev/null; then
-                zenith doctor
-            else
-                bash "$nixos_dir/update.sh" --check
-            fi
-            ;;
-        *)
-            echo "Exiting."
-            exit 0
-            ;;
-    esac
-    exit 0
-}
-
-# Auto-route to NixOS if detected and not explicitly forced to Arch
-if [[ "${FORCE_ARCH:-0}" -ne 1 ]]; then
-    if [[ "${FORCE_NIXOS:-0}" -eq 1 ]] || [[ -f /etc/NIXOS ]] || grep -qi "nixos" /etc/os-release 2>/dev/null; then
-        handle_nixos
-    fi
 fi
 
 # --- Super User System Tuning ---
