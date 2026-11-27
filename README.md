@@ -2,6 +2,10 @@
 
 # ❄️ Zenith NixOS
 
+> [!NOTE]
+> **This repository has been unified into [zenith](https://github.com/zaeemali272/zenith).**
+> All NixOS configurations, Flakes, modules, and dotfiles are now maintained in the unified [zenith](https://github.com/zaeemali272/zenith) repository.
+
 **Universal Frost-Phoenix Style NixOS & Hyprland Flake Configuration**
 
 [![NixOS](https://img.shields.io/badge/NixOS-unstable-5277C3.svg?style=for-the-badge&logo=nixos&logoColor=white)](https://nixos.org)
