@@ -295,9 +295,12 @@ hl.window_rule({
 
 -- Virtual machine viewers (virt-manager, remote-viewer, QEMU)
 hl.window_rule({
-    match = { class = "virt-manager|\\.virt-manager-wrapped|remote-viewer|\\.remote-viewer-wrapped|qemu|qemu-system-.*" },
+    match = { class = "virt-manager|\\.virt-manager-wrapped|org\\.virt-manager\\.virt-manager|remote-viewer|\\.remote-viewer-wrapped|virt-viewer|qemu|qemu-system-.*" },
     opaque = true,
     idle_inhibit = "fullscreen",
+    border_size = 0,
+    rounding = 0,
+    no_shadow = true,
 })
 
 -------------------------
