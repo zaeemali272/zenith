@@ -16,7 +16,6 @@
     ./lazygit.nix
     ./theme.nix
     ./obsidian.nix
-    ./figma.nix
     ./packages/default.nix
     ./quickshell.nix
     ./starship.nix
