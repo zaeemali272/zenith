@@ -1,14 +1,14 @@
-# 🌌 Zenith: The Ultimate Arch Linux Experience
+# 🌌 Zenith: The Ultimate Linux Experience (Arch Linux & NixOS)
 
-Welcome to **Zenith**, a meticulously crafted, performance-oriented, and aesthetically stunning Arch Linux environment powered by **Hyprland**. Zenith isn't just a set of dotfiles; it's a complete automation suite designed to transform a fresh Arch install into a powerful, modern workstation with zero friction.
+Welcome to **Zenith**, a meticulously crafted, performance-oriented, and aesthetically stunning modern desktop environment powered by **Hyprland** and **Zenith Shell**. Zenith provides an all-in-one ecosystem with automated installation and reproducible flake configurations for both **Arch Linux** and **NixOS**.
 
 ---
 
 ## 🚀 The Zenith Philosophy
 Zenith is built on three pillars:
-1.  **Automation**: From mirrors to hardware drivers, everything is handled for you.
-2.  **Performance**: System-level optimizations (ZRAM, Pacman tuning, Makepkg) ensure your hardware runs at its peak.
-3.  **Aesthetics**: A cohesive, modern look using Material Design principles and intuitive UX.
+1.  **Automation & Reproducibility**: From mirrors and hardware drivers to declarative flakes, everything is handled with zero friction.
+2.  **Performance**: System-level optimizations (ZRAM, Pacman tuning, Makepkg, kernel tuning) ensure your hardware runs at peak responsiveness.
+3.  **Aesthetics**: A cohesive, modern look using dynamic Material Design schemes, unified multi-shell shortcuts, and intuitive UX.
 
 ---
 
@@ -32,18 +32,37 @@ Zenith is built on three pillars:
 
 ---
 
-## 🏃 How to Run It
+## 🏃 How to Run It (All-in-One)
 
-Ready to reach the Zenith? Run the following command in your terminal:
+Ready to reach the Zenith? Clone the unified repository with submodules:
 
 ```bash
-git clone https://github.com/zaeemali272/zenith.git
+git clone --recurse-submodules https://github.com/zaeemali272/zenith.git
 cd zenith
 ./install.sh
 ```
 
-### Installation Modes
-1.  **Minimal Installation (Recommended)**: Installs the base system and sets up the Post-boot GUI installer. This is the fastest way to get started.
+`install.sh` automatically detects your operating system (**Arch Linux** or **NixOS**) and routes to the appropriate deployment pipeline.
+
+### ❄️ NixOS Workflow
+If you are on NixOS, Zenith provides a modular, reproducible flake inside `nixos/`:
+```bash
+# Automatic rebuild and switch for the current host:
+./install.sh --rebuild
+
+# Or directly with nixos-rebuild / nh:
+sudo nixos-rebuild switch --flake ./nixos#$(hostname)
+# or
+nh os switch ./nixos#$(hostname)
+
+# Manage and inspect system health:
+zenith doctor
+zenith update --rebuild
+```
+
+### 🏹 Arch Linux Workflow
+If you are on Arch Linux, Zenith runs the automated system installation suite:
+1.  **Minimal Installation (Recommended)**: Installs the base system and sets up the Post-boot GUI installer.
 2.  **Full Installation**: Installs everything (Gaming, Themes, Extras) in one go.
 3.  **Configs Only**: Only syncs your dotfiles without installing packages.
 
@@ -113,46 +132,33 @@ Zenith is designed to get you into your environment without a single extra keyst
 
 ```text
 zenith/
+├── nixos/               # Submodule: Universal Zenith NixOS flake configuration
+│   ├── flake.nix        # Declarative NixOS system and home flake
+│   ├── hosts/           # Machine definitions (V14, desktop, vm, etc.)
+│   ├── modules/         # System core and home-manager modules
+│   └── update.sh        # Upstream safe-merge and auto-rebuild updater
 ├── .config/             # Comprehensive dotfiles (btop, fish, hypr, kitty, yazi, zed, etc.)
 ├── .themes/             # Custom GTK and Kvantum themes
-├── modules/             # Modular bash scripts for installation logic
+├── modules/             # Modular bash scripts for Arch Linux installation logic
 │   ├── config.sh        # System configurations and user shell setup
 │   ├── hardware.sh      # GPU/Laptop/VM detection
 │   ├── packages.sh      # Package installation logic
 │   ├── services.sh      # Systemd service configuration
 │   └── ui.sh            # CLI installer visual components
 ├── pkgs/
-│   └── packages.json    # The master list of all software
+│   └── packages.json    # Master list of software and dependencies
 ├── scripts/             # Extra utility scripts
 │   ├── install-secure-mode.sh   # Sudoers hardening with visudo validation
 │   ├── install-zenith-cli.sh    # Installs the global 'zenith' command
 │   ├── sync_configs.sh          # Dynamic dotfiles synchronizer
 │   └── post_boot_install.sh     # Post-boot GUI installer helper
 ├── extra_scripts/       # Optional setup scripts (KVM, LAMP, MySQL, Git, Neovim)
-└── install.sh           # The main entry point
+└── install.sh           # The unified multi-distro main entry point
 ```
 
 ---
 
-## 🧩 Documentation for New Users
-
-### Why did my screen just go black?
-Don't panic! During the "Full" or "Minimal" installation, the script will reboot your computer. Upon reboot:
-1.  **Autologin** will kick in on TTY1.
-2.  **Hyprland** will start automatically.
-3.  The **Zenith Post-Boot Installer** will open to finish the setup.
-
-### How do I change my wallpaper?
-Zenith includes an interactive wallpaper chooser in Zenith Shell (`Super + Ctrl + T` or from Dashboard). You can also place custom wallpapers in `~/Pictures/Wallpapers`.
-
-### How do I update?
-Simply run:
-```bash
-zenith update
-```
-Or run `bash install.sh` and select **Configs Only** to sync dotfiles, or **Packages Only** to install any new dependencies.
-
-### Keybinds
+## ⌨️ Common Keybindings
 *   **Super / Super + D**: Open App Launcher (Dynamic Island)
 *   **Super + Return / Super + T**: Open Terminal (Kitty / Ghostty)
 *   **Super + E**: Open File Manager (Thunar)
@@ -168,4 +174,4 @@ Or run `bash install.sh` and select **Configs Only** to sync dotfiles, or **Pack
 
 ---
 
-**Welcome to Zenith. Your Arch experience, perfected.**
+**Welcome to Zenith. Your desktop experience, perfected.**

@@ -82,12 +82,16 @@
       "awww",
       "base",
       "base-devel",
+      "bat",
       "bluez",
       "bluez-utils",
       "brightnessctl",
+      "btop",
       "cpio",
       "curl",
+      "direnv",
       "eza",
+      "fastfetch",
       "fd",
       "ffmpeg",
       "ffmpegthumbnailer",
@@ -110,6 +114,7 @@
       "inotify-tools",
       "jq",
       "kitty",
+      "lazygit",
       "libnotify",
       "libpulse",
       "mpv",
@@ -128,6 +133,9 @@
       "power-profiles-daemon",
       "python",
       "python-numpy",
+      "python-pillow",
+      "python-psutil",
+      "python-requests",
       "python-scipy",
       "python-sounddevice",
       "qt6-5compat",
@@ -138,6 +146,7 @@
       "ripgrep",
       "rsync",
       "starship",
+      "tesseract",
       "thunar",
       "thunar-archive-plugin",
       "thunar-volman",
@@ -152,12 +161,16 @@
       "xdg-desktop-portal-hyprland",
       "xdg-user-dirs",
       "xdg-utils",
+      "yazi",
       "zed",
       "zenith",
-      "zip"
+      "zip",
+      "zoxide"
     ],
     "aur": [
-      "mpvpaper"
+      "hyprsunset",
+      "mpvpaper",
+      "python-ijson"
     ]
   }
 }
