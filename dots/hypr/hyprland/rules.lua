@@ -278,12 +278,34 @@ hl.window_rule({ match = { tag = "viewer" }, opaque = true, no_blur = true })
 hl.window_rule({ match = { class = "^(gedit|org.gnome.TextEditor|mousepad)$" }, opacity = "0.95 override 0.9 override" })
 
 
+-- Fullscreen windows: clean edge-to-edge with zero borders, gaps, or rounding
+hl.window_rule({
+    match = { fullscreen = true },
+    rounding = 0,
+    border_size = 0,
+    no_shadow = true,
+})
+
+-- Sound & audio apps: clean borderless styling
+hl.window_rule({
+    match = { class = "pavucontrol|org.pulseaudio.pavucontrol|com.saivert.pwvucontrol|easyeffects|qpwgraph|helvum" },
+    border_size = 0,
+    no_shadow = true,
+})
+
+-- Virtual machine viewers (virt-manager, remote-viewer, QEMU)
+hl.window_rule({
+    match = { class = "virt-manager|\\.virt-manager-wrapped|remote-viewer|\\.remote-viewer-wrapped|qemu|qemu-system-.*" },
+    opaque = true,
+    idle_inhibit = "fullscreen",
+})
+
 -------------------------
 ---- Workspace rules ----
 -------------------------
 
 hl.workspace_rule({ workspace = "w[tv1]s[false]", gaps_out = vars.singleWindowGapsOut })
-hl.workspace_rule({ workspace = "f[1]s[false]", gaps_out = vars.singleWindowGapsOut })
+hl.workspace_rule({ workspace = "f[1]", gaps_out = 0, gaps_in = 0 })
 hl.workspace_rule({ workspace = "special:special", gaps_out = 30 })
 
 

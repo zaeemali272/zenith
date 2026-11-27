@@ -268,22 +268,34 @@ def main():
     os.makedirs(user_zenith_dir, exist_ok=True)
 
     sync_repo(os.path.join(user_zenith_dir, "zenith-shell"), "https://github.com/zaeemali272/zenith-shell.git")
-    sync_repo(os.path.join(user_zenith_dir, "Hyprland-dots"), "https://github.com/zaeemali272/Hyprland-dots.git")
+    sync_repo(os.path.join(user_zenith_dir, "zenith-cli"), "https://github.com/zaeemali272/zenith-cli.git")
 
     # Ensure ~/.config symlinks point to the writable cloned repos
     config_dir = f"/home/{user}/.config"
+    local_bin = f"/home/{user}/.local/bin"
     os.makedirs(config_dir, exist_ok=True)
+    os.makedirs(local_bin, exist_ok=True)
 
     hypr_link = os.path.join(config_dir, "hypr")
     quickshell_link = os.path.join(config_dir, "quickshell")
+    zenith_cli_link = os.path.join(local_bin, "zenith")
 
-    if not os.path.exists(hypr_link) and not os.path.islink(hypr_link):
-        os.symlink(os.path.join(user_zenith_dir, "Hyprland-dots"), hypr_link)
-        print("✓ Created symlink ~/.config/hypr -> ~/zenith/Hyprland-dots")
+    # Hyprland dots live inside zenith repo under dots/hypr
+    zenith_dots_hypr = os.path.join(user_zenith_dir, "zenith", "dots", "hypr")
+    if os.path.isdir(zenith_dots_hypr):
+        if not os.path.exists(hypr_link) and not os.path.islink(hypr_link):
+            os.symlink(zenith_dots_hypr, hypr_link)
+            print("✓ Created symlink ~/.config/hypr -> ~/zenith/zenith/dots/hypr")
 
     if not os.path.exists(quickshell_link) and not os.path.islink(quickshell_link):
         os.symlink(os.path.join(user_zenith_dir, "zenith-shell"), quickshell_link)
         print("✓ Created symlink ~/.config/quickshell -> ~/zenith/zenith-shell")
+
+    cli_bin = os.path.join(user_zenith_dir, "zenith-cli", "bin", "zenith")
+    if os.path.isfile(cli_bin):
+        if not os.path.exists(zenith_cli_link) and not os.path.islink(zenith_cli_link):
+            os.symlink(cli_bin, zenith_cli_link)
+            print("✓ Created symlink ~/.local/bin/zenith -> ~/zenith/zenith-cli/bin/zenith")
 
     print("\nSetup complete. Ready to proceed with build/switch.")
 

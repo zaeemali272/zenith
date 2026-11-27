@@ -6,7 +6,7 @@
 
   # Where this repository lives. nh and the zenith command both read it, so a
   # clone in a different directory does not silently point them at nothing.
-  configDir = "/home/zaeem/zenith/zenith-nixos";
+  configDir = "/home/zaeem/zenith/zenith";
   
   timeZone = "Asia/Karachi";
   locale = "en_US.UTF-8";

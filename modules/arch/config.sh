@@ -49,34 +49,29 @@ setup_hyprland_dots() {
     log_success "Hyprland setup complete."
 }
 
-# Function to setup extra themes
-setup_extra_themes() {
-    if [[ "$SKIP_THEMES" -eq 1 ]]; then
-        log "Skipping extra themes as per flag."
-        return
-    fi
+# Function to clone and setup Zenith CLI
+setup_zenith_cli() {
+    log_step "✨ Setting up Zenith CLI..."
+    local cli_dir="$HOME/zenith/zenith-cli"
+    local repo_url="https://github.com/zaeemali272/zenith-cli.git"
+    local bin_dir="$HOME/.local/bin"
 
-    log_step "🎨 Setting up Dynamic Materia Dark theme..."
-    local theme_url="https://github.com/zaeemali272/dynamic-materia-dark.git"
-    local theme_name="dynamic-materia-dark"
-    local theme_path="$DOTS_DIR/$theme_name"
-    local themes_dest="$DOTS_DIR/.themes"
+    mkdir -p "$bin_dir" "$(dirname "$cli_dir")"
 
-    if [[ ! -d "$theme_path" ]]; then
-        log "Cloning $theme_name..."
-        git clone "$theme_url" "$theme_path" || { log_error "Failed to clone theme repo"; return; }
+    if [[ ! -d "$cli_dir" ]]; then
+        log "Cloning zenith-cli from GitHub..."
+        git clone "$repo_url" "$cli_dir" || log_warn "Failed to clone zenith-cli"
     else
-        log "Updating $theme_name..."
-        # `cd` failing here would leave the pull running somewhere unexpected.
-        ( cd "$theme_path" && git pull ) || log_warn "Could not update $theme_name"
+        log "Updating zenith-cli..."
+        git -C "$cli_dir" fetch --all 2>/dev/null || true
+        git -C "$cli_dir" reset --hard origin/main 2>/dev/null || true
     fi
 
-    log "Copying theme contents into $themes_dest/$theme_name..."
-    mkdir -p "$themes_dest/$theme_name"
-    # Using trailing slash on source and dest to ensure contents sync correctly
-    rsync -av --exclude=".git" "$theme_path/" "$themes_dest/$theme_name/"
-    apply_desktop_theme
-    log_success "Theme setup complete."
+    if [[ -f "$cli_dir/bin/zenith" ]]; then
+        chmod +x "$cli_dir/bin/zenith"
+        ln -sfn "$cli_dir/bin/zenith" "$bin_dir/zenith"
+        log_success "Zenith CLI linked to ~/.local/bin/zenith"
+    fi
 }
 
 # Apply the desktop look: Orchis (darker) with Reversal icons.
@@ -255,8 +250,6 @@ sanitize_dotfiles() {
 
 sync_dotfiles() {
     log_step "📁 Syncing configs..."
-    
-    setup_extra_themes
 
     local sync_option="backup"
     if [[ "$JSON_OUTPUT" == "true" || "$JSON_OUTPUT" == "1" ]]; then
@@ -284,41 +277,12 @@ sync_dotfiles() {
         rsync_args="$rsync_args --ignore-existing"
     fi
 
-    # Sync user dotfiles
+    # Sync user dotfiles from dots/
     if [[ -d "$DOTS_DIR/dots" ]]; then
         mkdir -p "$HOME/.config"
         rsync $rsync_args --exclude ".git" --exclude "hypr" "$DOTS_DIR/dots/" "$HOME/.config/"
-    elif [[ -d "$DOTS_DIR/.config" ]]; then
-        mkdir -p "$HOME/.config"
-        rsync $rsync_args --exclude ".git" --exclude "README.md" --exclude "install.sh" "$DOTS_DIR/.config/" "$HOME/.config/"
-        
-        # --- NEW: Conditional copy for hyprlock colors ---
-        if [[ ! -f "$HOME/.config/hyprlock/colors.conf" && -f "$DOTS_DIR/.config/hyprlock/colors.conf" ]]; then
-            mkdir -p "$HOME/.config/hyprlock"
-            cp "$DOTS_DIR/.config/hyprlock/colors.conf" "$HOME/.config/hyprlock/colors.conf"
-            log "Copied initial hyprlock/colors.conf"
-        fi
-
-        # Explicitly ensure zenith-installer is synced if it exists (for post-boot UI)
-        if [[ -d "$DOTS_DIR/.config/zenith-installer" ]]; then
-            mkdir -p "$HOME/.config/zenith-installer"
-            rsync $rsync_args "$DOTS_DIR/.config/zenith-installer/" "$HOME/.config/zenith-installer/"
-        fi
     else
-        log_warn ".config directory not found in $DOTS_DIR"
-    fi
-    
-    # Sync .themes (if applicable for Colors.qml or similar)
-    # ...
-
-    # --- NEW: Conditional copy for zenith-shell/Colors.qml ---
-    # Since zenith-shell is synced via setup_quickshell, we handle it there or here
-    # Assuming it's inside ~/.config/quickshell/zenith-shell/Colors.qml based on usage
-    local quickshell_dir="$HOME/.config/quickshell/zenith-shell"
-    if [[ ! -f "$quickshell_dir/Colors.qml" && -f "$DOTS_DIR/zenith-shell/Colors.qml" ]]; then
-        mkdir -p "$quickshell_dir"
-        cp "$DOTS_DIR/zenith-shell/Colors.qml" "$quickshell_dir/Colors.qml"
-        log "Copied initial Colors.qml"
+        log_warn "dots directory not found in $DOTS_DIR"
     fi
 
 
@@ -336,6 +300,8 @@ sync_dotfiles() {
 
     setup_quickshell
     setup_hyprland_dots
+    setup_zenith_cli
+    apply_desktop_theme
     sanitize_dotfiles
     log_success "Dotfiles synced."
 }
