@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+export PATH="/etc/profiles/per-user/${USER:-$(id -un)}/bin:/run/current-system/sw/bin:$HOME/.nix-profile/bin:/usr/local/bin:/usr/bin:/bin:${PATH:-}"
 
 ACTION="${1:-}"
 DIR="${2:-}"
@@ -64,7 +64,7 @@ brightness)
             NEW_PERC=$(( CUR - STEP ))
             if (( NEW_PERC < 1 )); then NEW_PERC=1; fi
             if (( CUR <= STEP )); then
-                if ! brightnessctl $DEV_FLAG set 0% >/dev/null 2>&1; then
+                if ! brightnessctl $DEV_FLAG set 1% >/dev/null 2>&1; then
                     if [ -n "$SYSFS_BACKLIGHT" ] && [ -w "$SYSFS_BACKLIGHT/brightness" ]; then
                         echo 1 > "$SYSFS_BACKLIGHT/brightness" 2>/dev/null || true
                     fi
