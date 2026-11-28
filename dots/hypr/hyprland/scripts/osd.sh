@@ -46,6 +46,30 @@ brightness)
 
     CUR=$(( (CUR_RAW * 100 + MAX / 2) / MAX ))
 
+    set_backlight_perc() {
+        local target_perc="$1"
+        (( target_perc < 1 )) && target_perc=1
+        (( target_perc > 100 )) && target_perc=100
+        if [ -n "$SYSFS_BACKLIGHT" ]; then
+            local dev_name raw sid spath
+            dev_name="$(basename "$SYSFS_BACKLIGHT")"
+            raw=$(( (target_perc * MAX + 50) / 100 ))
+            (( raw < 1 )) && raw=1
+            if [ -w "$SYSFS_BACKLIGHT/brightness" ] && echo "$raw" > "$SYSFS_BACKLIGHT/brightness" 2>/dev/null; then
+                return 0
+            fi
+            sid="$(loginctl list-sessions --no-legend 2>/dev/null | awk '$4 != "-" && $4 != "" {print $1; exit}')"
+            [ -n "$sid" ] || sid="$(loginctl list-sessions --no-legend 2>/dev/null | awk '{print $1; exit}')"
+            if [ -n "$sid" ]; then
+                spath="$(busctl call org.freedesktop.login1 /org/freedesktop/login1 org.freedesktop.login1.Manager GetSession s "$sid" 2>/dev/null | awk '{print $2}' | tr -d '"')"
+                if [ -n "$spath" ]; then
+                    busctl call org.freedesktop.login1 "$spath" org.freedesktop.login1.Session SetBrightness ssu backlight "$dev_name" "$raw" >/dev/null 2>&1 && return 0
+                fi
+            fi
+        fi
+        return 1
+    }
+
     case "$DIR" in
         up)
             NEW_PERC=$(( CUR + STEP ))
@@ -54,10 +78,7 @@ brightness)
                 brightnessctl $DEV_FLAG set 1% >/dev/null 2>&1 || true
             fi
             if ! brightnessctl $DEV_FLAG set "+${STEP}%" >/dev/null 2>&1; then
-                if [ -n "$SYSFS_BACKLIGHT" ] && [ -w "$SYSFS_BACKLIGHT/brightness" ]; then
-                    NEW_RAW=$(( (NEW_PERC * MAX) / 100 ))
-                    echo "$NEW_RAW" > "$SYSFS_BACKLIGHT/brightness" 2>/dev/null || true
-                fi
+                set_backlight_perc "$NEW_PERC" || true
             fi
             ;;
         down)
@@ -65,16 +86,11 @@ brightness)
             if (( NEW_PERC < 1 )); then NEW_PERC=1; fi
             if (( CUR <= STEP )); then
                 if ! brightnessctl $DEV_FLAG set 1% >/dev/null 2>&1; then
-                    if [ -n "$SYSFS_BACKLIGHT" ] && [ -w "$SYSFS_BACKLIGHT/brightness" ]; then
-                        echo 1 > "$SYSFS_BACKLIGHT/brightness" 2>/dev/null || true
-                    fi
+                    set_backlight_perc 1 || true
                 fi
             else
                 if ! brightnessctl $DEV_FLAG set "${STEP}%-" >/dev/null 2>&1; then
-                    if [ -n "$SYSFS_BACKLIGHT" ] && [ -w "$SYSFS_BACKLIGHT/brightness" ]; then
-                        NEW_RAW=$(( (NEW_PERC * MAX) / 100 ))
-                        echo "$NEW_RAW" > "$SYSFS_BACKLIGHT/brightness" 2>/dev/null || true
-                    fi
+                    set_backlight_perc "$NEW_PERC" || true
                 fi
             fi
             ;;
