@@ -63,6 +63,7 @@ install_pkgs() {
     local batch_size=15
     local total=${#to_install[@]}
     local processed=0
+    local i
     
     for ((i=0; i<total; i+=batch_size)); do
         local batch=("${to_install[@]:i:batch_size}")
@@ -144,12 +145,51 @@ install_aur() {
     done
 }
 
+filter_custom_removals() {
+    local pkg
+    local filtered=()
+    local remove_list=" ${CUSTOM_REMOVE_PKGS:-} "
+    for pkg in "$@"; do
+        if [[ "$remove_list" != *" $pkg "* ]]; then
+            filtered+=("$pkg")
+        else
+            log "Skipping removed package: $pkg"
+        fi
+    done
+    printf '%s\n' "${filtered[@]}"
+}
+
+install_custom_packages() {
+    local add_list="${CUSTOM_ADD_PKGS:-}"
+    [[ -n "${add_list// /}" ]] || return 0
+
+    local pkg
+    local pacman_extra=()
+    local aur_extra=()
+    for pkg in $add_list; do
+        if pacman -Si "$pkg" &>/dev/null; then
+            pacman_extra+=("$pkg")
+        else
+            aur_extra+=("$pkg")
+        fi
+    done
+
+    if [ ${#pacman_extra[@]} -gt 0 ]; then
+        log_step "📦 Installing custom packages (pacman)..."
+        install_pkgs "${pacman_extra[@]}"
+    fi
+    if [ ${#aur_extra[@]} -gt 0 ]; then
+        log_step "✨ Installing custom packages (AUR)..."
+        install_aur "${aur_extra[@]}"
+    fi
+}
+
 install_group() {
     local group=$1
     log "Checking package group: $group"
     
-    local pacman_pkgs=($(get_list "$group" "pacman"))
-    local aur_pkgs=($(get_list "$group" "aur"))
+    local pacman_pkgs=($(filter_custom_removals $(get_list "$group" "pacman")))
+    local aur_pkgs=($(filter_custom_removals $(get_list "$group" "aur")))
 
     if [ ${#pacman_pkgs[@]} -gt 0 ]; then
         log_step "📦 Installing $group (pacman)..."
@@ -197,6 +237,8 @@ install_minimal_packages() {
     # Install Zenith CLI
     install_pkgs "zenith"
 
+    install_custom_packages
+
     mark_done "minimal_packages_installed"
 }
 
@@ -225,6 +267,8 @@ install_remaining_packages() {
     install_group "aur"
     if [[ "${SKIP_EXTRAS:-0}" -eq 0 ]]; then install_group "extras"; fi
 
+    install_custom_packages
+
     mark_done "remaining_packages_installed"
 }
 
@@ -241,7 +285,10 @@ install_new_packages() {
     
     # Iterate through all groups in packages.json and install them
     # get_list already extracts the packages, and install_pkgs/install_aur skip existing ones.
-    local groups=("core" "drivers" "fonts" "gaming" "themes" "recommended" "aur" "extras")
+    local groups=("core" "drivers" "fonts" "themes" "recommended" "aur" "extras")
+    if [[ "${SKIP_GAMING:-1}" -eq 0 ]]; then
+        groups+=("gaming")
+    fi
     for group in "${groups[@]}"; do
         install_group "$group"
     done

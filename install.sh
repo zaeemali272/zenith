@@ -88,7 +88,7 @@ if ! command -v sudo &>/dev/null; then
 fi
 
 # Flags
-export SKIP_GAMING=0
+export SKIP_GAMING=1
 export SKIP_THEMES=0
 export SKIP_RECOMMENDED=0
 export SKIP_EXTRAS=0
@@ -104,6 +104,7 @@ export SKIP_XDG=0
 # Parse Arguments
 for arg in "$@"; do
     case $arg in
+        --gaming) export SKIP_GAMING=0 ;;
         --no-gaming) export SKIP_GAMING=1 ;;
         --no-themes) export SKIP_THEMES=1 ;;
         --no-recommended) export SKIP_RECOMMENDED=1 ;;
@@ -136,7 +137,8 @@ zenith installer
   ./install.sh --force         redo every step, including completed ones
   ./install.sh --reset         forget all recorded state and start over
 
-  --no-gaming --no-themes --no-recommended --no-extras --no-fonts
+  --gaming                     include optional gaming packages (wine, winetricks)
+  --no-themes --no-recommended --no-extras --no-fonts
   --no-scripts --skip-xdg      leave those parts out
   --auto                       no prompts
 
@@ -240,29 +242,76 @@ system_prep() {
     log_success "System preparation complete."
 }
 
-# --- Interactive Script Runner ---
-run_optional_scripts() {
-    log_step "🛠️ Checking for optional scripts..."
-    for script in scripts/*.sh; do
-        [[ -f "$script" ]] || continue
-        script_name=$(basename "$script")
-        
-        if [[ "$AUTO_INSTALL" -eq 1 ]]; then
-             log_step "Auto-skipping optional script: $script_name (Run manually if needed)"
-             continue
-        fi
+export CUSTOM_REMOVE_PKGS="${CUSTOM_REMOVE_PKGS:-}"
+export CUSTOM_ADD_PKGS="${CUSTOM_ADD_PKGS:-}"
 
-        echo -e "
-${BOLD}${CYAN}❓ Would you like to run '$script_name'?${NC}"
-        read -p "(y/n): " choice </dev/tty || choice="n"
-        case "$choice" in
-            [yY]* ) 
-                log_step "Running $script_name..."
-                # Run in a subshell, handle errors without exiting, and ensure no hang
-                (bash "$script" || log_error "$script_name failed.") 
+# --- Interactive Main Package Review ---
+customize_packages() {
+    local mode="${1:-minimal}"
+    [[ -r /dev/tty ]] || return 0
+
+    local main_terminal="kitty"
+    local main_fm="thunar"
+    local main_editor="zed"
+    local main_media="mpv"
+    local main_shell="fish, hyprland, quickshell-git"
+    local main_browsers="zen-browser-bin, thorium-browser-bin"
+    local main_apps="antigravity-bin, freedownloadmanager-bin, pear-desktop-bin, element-desktop"
+
+    while true; do
+        echo ""
+        echo -e "${BOLD}${CYAN}📦 Main Packages ($mode install):${NC}"
+        echo -e "  ${BOLD}Terminal:${NC}     $main_terminal"
+        echo -e "  ${BOLD}File Manager:${NC} $main_fm"
+        echo -e "  ${BOLD}Editor:${NC}       $main_editor"
+        echo -e "  ${BOLD}Media:${NC}        $main_media"
+        echo -e "  ${BOLD}Shell / WM:${NC}   $main_shell"
+        if [[ "$mode" != "minimal" ]]; then
+            echo -e "  ${BOLD}Browsers:${NC}     $main_browsers"
+            echo -e "  ${BOLD}Apps:${NC}         $main_apps"
+        fi
+        [[ -n "${CUSTOM_REMOVE_PKGS// /}" ]] && echo -e "  ${YELLOW}Removed:${NC}      $CUSTOM_REMOVE_PKGS"
+        [[ -n "${CUSTOM_ADD_PKGS// /}" ]] && echo -e "  ${GREEN}Added:${NC}        $CUSTOM_ADD_PKGS"
+        echo ""
+        echo -e "${BOLD}Do you want to change, remove, or add any packages?${NC}"
+        echo "  [Enter] Continue with installation"
+        echo "  [1] Change / swap a package (e.g. thunar -> dolphin)"
+        echo "  [2] Remove package(s)"
+        echo "  [3] Add package(s)"
+        read -p "> " pkg_action </dev/tty || pkg_action=""
+
+        case "$pkg_action" in
+            ""|c|C|n|N)
+                break
                 ;;
-            * ) 
-                log_step "Skipping $script_name." 
+            1)
+                read -p "Package to replace: " old_pkg </dev/tty || old_pkg=""
+                read -p "New package name: " new_pkg </dev/tty || new_pkg=""
+                if [[ -n "$old_pkg" && -n "$new_pkg" ]]; then
+                    CUSTOM_REMOVE_PKGS="$CUSTOM_REMOVE_PKGS $old_pkg"
+                    CUSTOM_ADD_PKGS="$CUSTOM_ADD_PKGS $new_pkg"
+                    export CUSTOM_REMOVE_PKGS CUSTOM_ADD_PKGS
+                    log_success "Will replace '$old_pkg' with '$new_pkg'."
+                fi
+                ;;
+            2)
+                read -p "Package(s) to remove (space-separated): " rm_pkgs </dev/tty || rm_pkgs=""
+                if [[ -n "$rm_pkgs" ]]; then
+                    CUSTOM_REMOVE_PKGS="$CUSTOM_REMOVE_PKGS $rm_pkgs"
+                    export CUSTOM_REMOVE_PKGS
+                    log_success "Will skip: $rm_pkgs"
+                fi
+                ;;
+            3)
+                read -p "Package(s) to add (space-separated): " add_pkgs </dev/tty || add_pkgs=""
+                if [[ -n "$add_pkgs" ]]; then
+                    CUSTOM_ADD_PKGS="$CUSTOM_ADD_PKGS $add_pkgs"
+                    export CUSTOM_ADD_PKGS
+                    log_success "Will add: $add_pkgs"
+                fi
+                ;;
+            *)
+                log_warn "Invalid choice. Press Enter to continue or choose 1, 2, or 3."
                 ;;
         esac
     done
@@ -270,6 +319,7 @@ ${BOLD}${CYAN}❓ Would you like to run '$script_name'?${NC}"
 
 # --- Feature Groups ---
 minimal_install() {
+    customize_packages "minimal"
     init_sudo
     pre_network_fix
     run_step "system_prep" "Preparing the system (mirrors)" system_prep
@@ -290,6 +340,7 @@ ${YELLOW}${BOLD}Rebooting in 10s... (Press Ctrl+C to cancel)${NC}"
 }
 
 full_install() {
+    customize_packages "full"
     init_sudo
     pre_network_fix
     run_step "system_prep" "Preparing the system (mirrors)" system_prep
@@ -308,17 +359,6 @@ full_install() {
     run_step "setup_autologin" "Configuring autologin" setup_autologin
     run_step "apply_desktop_theme" "Applying the desktop theme" apply_desktop_theme
     run_step "optimize_bootloader" "Optimising the bootloader" optimize_bootloader
-    
-    echo -e "
-${BOLD}${CYAN}❓ Would you like to install extra themes, animations and wallpapers?${NC}"
-    read -p "(y/n): " choice </dev/tty || choice="n"
-    if [[ "$choice" =~ ^[yY] ]]; then
-        setup_extra_assets
-    fi
-
-    if [[ "$SKIP_SCRIPTS" -eq 0 ]]; then
-        run_optional_scripts
-    fi
     restore_dns
     
     print_summary || true
@@ -329,6 +369,7 @@ ${YELLOW}${BOLD}Rebooting in 10s... (Press Ctrl+C to cancel)${NC}"
 }
 
 packages_only() {
+    customize_packages "packages"
     init_sudo
     run_step "system_prep" "Preparing the system (mirrors)" system_prep
     run_step "detect_hardware" "Detecting hardware" detect_hardware
@@ -345,123 +386,6 @@ configs_only() {
     fi
     log_success "Configuration sync complete."
     run_step "apply_desktop_theme" "Applying the desktop theme" apply_desktop_theme
-}
-
-run_specific_script() {
-    # Populate script_files and script_display_names, excluding post_boot_install.sh
-    for s in scripts/*.sh; do
-        if [[ -f "$s" ]]; then
-            script_name=$(basename "$s")
-            if [[ "$script_name" != "post_boot_install.sh" ]]; then
-                script_files+=("$s")
-                script_display_names+=("$script_name")
-            fi
-        fi
-    done
-
-    if [[ ${#script_files[@]} -eq 0 ]]; then
-        log_warn "No other .sh scripts found in scripts/ directory to run specifically."
-        return
-    fi
-
-    # Display scripts with their indices for user selection
-    echo -e "
-Available scripts:"
-    for i in "${!script_display_names[@]}"; do
-        printf "  %d) %s
-" "$((i + 1))" "${script_display_names[i]}"
-    done
-    echo ""
-
-    echo -e "${BOLD}${CYAN}Enter script numbers or ranges (e.g., '1 3-5 7'):${NC}"
-    read -p "> " script_selection_input </dev/tty || { echo -e "${RED}Input read error.${NC}"; return 1; }
-
-    # --- Parse and Execute Scripts ---
-    declare -a scripts_to_run_indices=() # Stores 0-based indices of scripts to run
-    
-    # Replace commas with spaces to treat both as separators, then process
-    local sanitized_input=$(echo "$script_selection_input" | tr ',' ' ')
-    
-    # Split the sanitized input by whitespace, ensuring each part is processed individually
-    local IFS=$'
-'
-    local input_parts=($(echo "$sanitized_input" | xargs -n1))
-
-    for part in "${input_parts[@]}"; do
-        # Trim whitespace from the part (already handled by xargs -n1, but good practice)
-        part=$(echo "$part" | xargs) 
-
-        if [[ -z "$part" ]]; then
-            continue # Skip empty parts
-        fi
-
-        if [[ "$part" =~ ^([0-9]+)-([0-9]+)$ ]]; then
-            # It's a range like "1-5"
-            local start_num=${BASH_REMATCH[1]}
-            local end_num=${BASH_REMATCH[2]}
-
-            # Convert to 0-based indices for array access
-            local start_index=$((start_num - 1))
-            local end_index=$((end_num - 1))
-
-            # Validate range
-            if [[ "$start_index" -lt 0 || "$end_index" -ge "${#script_files[@]}" || "$start_index" -gt "$end_index" ]]; then
-                log_warn "Invalid range '$part'. Please use numbers between 1 and ${#script_files[@]}."
-                continue
-            fi
-
-            # Add all indices in the range to the list
-            for ((i=$start_index; i<=$end_index; i++)); do
-                scripts_to_run_indices+=("$i")
-            done
-        elif [[ "$part" =~ ^[0-9]+$ ]]; then
-            # It's a single number
-            local script_index=$((part - 1))
-
-            # Validate number
-            if [[ "$script_index" -lt 0 || "$script_index" -ge "${#script_files[@]}" ]]; then
-                log_warn "Invalid script number '$part'. Please use numbers between 1 and ${#script_files[@]}."
-                continue
-            fi
-            scripts_to_run_indices+=("$script_index")
-        else
-            log_warn "Invalid input format '$part'. Please use numbers or ranges (e.g., '1 3-5')."
-        fi
-    done
-
-    # Remove duplicate indices and sort them to ensure execution order is predictable and avoid re-running
-    # Use process substitution with sort for efficiency and to handle potential newlines in array elements if they were complex.
-    local IFS=$'
-'
-    local sorted_indices=($(printf "%s
-" "${scripts_to_run_indices[@]}" | sort -nu))
-    scripts_to_run_indices=("${sorted_indices[@]}")
-
-    if [[ ${#scripts_to_run_indices[@]} -eq 0 ]]; then
-        log_warn "No valid scripts selected or found."
-        echo -e "\n${GREEN}Returning to menu...${NC}"
-        read -p "Press Enter to continue..." </dev/tty
-        return 0 # Exit this function, effectively returning to the main menu loop
-    fi
-
-    # Execute the selected scripts
-    for index in "${scripts_to_run_indices[@]}"; do
-        local selected_script="${script_files[$index]}"
-        local script_name=$(basename "$selected_script")
-        log_step "Running script: '$script_name'..."
-        
-        # Execute the script. If it fails, log an error but continue to the next script.
-        if bash "$selected_script"; then
-            log_success "'$script_name' finished successfully."
-        else
-            # The error handler trap should catch most bash errors, but this provides a final message if the script exits non-zero.
-            log_error "'$script_name' failed. Continuing with the next script."
-        fi
-    done
-
-    echo -e "\n${GREEN}All selected scripts execution completed.${NC}"
-    read -p "Press Enter to return to the menu..." </dev/tty
-    return 0
 }
 
 # --- Main Flow ---
@@ -484,37 +408,27 @@ fi
 while true; do
     print_header
     options=(
-        "Minimal Installation (Recommended: Base system + Post-boot GUI installer)" # index 0
-        "Run Post-Boot Install Script Directly (scripts/post_boot_install.sh)"      # index 1 (NEW)
-        "Full Installation (The Complete Zenith Experience, all at once)"             # index 2
-        "Packages Only (Install all system and AUR packages)"                       # index 3
-        "Configs Only (Sync dotfiles)"                                              # index 4
-        "Setup Quickshell (Clone/Sync Zenith-Shell for Quickshell)"                 # index 5
-        "Setup Extra Assets (Animations and Wallpapers)"                            # index 6
-        "Run Specific Script (Select from scripts/ directory)"                      # index 7
-        "Exit"                                                                      # index 8
+        "Minimal Installation (Recommended: Base system + Post-boot GUI installer)"
+        "Full Installation (The Complete Zenith Experience, all at once)"
+        "Packages Only (Install system and AUR packages)"
+        "Configs Only (Sync dotfiles & apply theme)"
+        "Setup Quickshell (Clone/Sync Zenith-Shell for Quickshell)"
+        "Exit"
     )
 
     ask_choice "Welcome, $USER. What would you like to do?" "${options[@]}"
 
     case $MENU_CHOICE in
         0) minimal_install; break ;;
-        1) bash "$DOTS_DIR/scripts/post_boot_install.sh"; break ;; # Execute post_boot_install.sh directly
-        2) full_install; break ;;
-        3) packages_only; break ;;
-        4) configs_only; break ;;
-        5) 
+        1) full_install; break ;;
+        2) packages_only; break ;;
+        3) configs_only; break ;;
+        4)
             setup_quickshell
             echo -e "\n${GREEN}Press Enter to return to the menu...${NC}"
             read -r </dev/tty
             ;;
-        6)
-            setup_extra_assets
-            echo -e "\n${GREEN}Press Enter to return to the menu...${NC}"
-            read -r </dev/tty
-            ;;
-        7) run_specific_script || true ;;
-        8) log_step "Exiting. Have a great day!"; exit 0 ;;
+        5) log_step "Exiting. Have a great day!"; exit 0 ;;
     esac
 
 done

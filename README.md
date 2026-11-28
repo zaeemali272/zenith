@@ -123,7 +123,7 @@ You can customize the installer by passing flags:
 ```bash
 ./install.sh --auto           # Unattended mode with sensible defaults
 ./install.sh --configs        # Only link dotfiles without modifying system packages
-./install.sh --no-gaming      # Skip Steam, Lutris, and gaming utilities
+./install.sh --gaming         # Include optional gaming packages (wine, winetricks)
 ./install.sh --no-themes      # Skip optional external themes
 ./install.sh --status         # Check installer completion status
 ./install.sh --force          # Re-run all steps from scratch

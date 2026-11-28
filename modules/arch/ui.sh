@@ -197,7 +197,7 @@ show_progress() {
         local filled=$((percent / 2))
 
         # Generate bar without using seq (to avoid set -e issues with 0)
-        local bar=""
+        local i bar=""
         for ((i=0; i<filled; i++)); do bar+="#"; done
 
         printf "\r${CYAN}${BOLD}[%-50s] %d%% ${WHITE}%s${NC}" "$bar" "$percent" "$label"

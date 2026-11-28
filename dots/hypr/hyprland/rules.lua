@@ -301,6 +301,15 @@ hl.window_rule({
     no_shadow = true,
 })
 
+-- Fullscreen virtual machine viewers: edge-to-edge with zero borders or rounding
+hl.window_rule({
+    match = { class = "virt-manager|\\.virt-manager-wrapped|org\\.virt-manager\\.virt-manager|remote-viewer|\\.remote-viewer-wrapped|virt-viewer|qemu|qemu-system-.*", fullscreen = true },
+    rounding = 0,
+    border_size = 0,
+    no_shadow = true,
+    no_anim = true,
+})
+
 -------------------------
 ---- Workspace rules ----
 -------------------------
