@@ -298,8 +298,6 @@ hl.window_rule({
     match = { class = "virt-manager|\\.virt-manager-wrapped|org\\.virt-manager\\.virt-manager|remote-viewer|\\.remote-viewer-wrapped|virt-viewer|qemu|qemu-system-.*" },
     opaque = true,
     idle_inhibit = "fullscreen",
-    border_size = 0,
-    rounding = 0,
     no_shadow = true,
 })
 
@@ -323,14 +321,13 @@ hl.layer_rule({ match = { namespace = "wayfreeze" }, animation = "fade" })
 hl.layer_rule({ match = { namespace = "launcher" }, animation = "popin 80%", blur = true, ignore_alpha = 0.5 })
 
 -- Layer rules from your config
-hl.layer_rule({ match = { namespace = ".*" }, xray = true })
 hl.layer_rule({ match = { namespace = "(walker|selection|overview|anyrun|indicator.*|osk|hyprpicker|noanim)" }, animation = "noanim" })
 hl.layer_rule({ match = { namespace = "(gtk-layer-shell|notifications|osd)" }, blur = true })
 hl.layer_rule({ match = { namespace = "(notifications|osd)" }, ignore_alpha = 0.69 })
 hl.layer_rule({ match = { namespace = "gtk4-layer-shell" }, animation = "noanim" })
 
 -- Zenith Shell surfaces (0-latency: custom fluid physics handled inside Quickshell)
-hl.layer_rule({ match = { namespace = "(controlcenter|quicksettings|zenith-menu|zenith-dynamic-island-overlay)" }, no_anim = true, blur = true, ignore_alpha = 0.5 })
+hl.layer_rule({ match = { namespace = "(controlcenter|quicksettings|zenith-menu|zenith-cheatsheet|zenith-dynamic-island-overlay)" }, no_anim = true, blur = true, ignore_alpha = 0.69 })
 hl.layer_rule({ match = { namespace = "dismiss_overlay" }, no_anim = true })
 hl.layer_rule({ match = { namespace = "(zenith|quickshell|caelestia|ii)-(border-exclusion|area-picker)" }, no_anim = true })
 hl.layer_rule({ match = { namespace = "(zenith|quickshell|caelestia|ii)-(drawers|background)" }, animation = "fade" })
