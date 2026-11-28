@@ -6,7 +6,9 @@ if status is-interactive
 end
 
 # Enable Starship prompt
-starship init fish | source
+if type -q starship
+    starship init fish | source
+end
 
 if test -z "$DISPLAY" -a (tty) = "/dev/tty1"
     exec start-hyprland >/dev/null 2>&1
